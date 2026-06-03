@@ -3,6 +3,7 @@ import react from "@vitejs/plugin-react";
 import path from "path";
 
 export default defineConfig({
+  base: "/",
   plugins: [react()],
   resolve: {
     alias: {
@@ -13,6 +14,9 @@ export default defineConfig({
     outDir: "dist",
     sourcemap: false,
     chunkSizeWarningLimit: 1000,
+  },
+  server: {
+    middlewareMode: true
   },
   optimizeDeps: {
     exclude: ["three"]
