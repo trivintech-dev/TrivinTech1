@@ -1,0 +1,14 @@
+.hero {
+  display: grid;
+  gap: 2rem;
+  align-items: center;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+.heroCard {
+  border-radius: 24px;
+  background: linear-gradient(180deg, rgba(8, 17, 32, 0.96), rgba(5, 12, 24, 0.9));
+  padding: 32px;
+  box-shadow: 0 24px 60px rgba(2, 8, 20, 0.45);
+  border: 1px solid rgba(110, 231, 255, 0.16);
+}
