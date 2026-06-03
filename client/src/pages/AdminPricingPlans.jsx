@@ -79,7 +79,7 @@ const AdminPricingPlans = () => {
                     <form onSubmit={handleSubmit} className="mt-6 grid gap-4 md:grid-cols-2">
                         <input placeholder="Plan name" value={form.name} onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))} className="rounded-xl border border-slate-600 bg-slate-700 px-3 py-2 text-white placeholder-slate-400 focus:border-cyan-500 focus:outline-none" required />
                         <input placeholder="Price" value={form.price} onChange={(event) => setForm((prev) => ({ ...prev, price: event.target.value }))} className="rounded-xl border border-slate-600 bg-slate-700 px-3 py-2 text-white placeholder-slate-400 focus:border-cyan-500 focus:outline-none" required />
-                        <textarea placeholder="Description" value={form.description} onChange={(event) => setForm((prev) => ({ ...prev, description: event.target.value }))} className="min-h-28 rounded-xl border border-slate-600 bg-slate-700 px-3 py-2 text-white placeholder-slate-400 focus:border-cyan-500 focus:outline-none md:col-span-2" required />
+                        <textarea placeholder="Description" value={form.description} onChange={(event) => setForm((prev) => ({ ...prev, description: event.target.value }))} className="min-h-28 rounded-xl border border-slate-600 bg-slate-700 px-3 py-2 text-white placeholder-slate-400 focus:border-cyan-500 focus:outline-none md:col-span-2" required></textarea>
                         <input placeholder="Badge text" value={form.badge} onChange={(event) => setForm((prev) => ({ ...prev, badge: event.target.value }))} className="rounded-xl border border-slate-600 bg-slate-700 px-3 py-2 text-white placeholder-slate-400 focus:border-cyan-500 focus:outline-none" />
                         <input placeholder="Ideal for" value={form.idealFor} onChange={(event) => setForm((prev) => ({ ...prev, idealFor: event.target.value }))} className="rounded-xl border border-slate-600 bg-slate-700 px-3 py-2 text-white placeholder-slate-400 focus:border-cyan-500 focus:outline-none" />
                         <input placeholder="Order" type="number" value={form.order} onChange={(event) => setForm((prev) => ({ ...prev, order: event.target.value }))} className="rounded-xl border border-slate-600 bg-slate-700 px-3 py-2 text-white placeholder-slate-400 focus:border-cyan-500 focus:outline-none" />
@@ -91,7 +91,7 @@ const AdminPricingPlans = () => {
                             <input type="checkbox" checked={form.isActive} onChange={(event) => setForm((prev) => ({ ...prev, isActive: event.target.checked }))} className="h-4 w-4 rounded border-slate-500 bg-slate-600" />
                             Active on site
                         </label>
-                        <textarea placeholder="Features, one per line" value={form.features} onChange={(event) => setForm((prev) => ({ ...prev, features: event.target.value }))} className="min-h-28 rounded-xl border border-slate-600 bg-slate-700 px-3 py-2 text-white placeholder-slate-400 focus:border-cyan-500 focus:outline-none md:col-span-2" />
+                        <textarea placeholder="Features, one per line" value={form.features} onChange={(event) => setForm((prev) => ({ ...prev, features: event.target.value }))} className="min-h-28 rounded-xl border border-slate-600 bg-slate-700 px-3 py-2 text-white placeholder-slate-400 focus:border-cyan-500 focus:outline-none md:col-span-2"></textarea>
                         <button type="submit" className="button-primary md:col-span-2">{editingId ? "Update pricing plan" : "Add pricing plan"}</button>
                         {editingId ? (
                             <button type="button" onClick={() => { setEditingId(null); setForm(emptyForm); }} className="button-outline md:col-span-2">Cancel edit</button>
@@ -99,7 +99,7 @@ const AdminPricingPlans = () => {
                     </form>
                 </div>
 
-            <div className="grid gap-4 md:grid-cols-2">
+                <div className="grid gap-4 md:grid-cols-2">
                 {pricingPlans.map((pricingPlan) => (
                     <div key={pricingPlan._id} className="rounded-3xl border border-slate-700 bg-slate-800 p-6 shadow-lg">
                         <div className="flex items-start justify-between gap-4">
@@ -129,6 +129,7 @@ const AdminPricingPlans = () => {
                         </div>
                     </div>
                 ))}
+                </div>
             </div>
         </div>
     );
