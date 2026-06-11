@@ -93,14 +93,14 @@ const ContactUs = () => {
   ];
 
   const socials = [
-    { label: "LinkedIn", href: "https://www.linkedin.com", icon: Linkedin },
-    { label: "Instagram", href: "https://www.instagram.com", icon: Instagram },
+    { label: "LinkedIn", href: "https://www.linkedin.com/company/trivintechnologies/", icon: Linkedin },
+    { label: "Instagram", href: "https://www.instagram.com/trivin.ai?igsh=OGxjdnd1b3BqOTdh", icon: Instagram },
     { label: "Facebook", href: "https://www.facebook.com", icon: Facebook },
     { label: "GitHub", href: "https://github.com", icon: Github }
   ];
 
   return (
-    <div className="space-y-8 pt-20 sm:pt-24 lg:pt-32">
+    <main className="space-y-12 pt-28 sm:pt-32 lg:pt-40">
       <HeroBanner
         eyebrow="Contact us"
         title="Let’s build something amazing together."
@@ -110,10 +110,10 @@ const ContactUs = () => {
         background={<ContactHeroBackground />}
       />
 
-      <section className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-        <div className="rounded-2xl border border-gray-100/15 bg-white p-6 shadow-sm">
-          <div className="flex items-center gap-3 text-brand"><Phone className="h-5 w-5" /><h3 className="font-heading text-lg font-semibold text-ink">Phone Number</h3></div>
-          <p className="mt-4 text-sm text-gray-600">+91 8979510012</p>
+      <section className="grid gap-3 sm:gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <div className="rounded-lg sm:rounded-2xl border border-gray-100/15 bg-white p-4 sm:p-6 shadow-sm">
+          <div className="flex items-center gap-2 sm:gap-3 text-brand"><Phone className="h-4 w-4 sm:h-5 sm:w-5" /><h3 className="font-heading text-base sm:text-lg font-semibold text-ink">Phone Number</h3></div>
+          <p className="mt-2 sm:mt-4 text-xs sm:text-sm text-gray-600">+91 8979510012</p>
         </div>
         <div className="rounded-2xl border border-gray-100/15 bg-white p-6 shadow-sm">
           <div className="flex items-center gap-3 text-brand"><Mail className="h-5 w-5" /><h3 className="font-heading text-lg font-semibold text-ink">Email Address</h3></div>
@@ -129,32 +129,32 @@ const ContactUs = () => {
         </div>
       </section>
 
-      <section className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
-        <div id="contact-form" className="rounded-2xl border border-gray-100/15 bg-white p-6 shadow-sm sm:p-8">
+      <section className="grid gap-4 sm:gap-6 lg:grid-cols-[1.05fr_0.95fr]">
+        <div id="contact-form" className="rounded-lg sm:rounded-2xl border border-gray-100/15 bg-white p-4 sm:p-6 lg:p-8 shadow-sm">
           <SectionHeading title="Contact form" subtitle="Lead generation" />
-          <div className="grid gap-4 sm:grid-cols-2">
-            <input value={form.fullName} onChange={updateField("fullName")} placeholder="Full Name" className="rounded-xl border border-gray-200 px-3 py-2" />
-            <input value={form.email} onChange={updateField("email")} type="email" placeholder="Email Address" className="rounded-xl border border-gray-200 px-3 py-2" />
-            <input value={form.phone} onChange={updateField("phone")} placeholder="Phone Number" className="rounded-xl border border-gray-200 px-3 py-2" />
-            <input value={form.companyName} onChange={updateField("companyName")} placeholder="Company Name" className="rounded-xl border border-gray-200 px-3 py-2" />
-            <input value={form.serviceNeeded} onChange={updateField("serviceNeeded")} placeholder="Service Needed" className="rounded-xl border border-gray-200 px-3 py-2" />
-            <input value={form.budgetRange} onChange={updateField("budgetRange")} placeholder="Budget Range" className="rounded-xl border border-gray-200 px-3 py-2" />
+          <div className="grid gap-2 sm:gap-3 sm:gap-4 sm:grid-cols-2">
+            <input value={form.fullName} onChange={updateField("fullName")} placeholder="Full Name" className="rounded-lg sm:rounded-xl border border-gray-200 px-2.5 sm:px-3 py-1.5 sm:py-2 text-sm" />
+            <input value={form.email} onChange={updateField("email")} type="email" placeholder="Email Address" className="rounded-lg sm:rounded-xl border border-gray-200 px-2.5 sm:px-3 py-1.5 sm:py-2 text-sm" />
+            <input value={form.phone} onChange={updateField("phone")} placeholder="Phone Number" className="rounded-lg sm:rounded-xl border border-gray-200 px-2.5 sm:px-3 py-1.5 sm:py-2 text-sm" />
+            <input value={form.companyName} onChange={updateField("companyName")} placeholder="Company Name" className="rounded-lg sm:rounded-xl border border-gray-200 px-2.5 sm:px-3 py-1.5 sm:py-2 text-sm" />
+            <input value={form.serviceNeeded} onChange={updateField("serviceNeeded")} placeholder="Service Needed" className="rounded-lg sm:rounded-xl border border-gray-200 px-2.5 sm:px-3 py-1.5 sm:py-2 text-sm" />
+            <input value={form.budgetRange} onChange={updateField("budgetRange")} placeholder="Budget Range" className="rounded-lg sm:rounded-xl border border-gray-200 px-2.5 sm:px-3 py-1.5 sm:py-2 text-sm" />
           </div>
-          <textarea value={form.message} onChange={updateField("message")} rows={5} placeholder="Message" className="mt-4 w-full rounded-xl border border-gray-200 px-3 py-2" />
-          <div className="mt-4 flex flex-wrap gap-3">
-            <button type="button" onClick={() => submitInquiry("Send Message")} className="button-primary">Send Message</button>
-            <button type="button" onClick={() => submitInquiry("Get Free Quote")} className="button-outline">Get Free Quote</button>
+          <textarea value={form.message} onChange={updateField("message")} rows={5} placeholder="Message" className="mt-3 sm:mt-4 w-full rounded-lg sm:rounded-xl border border-gray-200 px-2.5 sm:px-3 py-1.5 sm:py-2 text-sm" />
+          <div className="mt-3 sm:mt-4 flex flex-wrap gap-2 sm:gap-3">
+            <button type="button" onClick={() => submitInquiry("Send Message")} className="button-primary text-sm">Send Message</button>
+            <button type="button" onClick={() => submitInquiry("Get Free Quote")} className="button-outline text-sm">Get Free Quote</button>
           </div>
-          {status && <p className={`mt-4 text-sm ${status.type === "error" ? "text-red-600" : "text-green-600"}`}>{status.text}</p>}
+          {status && <p className={`mt-3 sm:mt-4 text-xs sm:text-sm ${status.type === "error" ? "text-red-600" : "text-green-600"}`}>{status.text}</p>}
         </div>
 
-        <div className="space-y-6">
-          <div className="rounded-2xl border border-gray-100/15 bg-slate-950/40 p-6 shadow-sm">
+        <div className="space-y-4 sm:space-y-6">
+          <div className="rounded-lg sm:rounded-2xl border border-gray-100/15 bg-slate-950/40 p-4 sm:p-6 shadow-sm">
             <SectionHeading title="Quick inquiry cards" subtitle="Fast actions" />
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-2 sm:gap-3 sm:gap-4 sm:grid-cols-2">
               {quickActions.map(({ title, icon: Icon, href, external }) => (
-                <a key={title} href={href} target={external ? "_blank" : undefined} rel={external ? "noreferrer" : undefined} className="rounded-2xl border border-gray-100/15 bg-white p-4 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
-                  <div className="flex items-center gap-3 text-brand"><Icon className="h-5 w-5" /><span className="font-heading text-base font-semibold text-ink">{title}</span></div>
+                <a key={title} href={href} target={external ? "_blank" : undefined} rel={external ? "noreferrer" : undefined} className="rounded-lg sm:rounded-2xl border border-gray-100/15 bg-white p-3 sm:p-4 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
+                  <div className="flex items-center gap-2 sm:gap-3 text-brand"><Icon className="h-4 w-4 sm:h-5 sm:w-5" /><span className="font-heading text-sm sm:text-base font-semibold text-ink">{title}</span></div>
                 </a>
               ))}
             </div>
@@ -239,7 +239,7 @@ const ContactUs = () => {
           <Link to="/login" className="button-primary mt-6 inline-flex">Login</Link>
         </section>
       )}
-    </div>
+    </main>
   );
 };
 

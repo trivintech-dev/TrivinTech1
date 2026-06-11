@@ -17,10 +17,10 @@ const Investor = () => {
     ];
 
     return (
-        <div className="space-y-12 pt-20 sm:pt-24 lg:pt-32">
+        <div className="space-y-12 pt-28 sm:pt-32 lg:pt-40">
             <HeroBanner
                 eyebrow="Investor relations"
-                title="A dedicated view into TRIVIN TECHNOLOY's growth, financial position, and strategy."
+                title="A dedicated view into TRIVIN's growth, financial position, and strategy."
                 description="Review our operating model, growth drivers, reporting materials, and investor resources in one place."
                 primaryAction={
                     <a href="#investment-highlights" className="button-primary">
@@ -39,7 +39,7 @@ const Investor = () => {
                 <section id="company-overview" className="mb-8">
                     <SectionHeading subtitle="Overview" title="Company overview" />
                     <p className="text-sm text-gray-600">
-                        TRIVIN TECHNOLOY provides product design, engineering, and platform support services
+                        TRIVIN provides product design, engineering, and platform support services
                         for teams that need to launch faster and operate more reliably. Our model is built to
                         create recurring client relationships, expand engagement depth, and support long-term
                         value creation.

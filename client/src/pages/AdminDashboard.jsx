@@ -10,6 +10,7 @@ import {
   ChevronRight,
   Clock3,
   FileText,
+  Image,
   Layers3,
   MessageSquareMore,
   Menu,
@@ -18,7 +19,8 @@ import {
   Sparkles,
   UploadCloud,
   X,
-  Users
+  Users,
+  BookOpen
 } from "lucide-react";
 import {
   Bar,
@@ -41,13 +43,21 @@ const navigationItems = [
   { label: "Activity", to: "/admin/activity", icon: Activity },
   { label: "Reports", to: "/admin/reports", icon: FileText },
   { label: "Services", to: "/admin/services", icon: Layers3 },
+  { label: "Features", to: "/admin/features", icon: Sparkles },
   { label: "Jobs", to: "/admin/jobs", icon: BriefcaseBusiness },
+  { label: "Internships", to: "/admin/internships", icon: BookOpen },
+  { label: "Portfolio", to: "/admin/portfolio", icon: Image },
+  { label: "Testimonials", to: "/admin/testimonials", icon: MessageSquareMore },
   { label: "Queries", to: "/admin/queries", icon: MessageSquareMore }
 ];
 
 const resourceCards = [
   { title: "Services", description: "Manage service offerings and presentation cards.", to: "/admin/services", icon: Layers3 },
+  { title: "Features", description: "Manage feature cards with icons and descriptions.", to: "/admin/features", icon: Sparkles },
   { title: "Jobs", description: "Create and update job requirements.", to: "/admin/jobs", icon: BriefcaseBusiness },
+  { title: "Internships", description: "Manage internship opportunities and positions.", to: "/admin/internships", icon: BookOpen },
+  { title: "Portfolio", description: "Manage portfolio projects with image uploads.", to: "/admin/portfolio", icon: Image },
+  { title: "Testimonials", description: "Manage customer testimonials and reviews.", to: "/admin/testimonials", icon: MessageSquareMore },
   { title: "Workflow", description: "Edit process steps shown across the site.", to: "/admin/workflow", icon: Sparkles },
   { title: "Trusted Clients", description: "Maintain the client trust section.", to: "/admin/trusted-clients", icon: Building2 },
   { title: "Pricing Plans", description: "Manage pricing cards and package labels.", to: "/admin/pricing-plans", icon: BarChart3 },

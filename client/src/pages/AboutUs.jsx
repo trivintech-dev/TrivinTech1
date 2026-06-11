@@ -4,10 +4,10 @@ import AboutHeroBackground from "../components/ui/AboutHeroBackground.jsx";
 
 const AboutUs = () => {
   return (
-    <div className="space-y-12 pt-20 sm:pt-24 lg:pt-32">
+    <main className="space-y-12 pt-28 sm:pt-32 lg:pt-40">
       <HeroBanner
         eyebrow="About us"
-        title="TRIVIN TECHNOLOY is a product and technology company built around execution, clarity, and long-term partnerships."
+        title="TRIVIN is a product and technology company built around execution, clarity, and long-term partnerships."
         description="We design, build, and support digital products with a delivery model that keeps strategy, engineering, and care tightly connected."
         primaryAction={
           <a href="#company-story" className="button-primary">
@@ -26,7 +26,7 @@ const AboutUs = () => {
         <section id="company-story" className="prose mx-auto mb-8">
           <SectionHeading subtitle="Who we are" title="Company story" />
           <p>
-            Founded to help teams ship with confidence, TRIVIN TECHNOLOY blends pragmatic
+            Founded to help teams ship with confidence, TRIVIN blends pragmatic
             engineering, product thinking, and design craft. We work across discovery, delivery,
             and ongoing improvement so our clients get one partner from idea to scale.
           </p>
@@ -179,7 +179,7 @@ const AboutUs = () => {
           </div>
         </section>
       </main>
-    </div>
+    </main>
   );
 };
 

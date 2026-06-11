@@ -12,6 +12,10 @@ import workflowRoutes from "./routes/workflow.routes.js";
 import trustedClientRoutes from "./routes/trustedClient.routes.js";
 import pricingPlanRoutes from "./routes/pricingPlan.routes.js";
 import employeeRoutes from "./routes/employee.routes.js";
+import portfolioRoutes from "./routes/portfolio.routes.js";
+import testimonialRoutes from "./routes/testimonial.routes.js";
+import featureRoutes from "./routes/feature.routes.js";
+import internshipRoutes from "./routes/internship.routes.js";
 import { errorHandler, notFound } from "./middleware/error.js";
 
 const app = express();
@@ -40,6 +44,10 @@ app.use("/api/workflow-steps", workflowRoutes);
 app.use("/api/trusted-clients", trustedClientRoutes);
 app.use("/api/pricing-plans", pricingPlanRoutes);
 app.use("/api/employees", employeeRoutes);
+app.use("/api/portfolio", portfolioRoutes);
+app.use("/api/testimonials", testimonialRoutes);
+app.use("/api/features", featureRoutes);
+app.use("/api/internships", internshipRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

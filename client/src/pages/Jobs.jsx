@@ -25,12 +25,14 @@ import {
   Sparkles,
   Star,
   Users,
-  Zap
+  Zap,
+  Plus
 } from "lucide-react";
 import api from "../api/api.js";
 import { useAuth } from "../context/AuthContext.jsx";
 import HeroBanner from "../components/HeroBanner.jsx";
 import JobCard from "../components/JobCard.jsx";
+import InternshipCard from "../components/InternshipCard.jsx";
 import SectionHeading from "../components/SectionHeading.jsx";
 import CareersHeroBackground from "../components/ui/CareersHeroBackground.jsx";
 
@@ -287,8 +289,9 @@ const faqs = [
 ];
 
 const Jobs = () => {
-  const { token } = useAuth();
+  const { token, isAdmin } = useAuth();
   const [jobs, setJobs] = useState([]);
+  const [internships, setInternships] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedType, setSelectedType] = useState("All");
   const [status, setStatus] = useState(null);
@@ -306,11 +309,25 @@ const Jobs = () => {
 
   useEffect(() => {
     const fetchJobs = async () => {
-      const { data } = await api.get("/jobs");
-      setJobs(data.jobs);
+      try {
+        const { data } = await api.get("/jobs");
+        setJobs(data.jobs);
+      } catch (error) {
+        console.error("Error fetching jobs:", error);
+      }
+    };
+
+    const fetchInternships = async () => {
+      try {
+        const { data } = await api.get("/internships");
+        setInternships(data.internships);
+      } catch (error) {
+        console.error("Error fetching internships:", error);
+      }
     };
 
     fetchJobs();
+    fetchInternships();
   }, []);
 
   useEffect(() => {
@@ -403,36 +420,36 @@ const Jobs = () => {
   };
 
   return (
-    <div className="space-y-8 pt-20 sm:pt-24 lg:pt-32">
+    <main className="space-y-16 pt-28 sm:pt-32 lg:pt-40">
       <HeroBanner
         eyebrow="Careers"
-        title="Build the future with TRIVIN TECHNOLOY."
+        title="Build the future with TRIVIN."
         description="Join a team that values collaboration, learning, and product impact. Explore the roles, culture, and opportunities below."
         primaryAction={<a href="#open-positions" className="button-primary">View Open Positions</a>}
         secondaryAction={<a href="#application-form" className="button-outline">Apply Now</a>}
         background={<CareersHeroBackground />}
       />
 
-      <section className="grid gap-6 lg:grid-cols-2">
-        <div className="rounded-2xl border border-gray-100/15 bg-white p-6 shadow-sm sm:p-8">
+      <section className="grid gap-4 sm:gap-6 lg:grid-cols-2">
+        <div className="rounded-xl sm:rounded-2xl border border-gray-100/15 bg-white p-4 sm:p-6 lg:p-8 shadow-sm">
           <SectionHeading title="About working here" subtitle="Culture" />
-          <div className="space-y-4 text-sm leading-7 text-gray-600">
+          <div className="space-y-3 sm:space-y-4 text-xs sm:text-sm leading-6 sm:leading-7 text-gray-600">
             <p>We believe in collaboration, creativity, and continuous learning.</p>
             <p>Our mission is to build dependable digital experiences and our vision is to grow with teams that care about quality and ownership.</p>
             <p>Every day is a chance to solve real problems, work with smart teammates, and innovate with purpose.</p>
           </div>
         </div>
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-3 sm:gap-4 sm:grid-cols-2">
           {[
             { title: "Mission & Vision", icon: Compass },
             { title: "Team Environment", icon: Users },
             { title: "Growth Opportunities", icon: GraduationCap },
             { title: "Innovation Mindset", icon: Zap }
           ].map(({ title, icon: Icon }) => (
-            <div key={title} className="rounded-2xl border border-gray-100/15 bg-white p-5 shadow-sm">
-              <Icon className="h-5 w-5 text-brand" />
-              <h3 className="mt-3 font-heading text-lg font-semibold text-ink">{title}</h3>
-              <p className="mt-2 text-sm leading-6 text-gray-600">Built for people who want to learn, ship, and grow with the team.</p>
+            <div key={title} className="rounded-lg sm:rounded-2xl border border-gray-100/15 bg-white p-3 sm:p-5 shadow-sm">
+              <Icon className="h-4 w-4 sm:h-5 sm:w-5 text-brand" />
+              <h3 className="mt-2 sm:mt-3 font-heading text-base sm:text-lg font-semibold text-ink">{title}</h3>
+              <p className="mt-1 sm:mt-2 text-xs sm:text-sm leading-5 sm:leading-6 text-gray-600">Built for people who want to learn, ship, and grow with the team.</p>
             </div>
           ))}
         </div>
@@ -440,28 +457,28 @@ const Jobs = () => {
 
       <section>
         <SectionHeading title="Company benefits and perks" subtitle="Perks" />
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-3 sm:gap-4 md:grid-cols-2 lg:grid-cols-4">
           {benefits.map(({ title, icon: Icon, color, glow, description }, index) => (
             <div
               key={title}
               style={{ "--card-delay": `${index * 90}ms` }}
-              className="service-feature-card group relative overflow-hidden rounded-[1.6rem] border border-white/10 bg-white/6 p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-brand/30 hover:shadow-[0_18px_40px_rgba(2,8,20,0.4)]"
+              className="service-feature-card group relative overflow-hidden rounded-xl sm:rounded-[1.6rem] border border-white/10 bg-white/6 p-4 sm:p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-brand/30 hover:shadow-[0_18px_40px_rgba(2,8,20,0.4)]"
             >
               <div className="pointer-events-none absolute inset-0">
                 <div className={`absolute -right-12 -top-12 h-40 w-40 rounded-full bg-gradient-to-br ${glow} blur-3xl transition-all duration-300 group-hover:scale-125 group-hover:opacity-100`} />
                 <div className="absolute right-0 top-0 h-px w-full bg-gradient-to-r from-transparent via-brand/40 to-transparent opacity-60" />
               </div>
 
-              <div className="relative flex h-14 w-14 items-center justify-center rounded-2xl border border-white/20 bg-gradient-to-br from-white/15 via-white/10 to-transparent shadow-[0_12px_30px_rgba(2,8,20,0.25)] transition duration-300 group-hover:scale-110 group-hover:border-brand/40">
-                <Icon className="h-7 w-7" color={color} strokeWidth={1.5} />
+              <div className="relative flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-2xl border border-white/20 bg-gradient-to-br from-white/15 via-white/10 to-transparent shadow-[0_12px_30px_rgba(2,8,20,0.25)] transition duration-300 group-hover:scale-110 group-hover:border-brand/40">
+                <Icon className="h-5 w-5 sm:h-7 sm:w-7" color={color} strokeWidth={1.5} />
               </div>
 
-              <h3 className="relative mt-4 font-heading text-lg font-semibold text-ink">{title}</h3>
-              <p className="relative mt-2 text-sm leading-6 text-gray-500">{description}</p>
+              <h3 className="relative mt-3 sm:mt-4 font-heading text-base sm:text-lg font-semibold text-ink">{title}</h3>
+              <p className="relative mt-1 sm:mt-2 text-xs sm:text-sm leading-5 sm:leading-6 text-gray-500">{description}</p>
 
-              <div className="relative mt-5 flex items-center justify-between pt-4 border-t border-white/10">
+              <div className="relative mt-4 sm:mt-5 flex items-center justify-between pt-3 sm:pt-4 border-t border-white/10">
                 <span className="text-xs font-semibold uppercase tracking-[0.18em] text-gray-500">Benefit</span>
-                <CheckCircle2 className="h-5 w-5 text-brand/60 transition duration-200 group-hover:text-brand" />
+                <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5 text-brand/60 transition duration-200 group-hover:text-brand" />
               </div>
             </div>
           ))}
@@ -470,30 +487,30 @@ const Jobs = () => {
 
       <section id="open-positions">
         <SectionHeading title="Open positions" subtitle="Hiring now" />
-        <div className="mb-4 flex flex-col gap-3 rounded-2xl border border-gray-100/15 bg-white p-4 shadow-sm md:flex-row md:items-center md:justify-between">
+        <div className="mb-3 sm:mb-4 flex flex-col gap-2 sm:gap-3 rounded-lg sm:rounded-2xl border border-gray-100/15 bg-white p-3 sm:p-4 shadow-sm md:flex-row md:items-center md:justify-between">
           <div className="relative w-full md:max-w-md">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+            <Search className="pointer-events-none absolute left-2.5 sm:left-3 top-1/2 h-3.5 w-3.5 sm:h-4 sm:w-4 -translate-y-1/2 text-gray-400" />
             <input
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value)}
               placeholder="Search jobs"
-              className="w-full rounded-xl border border-gray-200 py-2 pl-9 pr-3"
+              className="w-full rounded-lg sm:rounded-xl border border-gray-200 py-1.5 sm:py-2 pl-8 sm:pl-9 pr-2 sm:pr-3 text-sm"
             />
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-1.5 sm:gap-2">
             {jobTypes.map((type) => (
               <button
                 key={type}
                 type="button"
                 onClick={() => setSelectedType(type)}
-                className={`rounded-full px-4 py-2 text-sm font-semibold transition ${selectedType === type ? "bg-brand text-white" : "bg-mist text-ink"}`}
+                className={`rounded-full px-3 sm:px-4 py-1 sm:py-2 text-xs sm:text-sm font-semibold transition ${selectedType === type ? "bg-brand text-white" : "bg-mist text-ink"}`}
               >
                 {type}
               </button>
             ))}
           </div>
         </div>
-        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-4 sm:gap-6 md:grid-cols-2 xl:grid-cols-3">
           {filteredJobs.map((job) => (
             <JobCard key={job._id} job={job} />
           ))}
@@ -672,19 +689,28 @@ const Jobs = () => {
       </section>
 
       <section>
-        <SectionHeading title="Internship opportunities" subtitle="Early careers" />
-        <div className="grid gap-4 lg:grid-cols-3">
-          {internships.map((internship) => (
-            <div key={internship.role} className="rounded-2xl border border-gray-100/15 bg-white p-6 shadow-sm">
-              <h3 className="font-heading text-lg font-semibold text-ink">{internship.role}</h3>
-              <div className="mt-4 space-y-2 text-sm text-gray-600">
-                <p><strong>Duration:</strong> {internship.duration}</p>
-                <p><strong>Eligibility:</strong> {internship.eligibility}</p>
-                <p><strong>Stipend:</strong> {internship.stipend}</p>
-              </div>
-            </div>
-          ))}
+        <div className="flex items-center justify-between">
+          <SectionHeading title="Internship opportunities" subtitle="Early careers" />
+          {isAdmin && (
+            <Link to="/admin/internships" className="button-primary flex items-center gap-2 px-4 py-2 text-sm">
+              <Plus className="h-4 w-4" />
+              Manage Internships
+            </Link>
+          )}
         </div>
+        {internships.length === 0 ? (
+          <p className="text-center text-gray-400">No internship opportunities available at the moment.</p>
+        ) : (
+          <div className="grid gap-4 lg:grid-cols-3">
+            {internships.map((internship) => (
+              <InternshipCard
+                key={internship._id}
+                internship={internship}
+                isAdmin={false}
+              />
+            ))}
+          </div>
+        )}
       </section>
 
       <section>
@@ -748,7 +774,7 @@ const Jobs = () => {
           <a href="#open-positions" className="button-outline">Apply Today</a>
         </div>
       </section>
-    </div>
+    </main>
   );
 };
 

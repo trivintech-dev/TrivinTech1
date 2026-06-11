@@ -6,6 +6,7 @@ import SectionHeading from "../components/SectionHeading.jsx";
 import ServiceCard from "../components/ServiceCard.jsx";
 import JobCard from "../components/JobCard.jsx";
 import HeroBanner from "../components/HeroBanner.jsx";
+import TestimonialsSection from "../components/TestimonialsSection.jsx";
 import ShaderBackground from "../components/ui/ShaderBackground.jsx";
 import CircularGallery from "../components/ui/circular-gallery.jsx";
 
@@ -216,7 +217,7 @@ const Home = () => {
   const defaultPricingPlans = [
     {
       name: "Starter",
-      price: "$1,500",
+      price: "₹1,500",
       description: "Best for small launches and MVP validation.",
       badge: "Launch",
       idealFor: "Startups",
@@ -225,7 +226,7 @@ const Home = () => {
     },
     {
       name: "Professional",
-      price: "$4,500",
+      price: "₹4,500",
       description: "For growing teams that need a full product build.",
       badge: "Popular",
       idealFor: "Growing teams",
@@ -342,11 +343,11 @@ const Home = () => {
   const processProgress = ((activeProcessStep + 1) / workflowStepCount) * 100;
 
   return (
-    <div className="space-y-12 pt-20 sm:pt-24 lg:pt-32">
+    <div className="space-y-12 pt-28 sm:pt-32 lg:pt-40">
       <HeroBanner
         eyebrow="Software company"
         title="Build, scale, and support every digital move with confidence."
-        description="TRIVIN TECHNOLOY combines product strategy, design, and engineering to deliver measurable outcomes. We help teams ship faster with modern tooling and clear delivery milestones."
+        description="TRIVIN combines product strategy, design, and engineering to deliver measurable outcomes. We help teams ship faster with modern tooling and clear delivery milestones."
         background={<ShaderBackground />}
         className="min-h-[78vh] rounded-none py-10 sm:py-12 lg:py-14"
         primaryAction={
@@ -361,13 +362,13 @@ const Home = () => {
         }
       />
 
-      <section className="rounded-none border-y border-gray-100/15 bg-slate-950/40 px-4 py-10 sm:px-6 lg:px-8">
+      <section className="rounded-none border-y border-gray-100/15 bg-slate-950/40 px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
         <SectionHeading title="Trusted by teams that move fast" subtitle="Clients" />
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="grid grid-cols-1 gap-3 sm:gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {currentTrustedClients.map((client, index) => (
             <div
               key={client.name}
-              className="trusted-client-card group relative overflow-hidden rounded-[1.5rem] border border-white/10 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-5 shadow-[0_18px_50px_rgba(2,8,20,0.45)] transition duration-300 hover:-translate-y-0.5 hover:scale-[1.01] hover:border-brand/30 hover:shadow-[0_24px_70px_rgba(2,8,20,0.6)]"
+              className="trusted-client-card group relative overflow-hidden rounded-2xl sm:rounded-[1.5rem] border border-white/10 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-4 sm:p-5 shadow-[0_18px_50px_rgba(2,8,20,0.45)] transition duration-300 hover:-translate-y-0.5 hover:scale-[1.01] hover:border-brand/30 hover:shadow-[0_24px_70px_rgba(2,8,20,0.6)]"
               style={{ "--card-delay": `${index * 220}ms` }}
             >
               <div className="pointer-events-none absolute inset-0">
@@ -384,7 +385,7 @@ const Home = () => {
                       <span className="inline-flex items-center rounded-full border border-brand/20 bg-brand/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-brand">
                         Partner {String(index + 1).padStart(2, "0")}
                       </span>
-                      <h3 className="mt-4 font-heading text-xl font-semibold text-ink">{client.name}</h3>
+                      <h3 className="mt-3 sm:mt-4 font-heading text-lg sm:text-xl font-semibold text-ink">{client.name}</h3>
                     </div>
                   </div>
                   <div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-right">
@@ -399,7 +400,7 @@ const Home = () => {
                 <div className="relative mt-5 h-px w-full bg-gradient-to-r from-transparent via-white/15 to-transparent">
                   <span className="absolute left-1/2 top-0 h-px w-16 -translate-x-1/2 bg-gradient-to-r from-transparent via-brand/70 to-transparent shadow-[0_0_18px_rgba(110,231,255,0.3)]" />
                 </div>
-                <p className="relative mt-4 text-sm leading-6 text-gray-400">
+                <p className="relative mt-3 sm:mt-4 text-xs sm:text-sm leading-5 sm:leading-6 text-gray-400">
                   {client.summary}
                 </p>
               </div>
@@ -458,7 +459,7 @@ const Home = () => {
 
       <section>
         <SectionHeading title="Service showcase" subtitle="Gallery" />
-        <div className="relative h-[500px] w-full rounded-2xl border border-gray-100/15 bg-gradient-to-br from-slate-950 to-slate-900 overflow-hidden">
+        <div className="relative h-[400px] sm:h-[500px] w-full rounded-2xl border border-gray-100/15 bg-gradient-to-br from-slate-950 to-slate-900 overflow-hidden">
           <CircularGallery
             items={galleryItems}
             bend={3}
@@ -471,53 +472,53 @@ const Home = () => {
 
       <section>
         <SectionHeading title="About the company" subtitle="About" />
-        <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
-          <div className="rounded-2xl border border-gray-100/15 bg-white p-8 shadow-sm">
-            <p className="text-sm uppercase tracking-[0.2em] text-brand">Who we are</p>
-            <h3 className="mt-3 font-heading text-2xl font-semibold text-ink">
+        <div className="grid gap-4 sm:gap-6 lg:grid-cols-[1.2fr_0.8fr]">
+          <div className="rounded-xl sm:rounded-2xl border border-gray-100/15 bg-white p-4 sm:p-8 shadow-sm">
+            <p className="text-xs sm:text-sm uppercase tracking-[0.2em] text-brand">Who we are</p>
+            <h3 className="mt-2 sm:mt-3 font-heading text-xl sm:text-2xl font-semibold text-ink">
               A product delivery team for modern businesses.
             </h3>
             <p className="mt-4 text-sm leading-7 text-gray-600">
               We combine strategy, design, and engineering to turn ideas into products that are stable, useful, and ready to grow.
             </p>
-            <div className="mt-6 grid gap-4 sm:grid-cols-2">
+            <div className="mt-4 sm:mt-6 grid gap-3 sm:gap-4 sm:grid-cols-2">
               {[
                 { label: "Experience", value: "8+ years across web and mobile delivery" },
                 { label: "Team strength", value: "Designers, developers, and cloud engineers" },
                 { label: "Mission", value: "Ship reliable products with clear outcomes" },
                 { label: "Vision", value: "Be the team clients trust for long-term growth" }
               ].map((item) => (
-                <div key={item.label} className="rounded-xl bg-mist p-4">
+                <div key={item.label} className="rounded-lg sm:rounded-xl bg-mist p-3 sm:p-4">
                   <p className="text-xs uppercase tracking-[0.16em] text-brand">{item.label}</p>
-                  <p className="mt-2 text-sm text-gray-700">{item.value}</p>
+                  <p className="mt-1 sm:mt-2 text-xs sm:text-sm text-gray-700">{item.value}</p>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="grid gap-4">
-            <div className="rounded-2xl border border-gray-100/15 bg-slate-950/70 p-6 text-ink shadow-sm">
+          <div className="grid gap-3 sm:gap-4">
+            <div className="rounded-xl sm:rounded-2xl border border-gray-100/15 bg-slate-950/70 p-4 sm:p-6 text-ink shadow-sm">
               <div className="flex items-center gap-3 text-brand">
-                <Users className="h-5 w-5" />
-                <span className="text-sm font-semibold uppercase tracking-[0.2em]">Why choose us</span>
+                <Users className="h-4 w-4 sm:h-5 sm:w-5" />
+                <span className="text-xs sm:text-sm font-semibold uppercase tracking-[0.2em]">Why choose us</span>
               </div>
-              <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+              <div className="mt-4 sm:mt-5 grid gap-2 sm:gap-3 sm:grid-cols-2 lg:grid-cols-1">
                 {advantages.map((item) => (
-                  <div key={item} className="flex items-center gap-3 rounded-xl bg-white/5 px-4 py-3">
-                    <Zap className="h-4 w-4 text-brand" />
-                    <span className="text-sm">{item}</span>
+                  <div key={item} className="flex items-center gap-2 sm:gap-3 rounded-lg sm:rounded-xl bg-white/5 px-3 sm:px-4 py-2 sm:py-3">
+                    <Zap className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-brand flex-shrink-0" />
+                    <span className="text-xs sm:text-sm">{item}</span>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="rounded-2xl border border-gray-100/15 bg-white p-6 shadow-sm">
-              <p className="text-sm uppercase tracking-[0.2em] text-brand">Quick snapshot</p>
-              <div className="mt-4 flex items-center gap-3 rounded-xl bg-mist p-4">
-                <Award className="h-6 w-6 text-brand" />
+            <div className="rounded-xl sm:rounded-2xl border border-gray-100/15 bg-white p-4 sm:p-6 shadow-sm">
+              <p className="text-xs sm:text-sm uppercase tracking-[0.2em] text-brand">Quick snapshot</p>
+              <div className="mt-3 sm:mt-4 flex items-center gap-2 sm:gap-3 rounded-lg sm:rounded-xl bg-mist p-3 sm:p-4">
+                <Award className="h-5 w-5 sm:h-6 sm:w-6 text-brand flex-shrink-0" />
                 <div>
-                  <p className="font-semibold text-ink">Trusted delivery partner</p>
-                  <p className="text-sm text-gray-600">Clear process, senior execution, and consistent support.</p>
+                  <p className="text-xs sm:text-sm font-semibold text-ink">Trusted delivery partner</p>
+                  <p className="text-xs text-gray-600">Clear process, senior execution, and consistent support.</p>
                 </div>
               </div>
             </div>
@@ -748,28 +749,7 @@ const Home = () => {
         </div>
       </section>
 
-      <section className="rounded-none border-y border-gray-100/15 bg-mist px-4 py-12 sm:px-6 lg:px-8">
-        <SectionHeading title="Testimonials" subtitle="Reviews" />
-        <div className="grid gap-6 lg:grid-cols-3">
-          {testimonials.map((testimonial) => (
-            <div key={testimonial.name} className="rounded-2xl border border-gray-100/15 bg-white p-6 shadow-sm">
-              <div className="flex items-center gap-4">
-                <img src={testimonial.photo} alt={testimonial.name} className="h-14 w-14 rounded-full object-cover" />
-                <div>
-                  <h3 className="font-heading text-lg font-semibold text-ink">{testimonial.name}</h3>
-                  <p className="text-sm text-gray-600">{testimonial.company}</p>
-                </div>
-              </div>
-              <div className="mt-4 flex items-center gap-1 text-brand">
-                {Array.from({ length: testimonial.rating }).map((_, index) => (
-                  <Star key={index} className="h-4 w-4 fill-current" />
-                ))}
-              </div>
-              <p className="mt-4 text-sm leading-7 text-gray-600">{testimonial.review}</p>
-            </div>
-          ))}
-        </div>
-      </section>
+      <TestimonialsSection />
 
       <section>
         <SectionHeading title="Pricing plans" subtitle="Packages" />

@@ -211,34 +211,34 @@ const Profile = () => {
       {message && <p className="mx-auto w-full max-w-6xl rounded-3xl border border-green-100 bg-green-50 px-4 py-3 text-sm text-green-700">{message}</p>}
 
       <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">
-      <div className="grid gap-6 lg:grid-cols-[1.45fr_0.95fr]">
-        <div className="space-y-6">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <section className="rounded-3xl border border-gray-100 bg-mist p-8 shadow-sm">
-              <div className="flex items-center justify-between gap-4">
+      <div className="grid gap-4 sm:gap-6 lg:grid-cols-[1.45fr_0.95fr]">
+        <div className="space-y-4 sm:space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+            <section className="rounded-2xl sm:rounded-3xl border border-gray-100 bg-mist p-4 sm:p-8 shadow-sm">
+              <div className="flex flex-col gap-2 sm:gap-4 sm:items-center sm:justify-between">
                 <div>
-                  <h2 className="text-xl font-semibold text-slate-900">Personal Information</h2>
-                  <p className="mt-1 text-sm text-slate-700">View and update your contact details.</p>
+                  <h2 className="text-lg sm:text-xl font-semibold text-slate-900">Personal Information</h2>
+                  <p className="mt-1 text-xs sm:text-sm text-slate-700">View and update your contact details.</p>
                 </div>
               </div>
 
-              <div className="mt-6 grid gap-4 sm:grid-cols-2">
+              <div className="mt-4 sm:mt-6 grid gap-3 sm:gap-4 sm:grid-cols-2">
                 <label className="block">
-                  <span className="text-sm text-slate-600">Full Name</span>
+                  <span className="text-xs sm:text-sm text-slate-600">Full Name</span>
                   <input
                     type="text"
                     value={form.name}
                     onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))}
-                    className="profile-input mt-2 px-4 py-3"
+                    className="profile-input mt-1 sm:mt-2 px-3 sm:px-4 py-2 sm:py-3"
                   />
                 </label>
                 <label className="block">
-                  <span className="text-sm text-slate-600">Email Address</span>
+                  <span className="text-xs sm:text-sm text-slate-600">Email Address</span>
                   <input
                     type="email"
                     value={form.email}
                     onChange={(event) => setForm((prev) => ({ ...prev, email: event.target.value }))}
-                    className="profile-input mt-2 px-4 py-3"
+                    className="profile-input mt-1 sm:mt-2 px-3 sm:px-4 py-2 sm:py-3"
                   />
                 </label>
                 <label className="block">
@@ -320,15 +320,15 @@ const Profile = () => {
               </div>
             </section>
 
-            <section className="rounded-3xl border border-gray-100 bg-mist p-8 shadow-sm">
-              <div className="flex items-center justify-between gap-4">
+            <section className="rounded-2xl sm:rounded-3xl border border-gray-100 bg-mist p-4 sm:p-8 shadow-sm">
+              <div className="flex flex-col gap-2 sm:gap-4 sm:items-center sm:justify-between">
                 <div>
-                  <h2 className="text-xl font-semibold text-slate-900">Account Settings</h2>
-                  <p className="mt-1 text-sm text-slate-700">Manage preferences and contact settings.</p>
+                  <h2 className="text-lg sm:text-xl font-semibold text-slate-900">Account Settings</h2>
+                  <p className="mt-1 text-xs sm:text-sm text-slate-700">Manage preferences and contact settings.</p>
                 </div>
               </div>
 
-              <div className="mt-6 grid gap-4 sm:grid-cols-2">
+              <div className="mt-4 sm:mt-6 grid gap-3 sm:gap-4 sm:grid-cols-2">
                 <label className="block">
                   <span className="text-sm text-slate-600">Language Preference</span>
                   <select

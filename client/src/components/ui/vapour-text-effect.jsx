@@ -9,7 +9,7 @@ export const Tag = {
 
 // Use animated gradient clipped to text so the effect appears only on glyphs
 export default function VaporizeTextCycle({
-    texts = ["TRIVIN TECHNOLOY"],
+    texts = ["Trivin"],
     font = { fontFamily: "Inter, sans-serif", fontSize: "28px", fontWeight: 700 },
     color = "rgb(255,255,255)",
     animation = { vaporizeDuration: 1.5 },

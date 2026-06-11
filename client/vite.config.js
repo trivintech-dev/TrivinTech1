@@ -16,7 +16,9 @@ export default defineConfig({
     chunkSizeWarningLimit: 1000,
   },
   server: {
-    middlewareMode: true
+    host: "localhost",
+    port: 5173,
+    open: true
   },
   optimizeDeps: {
     exclude: ["three"]

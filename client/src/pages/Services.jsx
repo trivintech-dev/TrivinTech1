@@ -12,11 +12,12 @@ import ServiceHeroBackground from "../components/ui/ServiceHeroBackground.jsx";
 
 const Services = () => {
   const [services, setServices] = useState([]);
+  const [features, setFeatures] = useState([]);
   const [pricingPackages, setPricingPackages] = useState([]);
   const [searchParams] = useSearchParams();
   const searchTerm = searchParams.get("q")?.trim().toLowerCase() || "";
 
-  const serviceFeatures = [
+  const defaultServiceFeatures = [
     { title: "Responsive Design", icon: Sparkles, description: "Interfaces that adapt cleanly to every screen size." },
     { title: "Admin Dashboard", icon: Layers3, description: "A central place for managing content, users, and workflows." },
     { title: "API Integration", icon: Globe, description: "Connect external systems, data sources, and business logic." },
@@ -101,7 +102,7 @@ const Services = () => {
       name: "Starter",
       desc: "Small service package for launch-ready websites.",
       description: "Small service package for launch-ready websites.",
-      price: "$1,200",
+      price: "₹1,200",
       badge: "Launch",
       idealFor: "Fast launch",
       featured: false,
@@ -111,7 +112,7 @@ const Services = () => {
       name: "Small Business Website",
       desc: "Design, content, and conversion-focused pages.",
       description: "Design, content, and conversion-focused pages.",
-      price: "$3,500",
+      price: "₹3,500",
       badge: "Recommended",
       idealFor: "Growing businesses",
       featured: true,
@@ -267,6 +268,28 @@ const Services = () => {
   }, []);
 
   useEffect(() => {
+    const fetchFeatures = async () => {
+      try {
+        const { data } = await api.get("/features");
+        const featuresWithIcons = data.features.map((feature) => {
+          // Map icon string to icon component
+          const iconMap = { Sparkles, Layers3, Globe, ShieldCheck, Award, Lock, Cloud, Bot, Zap };
+          return {
+            title: feature.title,
+            icon: iconMap[feature.icon] || Sparkles,
+            description: feature.description
+          };
+        });
+        setFeatures(featuresWithIcons.length > 0 ? featuresWithIcons : defaultServiceFeatures);
+      } catch (_error) {
+        setFeatures(defaultServiceFeatures);
+      }
+    };
+
+    fetchFeatures();
+  }, []);
+
+  useEffect(() => {
     const fetchPricingPackages = async () => {
       try {
         const { data } = await api.get("/pricing-plans");
@@ -291,11 +314,11 @@ const Services = () => {
     : services;
 
   return (
-    <div className="space-y-8 pt-20 sm:pt-24 lg:pt-32">
+    <main className="space-y-16 pt-28 sm:pt-32 lg:pt-40">
       <HeroBanner
         eyebrow="Services"
-        title="Comprehensive digital solutions tailored to your business needs."
-        description="From web development and mobile apps to UI/UX design and cloud infrastructure, we offer end-to-end services that power growth. Every solution is built with your success in mind."
+        title="Our Services"
+        description="We build innovative software, web applications, mobile apps, and cloud-based solutions that help businesses grow, automate operations, and deliver exceptional customer experiences."
         background={<ServiceHeroBackground />}
         primaryAction={
           <a href="#contact-form" className="button-primary">
@@ -309,23 +332,24 @@ const Services = () => {
         }
       />
 
-      <section className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
-        <div className="rounded-none border-y border-gray-100/15 bg-white px-6 py-10 shadow-sm sm:px-8 lg:px-10">
+      <section className="grid gap-4 sm:gap-6 lg:grid-cols-[1.05fr_0.95fr]">
+        <div className="rounded-none border-y border-gray-100/15 bg-white px-4 sm:px-6 lg:px-10 py-8 sm:py-10 shadow-sm">
           <SectionHeading title="Service overview" subtitle="Overview" />
-          <p className="text-sm leading-7 text-gray-600">
+          <p className="text-xs sm:text-sm leading-6 sm:leading-7 text-gray-600">
             We build scalable, fast, and secure web applications using modern technologies. Our services are best for startups,
             growing businesses, and teams that need a dependable product partner to move ideas into production.
           </p>
-          <div className="mt-6 grid gap-4 sm:grid-cols-2">
+          <div className="mt-4 sm:mt-6 grid gap-2 sm:gap-4 sm:grid-cols-2">
             {[
               "Who needs it: startups, SMBs, and product teams",
               "Business benefits: faster delivery, better UX, lower maintenance",
               "What the service is: full-cycle design and engineering support",
               "Outcomes: stronger conversions, scalable architecture, predictable delivery"
             ].map((item) => (
-              <div key={item} className="rounded-2xl bg-mist p-4 text-sm text-gray-700">
+              <div key={item} className="rounded-lg sm:rounded-2xl bg-mist p-2.5 sm:p-4 text-xs sm:text-sm text-gray-700">
                 {item}
               </div>
+            ))}"
             ))}
           </div>
         </div>
@@ -334,44 +358,44 @@ const Services = () => {
           <img
             src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1600&q=80"
             alt="Team working on a service project"
-            className="h-full min-h-[360px] w-full object-cover"
+            className="h-full min-h-[250px] sm:min-h-[360px] w-full object-cover"
           />
         </div>
       </section>
 
       <section>
         <SectionHeading title="Features / what’s included" subtitle="Features" />
-        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-          {serviceFeatures.map(({ title, icon: Icon, description }, index) => (
+        <div className="grid gap-3 sm:gap-4 md:grid-cols-2 xl:grid-cols-4">
+          {features.map(({ title, icon: Icon, description }, index) => (
             <div
               key={title}
               style={{ "--card-delay": `${index * 90}ms` }}
-              className="service-feature-card group relative overflow-hidden rounded-[1.6rem] border border-white/10 bg-white/6 p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-brand/30 hover:shadow-[0_18px_40px_rgba(2,8,20,0.4)]"
+              className="service-feature-card group relative overflow-hidden rounded-xl sm:rounded-[1.6rem] border border-white/10 bg-white/6 p-4 sm:p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-brand/30 hover:shadow-[0_18px_40px_rgba(2,8,20,0.4)]"
             >
               <div className="pointer-events-none absolute inset-0">
                 <div className="absolute -left-10 top-0 h-28 w-28 rounded-full bg-brand/12 blur-3xl transition-opacity duration-300 group-hover:opacity-100" />
                 <div className="absolute right-0 top-0 h-px w-full bg-gradient-to-r from-transparent via-brand/40 to-transparent opacity-60" />
               </div>
-              <div className="relative flex items-start gap-4">
-                <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-brand/20 bg-gradient-to-br from-brand/20 via-white/10 to-transparent text-brand shadow-[0_12px_30px_rgba(2,8,20,0.25)] transition duration-300 group-hover:scale-105 group-hover:border-brand/40">
-                  <Icon className="h-7 w-7 drop-shadow-[0_0_10px_rgba(110,231,255,0.18)]" />
+              <div className="relative flex items-start gap-3 sm:gap-4">
+                <div className="flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-2xl border border-brand/20 bg-gradient-to-br from-brand/20 via-white/10 to-transparent text-brand shadow-[0_12px_30px_rgba(2,8,20,0.25)] transition duration-300 group-hover:scale-105 group-hover:border-brand/40 flex-shrink-0">
+                  <Icon className="h-6 w-6 sm:h-7 sm:w-7 drop-shadow-[0_0_10px_rgba(110,231,255,0.18)]" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-brand/80">Included feature</p>
-                  <h3 className="mt-2 font-heading text-lg font-semibold text-ink">{title}</h3>
+                  <p className="text-[9px] sm:text-[10px] font-semibold uppercase tracking-[0.28em] text-brand/80">Included feature</p>
+                  <h3 className="mt-1 sm:mt-2 font-heading text-base sm:text-lg font-semibold text-ink">{title}</h3>
                 </div>
               </div>
-              <p className="relative mt-5 text-sm leading-6 text-gray-500">{description}</p>
-              <div className="relative mt-6 flex items-center justify-between gap-3 text-xs font-semibold uppercase tracking-[0.18em] text-gray-500">
+              <p className="relative mt-3 sm:mt-4 sm:mt-5 text-xs sm:text-sm leading-5 sm:leading-6 text-gray-500">{description}</p>
+              <div className="relative mt-3 sm:mt-4 sm:mt-6 flex items-center justify-between gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-gray-500">
                 <span>Built-in capability</span>
-                <span className="rounded-full border border-brand/15 bg-brand/10 px-3 py-1 text-brand">Available</span>
+                <span className="rounded-full border border-brand/15 bg-brand/10 px-2 sm:px-3 py-0.5 sm:py-1 text-xs text-brand">Available</span>
               </div>
             </div>
           ))}
         </div>
       </section>
 
-      <section className="rounded-none border-y border-gray-100/15 bg-mist px-4 py-12 sm:px-6 lg:px-8">
+      <section className="rounded-none border-y border-gray-100/15 bg-mist px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         <SectionHeading title="Technologies we use" subtitle="Stack" />
         <div className="tech-carousel overflow-hidden">
           <div className="tech-carousel-track">
@@ -676,7 +700,7 @@ const Services = () => {
           No services matched your search.
         </p>
       )}
-    </div>
+    </main>
   );
 };
 

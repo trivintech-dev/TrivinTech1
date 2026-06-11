@@ -1,6 +1,6 @@
 # TrivinTech
 
-Monorepo for the TRIVIN TECHNOLOY application (client + server).
+Monorepo for the Trivin application (client + server).
 
 ## Overview
 

@@ -17,10 +17,14 @@ const ActivityHistory = lazy(() => import("./pages/ActivityHistory.jsx"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard.jsx"));
 const AdminServices = lazy(() => import("./pages/AdminServices.jsx"));
 const AdminJobs = lazy(() => import("./pages/AdminJobs.jsx"));
+const AdminInternships = lazy(() => import("./pages/AdminInternships.jsx"));
 const AdminQueries = lazy(() => import("./pages/AdminQueries.jsx"));
 const AdminWorkflow = lazy(() => import("./pages/AdminWorkflow.jsx"));
 const AdminTrustedClients = lazy(() => import("./pages/AdminTrustedClients.jsx"));
 const AdminPricingPlans = lazy(() => import("./pages/AdminPricingPlans.jsx"));
+const AdminPortfolio = lazy(() => import("./pages/AdminPortfolio.jsx"));
+const AdminTestimonials = lazy(() => import("./pages/AdminTestimonials.jsx"));
+const AdminFeatures = lazy(() => import("./pages/AdminFeatures.jsx"));
 const AdminEmployeeList = lazy(() => import("./pages/AdminEmployeeList.jsx"));
 const AdminEmployeeForm = lazy(() => import("./pages/AdminEmployeeForm.jsx"));
 const AdminEmployeeProfile = lazy(() => import("./pages/AdminEmployeeProfile.jsx"));
@@ -104,6 +108,14 @@ const App = () => {
                 }
               />
               <Route
+                path="/admin/internships"
+                element={
+                  <AdminRoute>
+                    <AdminInternships />
+                  </AdminRoute>
+                }
+              />
+              <Route
                 path="/admin/queries"
                 element={
                   <AdminRoute>
@@ -132,6 +144,30 @@ const App = () => {
                 element={
                   <AdminRoute>
                     <AdminPricingPlans />
+                  </AdminRoute>
+                }
+              />
+              <Route
+                path="/admin/portfolio"
+                element={
+                  <AdminRoute>
+                    <AdminPortfolio />
+                  </AdminRoute>
+                }
+              />
+              <Route
+                path="/admin/testimonials"
+                element={
+                  <AdminRoute>
+                    <AdminTestimonials />
+                  </AdminRoute>
+                }
+              />
+              <Route
+                path="/admin/features"
+                element={
+                  <AdminRoute>
+                    <AdminFeatures />
                   </AdminRoute>
                 }
               />
