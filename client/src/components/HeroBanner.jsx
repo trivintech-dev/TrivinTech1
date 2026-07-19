@@ -6,16 +6,16 @@ const HeroBanner = ({
   secondaryAction,
   spotlight,
   background,
-  className = ""
+  className = "",
 }) => {
   const hasSpotlight = Boolean(spotlight);
 
   return (
-    <section className={`relative mb-6 sm:mb-10 overflow-hidden rounded-2xl sm:rounded-[32px] border border-gray-100/15 bg-[radial-gradient(circle_at_top_right,rgba(110,231,255,0.16),transparent_32%),linear-gradient(180deg,rgba(6,12,24,0.96),rgba(4,10,20,0.92))] px-4 sm:px-6 lg:px-10 py-6 sm:py-10 lg:py-12 shadow-sm ${className}`}>
+    <section
+      className={`relative mb-6 sm:mb-10 overflow-hidden rounded-2xl sm:rounded-[32px] border border-gray-100/15 bg-[radial-gradient(circle_at_top_right,rgba(110,231,255,0.16),transparent_32%),linear-gradient(180deg,rgba(6,12,24,0.96),rgba(4,10,20,0.92))] px-4 sm:px-6 lg:px-10 py-6 sm:py-10 lg:py-12 shadow-sm ${className}`}
+    >
       {background ? (
-        <div className="absolute inset-0 opacity-70">
-          {background}
-        </div>
+        <div className="absolute inset-0 opacity-70">{background}</div>
       ) : null}
       <div className="relative z-10">
         <div
@@ -35,7 +35,13 @@ const HeroBanner = ({
             <p className="max-w-2xl text-sm sm:text-base leading-6 sm:leading-7 text-gray-600">
               {description}
             </p>
-            <div className={hasSpotlight ? "flex flex-wrap gap-2 sm:gap-4 pt-2" : "flex flex-wrap justify-center gap-2 sm:gap-4 pt-2"}>
+            <div
+              className={
+                hasSpotlight
+                  ? "flex flex-wrap gap-2 sm:gap-4 pt-2"
+                  : "flex flex-wrap justify-center gap-2 sm:gap-4 pt-2"
+              }
+            >
               {primaryAction}
               {secondaryAction}
             </div>

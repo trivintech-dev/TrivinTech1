@@ -23,9 +23,10 @@ const normalizePayload = (body) => ({
     isActive: body.isActive === undefined ? true : body.isActive === true || body.isActive === "true"
 });
 
-export const listPricingPlans = async (_req, res, next) => {
+export const listPricingPlans = async (req, res, next) => {
     try {
-        const pricingPlans = await PricingPlan.find({ isActive: true }).sort({ order: 1, createdAt: 1 });
+        const filter = req.query.all === "true" ? {} : { isActive: true };
+        const pricingPlans = await PricingPlan.find(filter).sort({ order: 1, createdAt: 1 });
         return res.json({ pricingPlans });
     } catch (error) {
         return next(error);

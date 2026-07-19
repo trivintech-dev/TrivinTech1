@@ -1,9 +1,10 @@
 import Job from "../models/Job.js";
 import JobApplication from "../models/JobApplication.js";
 
-export const listJobs = async (_req, res, next) => {
+export const listJobs = async (req, res, next) => {
   try {
-    const jobs = await Job.find({ isActive: true }).sort({ createdAt: -1 });
+    const filter = req.query.all === "true" ? {} : { isActive: true };
+    const jobs = await Job.find(filter).sort({ createdAt: -1 });
     return res.json({ jobs });
   } catch (error) {
     return next(error);

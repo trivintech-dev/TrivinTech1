@@ -3,7 +3,8 @@ import { v2 as cloudinary } from "cloudinary";
 
 export const listTestimonials = async (req, res, next) => {
   try {
-    const testimonials = await Testimonial.find({ isActive: true })
+    const filter = req.query.all === "true" ? {} : { isActive: true };
+    const testimonials = await Testimonial.find(filter)
       .sort({ order: 1, createdAt: -1 })
       .populate("user", "name");
 

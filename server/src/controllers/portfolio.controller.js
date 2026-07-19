@@ -1,9 +1,10 @@
 import Portfolio from "../models/Portfolio.js";
 import cloudinary from "../config/cloudinary.js";
 
-export const listPortfolios = async (_req, res, next) => {
+export const listPortfolios = async (req, res, next) => {
     try {
-        const portfolios = await Portfolio.find({ isActive: true }).sort({ order: 1, createdAt: -1 });
+        const filter = req.query.all === "true" ? {} : { isActive: true };
+        const portfolios = await Portfolio.find(filter).sort({ order: 1, createdAt: -1 });
         return res.json({ portfolios });
     } catch (error) {
         return next(error);

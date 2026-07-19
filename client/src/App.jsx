@@ -4,6 +4,7 @@ import Navbar from "./components/Navbar.jsx";
 import Footer from "./components/Footer.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import AdminRoute from "./components/AdminRoute.jsx";
+import AdminLayout from "./components/admin/AdminLayout.jsx";
 
 const Home = lazy(() => import("./pages/Home.jsx"));
 const Services = lazy(() => import("./pages/Services.jsx"));
@@ -38,6 +39,10 @@ const SalesProfile = lazy(() => import("./pages/SalesProfile.jsx"));
 const BulkImportEmployees = lazy(() => import("./pages/BulkImportEmployees.jsx"));
 const AdminActivityDashboard = lazy(() => import("./pages/AdminActivityDashboard.jsx"));
 const AdminReports = lazy(() => import("./pages/AdminReports.jsx"));
+const AdminPageEditor = lazy(() => import("./pages/AdminPageEditor.jsx"));
+const AdminSettings = lazy(() => import("./pages/AdminSettings.jsx"));
+const AdminNavigation = lazy(() => import("./pages/AdminNavigation.jsx"));
+const AdminContacts = lazy(() => import("./pages/AdminContacts.jsx"));
 const ContactUs = lazy(() => import("./pages/ContactUs.jsx"));
 const AboutUs = lazy(() => import("./pages/AboutUs.jsx"));
 const Investor = lazy(() => import("./pages/Investor.jsx"));
@@ -45,13 +50,14 @@ const NotFound = lazy(() => import("./pages/NotFound.jsx"));
 
 const App = () => {
   const location = useLocation();
-  const isAdminRoute = location.pathname.startsWith("/admin") || location.pathname.startsWith("/profile/");
+  const isAdminRoute = location.pathname.startsWith("/admin");
+  const hideSiteChrome = isAdminRoute || location.pathname.startsWith("/profile/");
 
   return (
     <div className="relative isolate min-h-screen overflow-hidden bg-transparent text-ink">
       <div className="relative z-10">
-        {!isAdminRoute && <Navbar />}
-        <main className="w-full py-8 pt-8">
+        {!hideSiteChrome && <Navbar />}
+        <main className={isAdminRoute ? "w-full" : "w-full py-8 pt-8"}>
           <Suspense
             fallback={
               <div className="mx-auto flex min-h-[40vh] w-full max-w-6xl items-center justify-center px-4 text-sm text-gray-500">
@@ -83,150 +89,39 @@ const App = () => {
                   </ProtectedRoute>
                 }
               />
+
               <Route
                 path="/admin"
                 element={
                   <AdminRoute>
-                    <AdminDashboard />
+                    <AdminLayout />
                   </AdminRoute>
                 }
-              />
-              <Route
-                path="/admin/services"
-                element={
-                  <AdminRoute>
-                    <AdminServices />
-                  </AdminRoute>
-                }
-              />
-              <Route
-                path="/admin/jobs"
-                element={
-                  <AdminRoute>
-                    <AdminJobs />
-                  </AdminRoute>
-                }
-              />
-              <Route
-                path="/admin/internships"
-                element={
-                  <AdminRoute>
-                    <AdminInternships />
-                  </AdminRoute>
-                }
-              />
-              <Route
-                path="/admin/queries"
-                element={
-                  <AdminRoute>
-                    <AdminQueries />
-                  </AdminRoute>
-                }
-              />
-              <Route
-                path="/admin/workflow"
-                element={
-                  <AdminRoute>
-                    <AdminWorkflow />
-                  </AdminRoute>
-                }
-              />
-              <Route
-                path="/admin/trusted-clients"
-                element={
-                  <AdminRoute>
-                    <AdminTrustedClients />
-                  </AdminRoute>
-                }
-              />
-              <Route
-                path="/admin/pricing-plans"
-                element={
-                  <AdminRoute>
-                    <AdminPricingPlans />
-                  </AdminRoute>
-                }
-              />
-              <Route
-                path="/admin/portfolio"
-                element={
-                  <AdminRoute>
-                    <AdminPortfolio />
-                  </AdminRoute>
-                }
-              />
-              <Route
-                path="/admin/testimonials"
-                element={
-                  <AdminRoute>
-                    <AdminTestimonials />
-                  </AdminRoute>
-                }
-              />
-              <Route
-                path="/admin/features"
-                element={
-                  <AdminRoute>
-                    <AdminFeatures />
-                  </AdminRoute>
-                }
-              />
-              <Route
-                path="/admin/employees"
-                element={
-                  <AdminRoute>
-                    <AdminEmployeeList />
-                  </AdminRoute>
-                }
-              />
-              <Route
-                path="/admin/employees/create"
-                element={
-                  <AdminRoute>
-                    <AdminEmployeeForm />
-                  </AdminRoute>
-                }
-              />
-              <Route
-                path="/admin/employees/:id"
-                element={
-                  <AdminRoute>
-                    <AdminEmployeeProfile />
-                  </AdminRoute>
-                }
-              />
-              <Route
-                path="/admin/employees/:id/edit"
-                element={
-                  <AdminRoute>
-                    <AdminEmployeeForm />
-                  </AdminRoute>
-                }
-              />
-              <Route
-                path="/admin/employees/bulk-import"
-                element={
-                  <AdminRoute>
-                    <BulkImportEmployees />
-                  </AdminRoute>
-                }
-              />
-              <Route
-                path="/admin/activity"
-                element={
-                  <AdminRoute>
-                    <AdminActivityDashboard />
-                  </AdminRoute>
-                }
-              />
-              <Route
-                path="/admin/reports"
-                element={
-                  <AdminRoute>
-                    <AdminReports />
-                  </AdminRoute>
-                }
-              />
+              >
+                <Route index element={<AdminDashboard />} />
+                <Route path="services" element={<AdminServices />} />
+                <Route path="jobs" element={<AdminJobs />} />
+                <Route path="internships" element={<AdminInternships />} />
+                <Route path="queries" element={<AdminQueries />} />
+                <Route path="workflow" element={<AdminWorkflow />} />
+                <Route path="trusted-clients" element={<AdminTrustedClients />} />
+                <Route path="pricing-plans" element={<AdminPricingPlans />} />
+                <Route path="portfolio" element={<AdminPortfolio />} />
+                <Route path="testimonials" element={<AdminTestimonials />} />
+                <Route path="features" element={<AdminFeatures />} />
+                <Route path="employees" element={<AdminEmployeeList />} />
+                <Route path="employees/create" element={<AdminEmployeeForm />} />
+                <Route path="employees/bulk-import" element={<BulkImportEmployees />} />
+                <Route path="employees/:id/edit" element={<AdminEmployeeForm />} />
+                <Route path="employees/:id" element={<AdminEmployeeProfile />} />
+                <Route path="activity" element={<AdminActivityDashboard />} />
+                <Route path="reports" element={<AdminReports />} />
+                <Route path="pages/:page" element={<AdminPageEditor />} />
+                <Route path="settings" element={<AdminSettings />} />
+                <Route path="navigation" element={<AdminNavigation />} />
+                <Route path="contacts" element={<AdminContacts />} />
+              </Route>
+
               <Route
                 path="/profile/:id/developer"
                 element={
@@ -290,7 +185,7 @@ const App = () => {
             </Routes>
           </Suspense>
         </main>
-        {!isAdminRoute && <Footer />}
+        {!hideSiteChrome && <Footer />}
       </div>
     </div>
   );

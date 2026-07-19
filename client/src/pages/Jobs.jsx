@@ -29,6 +29,8 @@ import {
   Plus
 } from "lucide-react";
 import api from "../api/api.js";
+import usePageContent from "../hooks/usePageContent.js";
+import { resolveIcon } from "../lib/iconMap.js";
 import { useAuth } from "../context/AuthContext.jsx";
 import HeroBanner from "../components/HeroBanner.jsx";
 import JobCard from "../components/JobCard.jsx";
@@ -36,185 +38,77 @@ import InternshipCard from "../components/InternshipCard.jsx";
 import SectionHeading from "../components/SectionHeading.jsx";
 import CareersHeroBackground from "../components/ui/CareersHeroBackground.jsx";
 
-// Add animation classes to index.css if not already present
-// .service-feature-card animation support
-
-const benefits = [
-  {
-    title: "Flexible Work Hours",
-    icon: Clock3,
-    color: "#06b6d4",
-    glow: "from-cyan-400/20 to-cyan-400/5",
-    description: "Work on your schedule. We trust our team to manage their time effectively."
-  },
-  {
-    title: "Remote Opportunities",
-    icon: Laptop,
-    color: "#3b82f6",
-    glow: "from-blue-400/20 to-blue-400/5",
-    description: "Work from anywhere. Collaborate seamlessly across distributed teams."
-  },
-  {
-    title: "Competitive Salary",
-    icon: DollarSign,
-    color: "#10b981",
-    glow: "from-emerald-400/20 to-emerald-400/5",
-    description: "Market-competitive compensation with performance-based incentives."
-  },
-  {
-    title: "Paid Leave",
-    icon: CalendarDays,
-    color: "#f59e0b",
-    glow: "from-amber-400/20 to-amber-400/5",
-    description: "Generous paid time off plus flexible holidays and wellness breaks."
-  },
-  {
-    title: "Learning Budget",
-    icon: BookOpen,
-    color: "#8b5cf6",
-    glow: "from-violet-400/20 to-violet-400/5",
-    description: "Annual learning stipend for courses, certifications, and conferences."
-  },
-  {
-    title: "Health Insurance",
-    icon: Heart,
-    color: "#ec4899",
-    glow: "from-pink-400/20 to-pink-400/5",
-    description: "Comprehensive health, dental, and wellness coverage for you and family."
-  },
-  {
-    title: "Team Culture",
-    icon: Users,
-    color: "#f97316",
-    glow: "from-orange-400/20 to-orange-400/5",
-    description: "Regular team events, outings, and celebrations throughout the year."
-  },
-  {
-    title: "Performance Bonuses",
-    icon: Sparkles,
-    color: "#a855f7",
-    glow: "from-purple-400/20 to-purple-400/5",
-    description: "Quarterly and annual bonuses tied to performance and company growth."
-  }
-];
-
-const departments = [
-  {
-    title: "Development",
-    icon: LayoutGrid,
-    description: "Build scalable solutions with modern tech stacks",
+const departmentCardThemes = {
+  Development: {
     color: "from-blue-500/20 to-blue-600/20",
     borderColor: "border-blue-400/30",
     iconColor: "text-blue-500",
     hoverColor: "hover:border-blue-400/50 hover:shadow-blue-500/20"
   },
-  {
-    title: "UI/UX Design",
-    icon: Sparkles,
-    description: "Create intuitive and beautiful user experiences",
+  "UI/UX Design": {
     color: "from-purple-500/20 to-purple-600/20",
     borderColor: "border-purple-400/30",
     iconColor: "text-purple-500",
     hoverColor: "hover:border-purple-400/50 hover:shadow-purple-500/20"
   },
-  {
-    title: "Marketing",
-    icon: Compass,
-    description: "Drive growth and build brand awareness",
+  Marketing: {
     color: "from-orange-500/20 to-orange-600/20",
     borderColor: "border-orange-400/30",
     iconColor: "text-orange-500",
     hoverColor: "hover:border-orange-400/50 hover:shadow-orange-500/20"
   },
-  {
-    title: "Sales",
-    icon: BriefcaseBusiness,
-    description: "Close deals and expand business opportunities",
+  Sales: {
     color: "from-green-500/20 to-green-600/20",
     borderColor: "border-green-400/30",
     iconColor: "text-green-500",
     hoverColor: "hover:border-green-400/50 hover:shadow-green-500/20"
   },
-  {
-    title: "HR",
-    icon: HeartHandshake,
-    description: "Build and nurture a world-class team",
+  HR: {
     color: "from-pink-500/20 to-pink-600/20",
     borderColor: "border-pink-400/30",
     iconColor: "text-pink-500",
     hoverColor: "hover:border-pink-400/50 hover:shadow-pink-500/20"
   },
-  {
-    title: "DevOps",
-    icon: ShieldCheck,
-    description: "Ensure secure and reliable infrastructure",
+  DevOps: {
     color: "from-cyan-500/20 to-cyan-600/20",
     borderColor: "border-cyan-400/30",
     iconColor: "text-cyan-500",
     hoverColor: "hover:border-cyan-400/50 hover:shadow-cyan-500/20"
   },
-  {
-    title: "Customer Support",
-    icon: Users,
-    description: "Deliver exceptional customer experiences",
+  "Customer Support": {
     color: "from-amber-500/20 to-amber-600/20",
     borderColor: "border-amber-400/30",
     iconColor: "text-amber-500",
     hoverColor: "hover:border-amber-400/50 hover:shadow-amber-500/20"
   }
-];
+};
 
-const processSteps = [
+const processStepCardThemes = [
   {
-    title: "Application Review",
-    description: "Submit your resume and application",
-    details: "Our HR team reviews your credentials",
-    duration: "2-3 days",
-    icon: FileText,
     color: "from-blue-500/20 to-blue-600/20",
     borderColor: "border-blue-400/30",
     iconColor: "text-blue-500",
     hoverColor: "hover:border-blue-400/50 hover:shadow-blue-500/20"
   },
   {
-    title: "HR Interview",
-    description: "Initial conversation with HR",
-    details: "Discuss your background and expectations",
-    duration: "1 week",
-    icon: MessageSquare,
     color: "from-purple-500/20 to-purple-600/20",
     borderColor: "border-purple-400/30",
     iconColor: "text-purple-500",
     hoverColor: "hover:border-purple-400/50 hover:shadow-purple-500/20"
   },
   {
-    title: "Technical Round",
-    description: "Assess your technical skills",
-    details: "Complete a technical assessment or interview",
-    duration: "1 week",
-    icon: Laptop,
     color: "from-green-500/20 to-green-600/20",
     borderColor: "border-green-400/30",
     iconColor: "text-green-500",
     hoverColor: "hover:border-green-400/50 hover:shadow-green-500/20"
   },
   {
-    title: "Final Discussion",
-    description: "Meet with the hiring manager",
-    details: "Final round to align on role and culture",
-    duration: "3-5 days",
-    icon: Users,
     color: "from-orange-500/20 to-orange-600/20",
     borderColor: "border-orange-400/30",
     iconColor: "text-orange-500",
     hoverColor: "hover:border-orange-400/50 hover:shadow-orange-500/20"
   },
   {
-    title: "Offer Letter",
-    description: "Receive your offer",
-    details: "Join our amazing team!",
-    duration: "1-2 days",
-    icon: Award,
     color: "from-amber-500/20 to-amber-600/20",
     borderColor: "border-amber-400/30",
     iconColor: "text-amber-500",
@@ -222,15 +116,8 @@ const processSteps = [
   }
 ];
 
-const testimonials = [
+const testimonialCardThemes = [
   {
-    name: "Aarav Sen",
-    role: "Frontend Engineer",
-    experience: "2 years at TRIVIN",
-    department: "Development",
-    quote: "The team gives real ownership and encourages learning every week.",
-    avatar: "AS",
-    rating: 5,
     color: "from-blue-500/20 to-blue-600/20",
     borderColor: "border-blue-400/30",
     hoverColor: "hover:border-blue-400/50 hover:shadow-blue-500/20",
@@ -238,13 +125,6 @@ const testimonials = [
     avatarText: "text-blue-600"
   },
   {
-    name: "Meera Das",
-    role: "Product Designer",
-    experience: "1.5 years at TRIVIN",
-    department: "UI/UX Design",
-    quote: "We move fast without losing quality. It feels creative and collaborative.",
-    avatar: "MD",
-    rating: 5,
     color: "from-purple-500/20 to-purple-600/20",
     borderColor: "border-purple-400/30",
     hoverColor: "hover:border-purple-400/50 hover:shadow-purple-500/20",
@@ -252,13 +132,6 @@ const testimonials = [
     avatarText: "text-purple-600"
   },
   {
-    name: "Rohan Malik",
-    role: "DevOps Specialist",
-    experience: "3 years at TRIVIN",
-    department: "DevOps",
-    quote: "The stack is modern, the feedback loop is strong, and the culture is supportive.",
-    avatar: "RM",
-    rating: 5,
     color: "from-cyan-500/20 to-cyan-600/20",
     borderColor: "border-cyan-400/30",
     hoverColor: "hover:border-cyan-400/50 hover:shadow-cyan-500/20",
@@ -267,29 +140,217 @@ const testimonials = [
   }
 ];
 
-const lifeAtCompany = [
-  { title: "Team Events", image: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=900&q=80" },
-  { title: "Office Setup", image: "https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=900&q=80" },
-  { title: "Work Environment", image: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=900&q=80" },
-  { title: "Celebrations", image: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=900&q=80" },
-  { title: "Hackathons", image: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=900&q=80" }
-];
+const fallbacks = {
+  hero: {
+    eyebrow: "Careers",
+    title: "Build the future with TRIVIN.",
+    description:
+      "Join a team that values collaboration, learning, and product impact. Explore the roles, culture, and opportunities below.",
+    primaryActionLabel: "View Open Positions",
+    primaryActionHref: "#open-positions",
+    secondaryActionLabel: "Apply Now",
+    secondaryActionHref: "#application-form"
+  },
+  culture: {
+    sectionTitle: "About working here",
+    sectionSubtitle: "Culture",
+    paragraphs: [
+      "We believe in collaboration, creativity, and continuous learning.",
+      "Our mission is to build dependable digital experiences and our vision is to grow with teams that care about quality and ownership.",
+      "Every day is a chance to solve real problems, work with smart teammates, and innovate with purpose."
+    ],
+    pillars: [
+      { title: "Mission & Vision", icon: "Compass", description: "Built for people who want to learn, ship, and grow with the team." },
+      { title: "Team Environment", icon: "Users", description: "Built for people who want to learn, ship, and grow with the team." },
+      { title: "Growth Opportunities", icon: "GraduationCap", description: "Built for people who want to learn, ship, and grow with the team." },
+      { title: "Innovation Mindset", icon: "Zap", description: "Built for people who want to learn, ship, and grow with the team." }
+    ]
+  },
+  benefits: [
+    {
+      title: "Flexible Work Hours",
+      icon: "Clock3",
+      color: "#06b6d4",
+      glow: "from-cyan-400/20 to-cyan-400/5",
+      description: "Work on your schedule. We trust our team to manage their time effectively."
+    },
+    {
+      title: "Remote Opportunities",
+      icon: "Laptop",
+      color: "#3b82f6",
+      glow: "from-blue-400/20 to-blue-400/5",
+      description: "Work from anywhere. Collaborate seamlessly across distributed teams."
+    },
+    {
+      title: "Competitive Salary",
+      icon: "DollarSign",
+      color: "#10b981",
+      glow: "from-emerald-400/20 to-emerald-400/5",
+      description: "Market-competitive compensation with performance-based incentives."
+    },
+    {
+      title: "Paid Leave",
+      icon: "CalendarDays",
+      color: "#f59e0b",
+      glow: "from-amber-400/20 to-amber-400/5",
+      description: "Generous paid time off plus flexible holidays and wellness breaks."
+    },
+    {
+      title: "Learning Budget",
+      icon: "BookOpen",
+      color: "#8b5cf6",
+      glow: "from-violet-400/20 to-violet-400/5",
+      description: "Annual learning stipend for courses, certifications, and conferences."
+    },
+    {
+      title: "Health Insurance",
+      icon: "Heart",
+      color: "#ec4899",
+      glow: "from-pink-400/20 to-pink-400/5",
+      description: "Comprehensive health, dental, and wellness coverage for you and family."
+    },
+    {
+      title: "Team Culture",
+      icon: "Users",
+      color: "#f97316",
+      glow: "from-orange-400/20 to-orange-400/5",
+      description: "Regular team events, outings, and celebrations throughout the year."
+    },
+    {
+      title: "Performance Bonuses",
+      icon: "Sparkles",
+      color: "#a855f7",
+      glow: "from-purple-400/20 to-purple-400/5",
+      description: "Quarterly and annual bonuses tied to performance and company growth."
+    }
+  ],
+  departments: [
+    { title: "Development", icon: "LayoutGrid", description: "Build scalable solutions with modern tech stacks" },
+    { title: "UI/UX Design", icon: "Sparkles", description: "Create intuitive and beautiful user experiences" },
+    { title: "Marketing", icon: "Compass", description: "Drive growth and build brand awareness" },
+    { title: "Sales", icon: "BriefcaseBusiness", description: "Close deals and expand business opportunities" },
+    { title: "HR", icon: "HeartHandshake", description: "Build and nurture a world-class team" },
+    { title: "DevOps", icon: "ShieldCheck", description: "Ensure secure and reliable infrastructure" },
+    { title: "Customer Support", icon: "Users", description: "Deliver exceptional customer experiences" }
+  ],
+  processSteps: [
+    {
+      title: "Application Review",
+      description: "Submit your resume and application",
+      details: "Our HR team reviews your credentials",
+      duration: "2-3 days",
+      icon: "FileText"
+    },
+    {
+      title: "HR Interview",
+      description: "Initial conversation with HR",
+      details: "Discuss your background and expectations",
+      duration: "1 week",
+      icon: "MessageSquare"
+    },
+    {
+      title: "Technical Round",
+      description: "Assess your technical skills",
+      details: "Complete a technical assessment or interview",
+      duration: "1 week",
+      icon: "Laptop"
+    },
+    {
+      title: "Final Discussion",
+      description: "Meet with the hiring manager",
+      details: "Final round to align on role and culture",
+      duration: "3-5 days",
+      icon: "Users"
+    },
+    {
+      title: "Offer Letter",
+      description: "Receive your offer",
+      details: "Join our amazing team!",
+      duration: "1-2 days",
+      icon: "Award"
+    }
+  ],
+  testimonials: [
+    {
+      name: "Aarav Sen",
+      role: "Frontend Engineer",
+      experience: "2 years at TRIVIN",
+      department: "Development",
+      quote: "The team gives real ownership and encourages learning every week.",
+      avatar: "AS",
+      rating: 5
+    },
+    {
+      name: "Meera Das",
+      role: "Product Designer",
+      experience: "1.5 years at TRIVIN",
+      department: "UI/UX Design",
+      quote: "We move fast without losing quality. It feels creative and collaborative.",
+      avatar: "MD",
+      rating: 5
+    },
+    {
+      name: "Rohan Malik",
+      role: "DevOps Specialist",
+      experience: "3 years at TRIVIN",
+      department: "DevOps",
+      quote: "The stack is modern, the feedback loop is strong, and the culture is supportive.",
+      avatar: "RM",
+      rating: 5
+    }
+  ],
+  lifeAtCompany: [
+    { title: "Team Events", image: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=900&q=80" },
+    { title: "Office Setup", image: "https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=900&q=80" },
+    { title: "Work Environment", image: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=900&q=80" },
+    { title: "Celebrations", image: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=900&q=80" },
+    { title: "Hackathons", image: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=900&q=80" }
+  ],
+  faqs: [
+    { question: "Do you offer remote jobs?", answer: "Yes, some roles are remote or hybrid depending on the team and project needs." },
+    { question: "What technologies do you use?", answer: "We work with modern web stacks, cloud tools, APIs, and automation-friendly workflows." },
+    { question: "How long is the hiring process?", answer: "Most candidates complete the process within 1 to 2 weeks." },
+    { question: "Can freshers apply?", answer: "Yes, we regularly consider freshers and internship applicants." }
+  ],
+  sidebar: {
+    paragraphs: [
+      "Grow with a team that supports learning, ownership, and experimentation.",
+      "Work on meaningful products with modern tools and collaborative delivery.",
+      "We value fresh ideas, clear communication, and measurable impact."
+    ],
+    linkedInTitle: "LinkedIn apply option",
+    linkedInBody: "Share your profile with the team when you submit your resume URL.",
+    trackingTitle: "Real-time tracking",
+    trackingBody: "Applied candidates can use their profile to review application history in the app."
+  },
+  finalCta: {
+    sectionTitle: "Ready to grow your career?",
+    sectionSubtitle: "Final CTA",
+    primaryCta: "Join Our Team",
+    secondaryCta: "Apply Today"
+  }
+};
 
-const internships = [
-  { role: "Frontend Intern", duration: "3 months", eligibility: "Students or freshers", stipend: "Paid" },
-  { role: "UI/UX Intern", duration: "3 months", eligibility: "Design learners", stipend: "Paid" },
-  { role: "Marketing Intern", duration: "6 months", eligibility: "Fresh graduates", stipend: "Paid" }
-];
-
-const faqs = [
-  { question: "Do you offer remote jobs?", answer: "Yes, some roles are remote or hybrid depending on the team and project needs." },
-  { question: "What technologies do you use?", answer: "We work with modern web stacks, cloud tools, APIs, and automation-friendly workflows." },
-  { question: "How long is the hiring process?", answer: "Most candidates complete the process within 1 to 2 weeks." },
-  { question: "Can freshers apply?", answer: "Yes, we regularly consider freshers and internship applicants." }
-];
+const heroAction = (label, href, className) => {
+  if (!label) return null;
+  const target = href || "#";
+  if (target.startsWith("/")) {
+    return (
+      <Link to={target} className={className}>
+        {label}
+      </Link>
+    );
+  }
+  return (
+    <a href={target} className={className}>
+      {label}
+    </a>
+  );
+};
 
 const Jobs = () => {
   const { token, isAdmin } = useAuth();
+  const { content } = usePageContent("jobs", fallbacks);
   const [jobs, setJobs] = useState([]);
   const [internships, setInternships] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -306,6 +367,23 @@ const Jobs = () => {
   });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const hero = content.hero || fallbacks.hero;
+  const culture = content.culture || fallbacks.culture;
+  const cultureParagraphs = culture.paragraphs?.length
+    ? culture.paragraphs
+    : culture.body
+      ? [culture.body]
+      : fallbacks.culture.paragraphs;
+  const culturePillars = culture.pillars?.length ? culture.pillars : fallbacks.culture.pillars;
+  const pageBenefits = content.benefits?.length ? content.benefits : fallbacks.benefits;
+  const pageDepartments = content.departments?.length ? content.departments : fallbacks.departments;
+  const pageProcessSteps = content.processSteps?.length ? content.processSteps : fallbacks.processSteps;
+  const pageTestimonials = content.testimonials?.length ? content.testimonials : fallbacks.testimonials;
+  const pageLifeAtCompany = content.lifeAtCompany?.length ? content.lifeAtCompany : fallbacks.lifeAtCompany;
+  const pageFaqs = content.faqs?.length ? content.faqs : fallbacks.faqs;
+  const sidebar = content.sidebar || fallbacks.sidebar;
+  const finalCta = content.finalCta || fallbacks.finalCta;
 
   useEffect(() => {
     const fetchJobs = async () => {
@@ -422,43 +500,43 @@ const Jobs = () => {
   return (
     <main className="space-y-16 pt-28 sm:pt-32 lg:pt-40">
       <HeroBanner
-        eyebrow="Careers"
-        title="Build the future with TRIVIN."
-        description="Join a team that values collaboration, learning, and product impact. Explore the roles, culture, and opportunities below."
-        primaryAction={<a href="#open-positions" className="button-primary">View Open Positions</a>}
-        secondaryAction={<a href="#application-form" className="button-outline">Apply Now</a>}
+        eyebrow={hero.eyebrow}
+        title={hero.title}
+        description={hero.description}
+        primaryAction={heroAction(hero.primaryActionLabel || hero.primaryLabel, hero.primaryActionHref || hero.primaryHref, "button-primary")}
+        secondaryAction={heroAction(hero.secondaryActionLabel || hero.secondaryLabel, hero.secondaryActionHref || hero.secondaryHref, "button-outline")}
         background={<CareersHeroBackground />}
       />
 
       <section className="grid gap-4 sm:gap-6 lg:grid-cols-2">
         <div className="rounded-xl sm:rounded-2xl border border-gray-100/15 bg-white p-4 sm:p-6 lg:p-8 shadow-sm">
-          <SectionHeading title="About working here" subtitle="Culture" />
+          <SectionHeading title={culture.sectionTitle || fallbacks.culture.sectionTitle} subtitle={culture.sectionSubtitle || fallbacks.culture.sectionSubtitle} />
           <div className="space-y-3 sm:space-y-4 text-xs sm:text-sm leading-6 sm:leading-7 text-gray-600">
-            <p>We believe in collaboration, creativity, and continuous learning.</p>
-            <p>Our mission is to build dependable digital experiences and our vision is to grow with teams that care about quality and ownership.</p>
-            <p>Every day is a chance to solve real problems, work with smart teammates, and innovate with purpose.</p>
+            {cultureParagraphs.map((paragraph) => (
+              <p key={paragraph.slice(0, 48)}>{paragraph}</p>
+            ))}
           </div>
         </div>
         <div className="grid gap-3 sm:gap-4 sm:grid-cols-2">
-          {[
-            { title: "Mission & Vision", icon: Compass },
-            { title: "Team Environment", icon: Users },
-            { title: "Growth Opportunities", icon: GraduationCap },
-            { title: "Innovation Mindset", icon: Zap }
-          ].map(({ title, icon: Icon }) => (
-            <div key={title} className="rounded-lg sm:rounded-2xl border border-gray-100/15 bg-white p-3 sm:p-5 shadow-sm">
-              <Icon className="h-4 w-4 sm:h-5 sm:w-5 text-brand" />
-              <h3 className="mt-2 sm:mt-3 font-heading text-base sm:text-lg font-semibold text-ink">{title}</h3>
-              <p className="mt-1 sm:mt-2 text-xs sm:text-sm leading-5 sm:leading-6 text-gray-600">Built for people who want to learn, ship, and grow with the team.</p>
-            </div>
-          ))}
+          {culturePillars.map(({ title, icon, description }) => {
+            const Icon = resolveIcon(icon, Compass);
+            return (
+              <div key={title} className="rounded-lg sm:rounded-2xl border border-gray-100/15 bg-white p-3 sm:p-5 shadow-sm">
+                <Icon className="h-4 w-4 sm:h-5 sm:w-5 text-brand" />
+                <h3 className="mt-2 sm:mt-3 font-heading text-base sm:text-lg font-semibold text-ink">{title}</h3>
+                <p className="mt-1 sm:mt-2 text-xs sm:text-sm leading-5 sm:leading-6 text-gray-600">{description}</p>
+              </div>
+            );
+          })}
         </div>
       </section>
 
       <section>
         <SectionHeading title="Company benefits and perks" subtitle="Perks" />
         <div className="grid gap-3 sm:gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {benefits.map(({ title, icon: Icon, color, glow, description }, index) => (
+          {pageBenefits.map(({ title, icon, color, glow, description }, index) => {
+            const Icon = resolveIcon(icon, Clock3);
+            return (
             <div
               key={title}
               style={{ "--card-delay": `${index * 90}ms` }}
@@ -481,7 +559,8 @@ const Jobs = () => {
                 <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5 text-brand/60 transition duration-200 group-hover:text-brand" />
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       </section>
 
@@ -521,21 +600,28 @@ const Jobs = () => {
       <section>
         <SectionHeading title="Departments" subtitle="Hiring categories" />
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
-          {departments.map(({ title, icon: Icon, description, color, borderColor, iconColor, hoverColor }) => (
+          {pageDepartments.map(({ title, icon, description, color, borderColor, iconColor, hoverColor }) => {
+            const theme = departmentCardThemes[title] || {};
+            const cardColor = color || theme.color || "from-slate-500/20 to-slate-600/20";
+            const cardBorder = borderColor || theme.borderColor || "border-slate-400/30";
+            const cardIconColor = iconColor || theme.iconColor || "text-brand";
+            const cardHover = hoverColor || theme.hoverColor || "hover:border-brand/50";
+            const Icon = resolveIcon(icon, LayoutGrid);
+            return (
             <div
               key={title}
-              className={`group relative overflow-hidden rounded-2xl border ${borderColor} bg-gradient-to-br ${color} p-6 transition duration-300 hover:-translate-y-1 hover:shadow-lg ${hoverColor}`}
+              className={`group relative overflow-hidden rounded-2xl border ${cardBorder} bg-gradient-to-br ${cardColor} p-6 transition duration-300 hover:-translate-y-1 hover:shadow-lg ${cardHover}`}
             >
               {/* Animated background gradient */}
               <div className="pointer-events-none absolute inset-0">
-                <div className={`absolute -right-12 -top-12 h-32 w-32 rounded-full blur-3xl opacity-0 transition duration-300 group-hover:opacity-60 ${color.replace('from-', 'bg-').split(' to-')[0]}`} />
+                <div className={`absolute -right-12 -top-12 h-32 w-32 rounded-full blur-3xl opacity-0 transition duration-300 group-hover:opacity-60 ${cardColor.replace('from-', 'bg-').split(' to-')[0]}`} />
               </div>
 
               {/* Content */}
               <div className="relative z-10">
                 {/* Icon */}
                 <div className="inline-flex items-center justify-center rounded-2xl bg-white/10 backdrop-blur-sm p-3 transition duration-300 group-hover:scale-110 group-hover:bg-white/20">
-                  <Icon className={`h-6 w-6 ${iconColor}`} />
+                  <Icon className={`h-6 w-6 ${cardIconColor}`} />
                 </div>
 
                 {/* Title */}
@@ -557,7 +643,8 @@ const Jobs = () => {
                 </div>
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       </section>
 
@@ -568,10 +655,17 @@ const Jobs = () => {
           <div className="absolute top-12 left-0 right-0 h-1 bg-gradient-to-r from-blue-400 via-purple-400 to-amber-400 rounded-full hidden lg:block opacity-30" />
           
           <div className="grid gap-6 lg:gap-4 md:grid-cols-2 lg:grid-cols-5 relative z-10">
-            {processSteps.map(({ title, description, details, duration, icon: Icon, color, borderColor, iconColor, hoverColor }, index) => (
+            {pageProcessSteps.map(({ title, description, details, duration, icon, color, borderColor, iconColor, hoverColor }, index) => {
+              const theme = processStepCardThemes[index] || processStepCardThemes[0];
+              const cardColor = color || theme.color;
+              const cardBorder = borderColor || theme.borderColor;
+              const cardIconColor = iconColor || theme.iconColor;
+              const cardHover = hoverColor || theme.hoverColor;
+              const Icon = resolveIcon(icon, FileText);
+              return (
               <div
                 key={title}
-                className={`group relative overflow-hidden rounded-2xl border ${borderColor} bg-gradient-to-br ${color} p-6 transition duration-300 hover:-translate-y-1 hover:shadow-lg ${hoverColor}`}
+                className={`group relative overflow-hidden rounded-2xl border ${cardBorder} bg-gradient-to-br ${cardColor} p-6 transition duration-300 hover:-translate-y-1 hover:shadow-lg ${cardHover}`}
               >
                 {/* Step indicator badge */}
                 <div className="absolute top-3 right-3 flex h-7 w-7 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm text-xs font-bold text-ink transition duration-300 group-hover:bg-white/30">
@@ -580,14 +674,14 @@ const Jobs = () => {
 
                 {/* Animated background gradient */}
                 <div className="pointer-events-none absolute inset-0">
-                  <div className={`absolute -right-12 -top-12 h-32 w-32 rounded-full blur-3xl opacity-0 transition duration-300 group-hover:opacity-60 ${color.replace('from-', 'bg-').split(' to-')[0]}`} />
+                  <div className={`absolute -right-12 -top-12 h-32 w-32 rounded-full blur-3xl opacity-0 transition duration-300 group-hover:opacity-60 ${cardColor.replace('from-', 'bg-').split(' to-')[0]}`} />
                 </div>
 
                 {/* Content */}
                 <div className="relative z-10">
                   {/* Icon */}
                   <div className="inline-flex items-center justify-center rounded-2xl bg-white/10 backdrop-blur-sm p-3 transition duration-300 group-hover:scale-110 group-hover:bg-white/20">
-                    <Icon className={`h-6 w-6 ${iconColor}`} />
+                    <Icon className={`h-6 w-6 ${cardIconColor}`} />
                   </div>
 
                   {/* Title */}
@@ -614,7 +708,8 @@ const Jobs = () => {
                   </div>
                 </div>
               </div>
-            ))}
+            );
+            })}
           </div>
         </div>
       </section>
@@ -622,19 +717,27 @@ const Jobs = () => {
       <section>
         <SectionHeading title="Employee testimonials" subtitle="Team feedback" />
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {testimonials.map((testimonial) => (
+          {pageTestimonials.map((testimonial, index) => {
+            const theme = testimonialCardThemes[index] || testimonialCardThemes[0];
+            const cardColor = testimonial.color || theme.color;
+            const cardBorder = testimonial.borderColor || theme.borderColor;
+            const cardHover = testimonial.hoverColor || theme.hoverColor;
+            const avatarBg = testimonial.avatarBg || theme.avatarBg;
+            const avatarText = testimonial.avatarText || theme.avatarText;
+            const rating = testimonial.rating || 5;
+            return (
             <div
               key={testimonial.name}
-              className={`group relative overflow-hidden rounded-2xl border ${testimonial.borderColor} bg-gradient-to-br ${testimonial.color} p-6 transition duration-300 hover:-translate-y-1 hover:shadow-lg ${testimonial.hoverColor}`}
+              className={`group relative overflow-hidden rounded-2xl border ${cardBorder} bg-gradient-to-br ${cardColor} p-6 transition duration-300 hover:-translate-y-1 hover:shadow-lg ${cardHover}`}
             >
               {/* Animated background gradient */}
               <div className="pointer-events-none absolute inset-0">
-                <div className={`absolute -right-12 -top-12 h-32 w-32 rounded-full blur-3xl opacity-0 transition duration-300 group-hover:opacity-60 ${testimonial.color.replace('from-', 'bg-').split(' to-')[0]}`} />
+                <div className={`absolute -right-12 -top-12 h-32 w-32 rounded-full blur-3xl opacity-0 transition duration-300 group-hover:opacity-60 ${cardColor.replace('from-', 'bg-').split(' to-')[0]}`} />
               </div>
 
               {/* Star rating */}
               <div className="relative z-10 flex items-center gap-1">
-                {[...Array(testimonial.rating)].map((_, i) => (
+                {[...Array(rating)].map((_, i) => (
                   <Star key={i} className="h-4 w-4 fill-amber-400 text-amber-400" />
                 ))}
               </div>
@@ -651,7 +754,7 @@ const Jobs = () => {
               <div className="relative z-10">
                 {/* Avatar */}
                 <div className="flex items-center gap-3">
-                  <div className={`flex h-12 w-12 items-center justify-center rounded-full ${testimonial.avatarBg} text-xs font-bold ${testimonial.avatarText}`}>
+                  <div className={`flex h-12 w-12 items-center justify-center rounded-full ${avatarBg} text-xs font-bold ${avatarText}`}>
                     {testimonial.avatar}
                   </div>
                   <div className="min-w-0 flex-1">
@@ -672,14 +775,15 @@ const Jobs = () => {
               {/* Bottom accent */}
               <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-white/30 to-transparent opacity-0 transition duration-300 group-hover:opacity-100" />
             </div>
-          ))}
+            );
+          })}
         </div>
       </section>
 
       <section>
         <SectionHeading title="Life at the company" subtitle="Culture gallery" />
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
-          {lifeAtCompany.map((item) => (
+          {pageLifeAtCompany.map((item) => (
             <div key={item.title} className="overflow-hidden rounded-2xl border border-gray-100/15 bg-white shadow-sm">
               <img src={item.image} alt={item.title} className="h-44 w-full object-cover" />
               <p className="p-4 text-sm font-semibold text-ink">{item.title}</p>
@@ -716,7 +820,7 @@ const Jobs = () => {
       <section>
         <SectionHeading title="FAQ" subtitle="Questions" />
         <div className="grid gap-4 lg:grid-cols-2">
-          {faqs.map((faq) => (
+          {pageFaqs.map((faq) => (
             <div key={faq.question} className="rounded-2xl border border-gray-100/15 bg-white p-5 shadow-sm">
               <h3 className="font-heading text-base font-semibold text-ink">{faq.question}</h3>
               <p className="mt-2 text-sm leading-7 text-gray-600">{faq.answer}</p>
@@ -752,26 +856,26 @@ const Jobs = () => {
         <aside className="space-y-4 rounded-2xl border border-gray-100/15 bg-slate-950/40 p-6 shadow-sm sm:p-8">
           <SectionHeading title="Why join TRIVIN" subtitle="Highlights" />
           <div className="space-y-3 text-sm leading-7 text-gray-600">
-            <p>Grow with a team that supports learning, ownership, and experimentation.</p>
-            <p>Work on meaningful products with modern tools and collaborative delivery.</p>
-            <p>We value fresh ideas, clear communication, and measurable impact.</p>
+            {(sidebar.paragraphs || fallbacks.sidebar.paragraphs).map((paragraph) => (
+              <p key={paragraph.slice(0, 40)}>{paragraph}</p>
+            ))}
           </div>
           <div className="rounded-2xl bg-white p-4 shadow-sm">
-            <div className="flex items-center gap-3 text-brand"><Linkedin className="h-5 w-5" /><span className="font-semibold text-ink">LinkedIn apply option</span></div>
-            <p className="mt-2 text-sm text-gray-600">Share your profile with the team when you submit your resume URL.</p>
+            <div className="flex items-center gap-3 text-brand"><Linkedin className="h-5 w-5" /><span className="font-semibold text-ink">{sidebar.linkedInTitle}</span></div>
+            <p className="mt-2 text-sm text-gray-600">{sidebar.linkedInBody}</p>
           </div>
           <div className="rounded-2xl bg-white p-4 shadow-sm">
-            <div className="flex items-center gap-3 text-brand"><CheckCircle2 className="h-5 w-5" /><span className="font-semibold text-ink">Real-time tracking</span></div>
-            <p className="mt-2 text-sm text-gray-600">Applied candidates can use their profile to review application history in the app.</p>
+            <div className="flex items-center gap-3 text-brand"><CheckCircle2 className="h-5 w-5" /><span className="font-semibold text-ink">{sidebar.trackingTitle}</span></div>
+            <p className="mt-2 text-sm text-gray-600">{sidebar.trackingBody}</p>
           </div>
         </aside>
       </section>
 
       <section className="rounded-2xl border border-gray-100/15 bg-slate-950/40 p-6 shadow-sm sm:p-8">
-        <SectionHeading title="Ready to grow your career?" subtitle="Final CTA" />
+        <SectionHeading title={finalCta.sectionTitle} subtitle={finalCta.sectionSubtitle} />
         <div className="flex flex-wrap gap-4">
-          <a href="#application-form" className="button-primary">Join Our Team</a>
-          <a href="#open-positions" className="button-outline">Apply Today</a>
+          <a href="#application-form" className="button-primary">{finalCta.primaryCta}</a>
+          <a href="#open-positions" className="button-outline">{finalCta.secondaryCta}</a>
         </div>
       </section>
     </main>

@@ -2,7 +2,8 @@ import Feature from "../models/Feature.js";
 
 export const listFeatures = async (req, res, next) => {
   try {
-    const features = await Feature.find({ isActive: true })
+    const filter = req.query.all === "true" ? {} : { isActive: true };
+    const features = await Feature.find(filter)
       .sort({ order: 1, createdAt: -1 })
       .populate("createdBy", "name email");
 

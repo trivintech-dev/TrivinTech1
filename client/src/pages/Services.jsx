@@ -5,17 +5,122 @@ import { BiLogoAws } from "react-icons/bi";
 import { FaJava, FaLaravel, FaPhp, FaPython } from "react-icons/fa6";
 import { SiDocker, SiMongodb, SiNextdotjs, SiNodedotjs, SiReact, SiSpringboot } from "react-icons/si";
 import api from "../api/api.js";
+import usePageContent from "../hooks/usePageContent.js";
+import { resolveIcon } from "../lib/iconMap.js";
 import HeroBanner from "../components/HeroBanner.jsx";
 import ServiceCard from "../components/ServiceCard.jsx";
 import SectionHeading from "../components/SectionHeading.jsx";
 import ServiceHeroBackground from "../components/ui/ServiceHeroBackground.jsx";
 
+const fallbacks = {
+  hero: {
+    eyebrow: "Services",
+    title: "Our Services",
+    description:
+      "We build innovative software, web applications, mobile apps, and cloud-based solutions that help businesses grow, automate operations, and deliver exceptional customer experiences.",
+    primaryActionLabel: "Get Free Quote",
+    primaryActionHref: "#contact-form",
+    secondaryActionLabel: "Schedule Call",
+    secondaryActionHref: "#contact-form"
+  },
+  overview: {
+    body: "We build scalable, fast, and secure web applications using modern technologies. Our services are best for startups, growing businesses, and teams that need a dependable product partner to move ideas into production.",
+    bullets: [
+      "Who needs it: startups, SMBs, and product teams",
+      "Business benefits: faster delivery, better UX, lower maintenance",
+      "What the service is: full-cycle design and engineering support",
+      "Outcomes: stronger conversions, scalable architecture, predictable delivery"
+    ],
+    imageSrc: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1600&q=80",
+    imageAlt: "Team working on a service project"
+  },
+  industries: [
+    { name: "Healthcare", icon: "Stethoscope", color: "#ec4899", glow: "from-pink-400/20 to-pink-400/5", description: "HIPAA-compliant portals, appointment scheduling, and patient management systems.", capabilities: ["Patient portals", "Appointment systems", "Telemedicine", "Medical records"] },
+    { name: "E-commerce", icon: "ShoppingCart", color: "#f59e0b", glow: "from-amber-400/20 to-amber-400/5", description: "Conversion-focused storefronts, inventory management, and checkout optimization.", capabilities: ["Product catalogs", "Payment integration", "Inventory tracking", "Order management"] },
+    { name: "Education", icon: "BookOpen", color: "#06b6d4", glow: "from-cyan-400/20 to-cyan-400/5", description: "Learning management systems, course platforms, and student engagement tools.", capabilities: ["LMS platforms", "Course delivery", "Student dashboards", "Progress tracking"] },
+    { name: "Finance", icon: "TrendingUp", color: "#10b981", glow: "from-emerald-400/20 to-emerald-400/5", description: "Secure dashboards, transaction management, and real-time financial reporting.", capabilities: ["Analytics dashboards", "Transaction handling", "Compliance reporting", "Security features"] },
+    { name: "Logistics", icon: "Truck", color: "#3b82f6", glow: "from-blue-400/20 to-blue-400/5", description: "Real-time tracking, route optimization, and supply chain visibility.", capabilities: ["Fleet tracking", "Route optimization", "Supply chain", "Real-time updates"] },
+    { name: "Real Estate", icon: "Building2", color: "#8b5cf6", glow: "from-violet-400/20 to-violet-400/5", description: "Property portals, virtual tours, and lead management for agents.", capabilities: ["Property listing", "Virtual tours", "Lead capture", "Agent tools"] }
+  ],
+  processSteps: [
+    { title: "Requirement Gathering", icon: "Clipboard", color: "#06b6d4", glow: "from-cyan-400/20 to-cyan-400/5", description: "We listen, analyze, and document your project goals, constraints, and success metrics.", details: ["Stakeholder interviews", "Scope definition", "Requirements doc", "Success metrics"] },
+    { title: "Planning", icon: "MapPin", color: "#3b82f6", glow: "from-blue-400/20 to-blue-400/5", description: "We create a detailed roadmap with milestones, timelines, and resource allocation.", details: ["Technical roadmap", "Sprint planning", "Resource allocation", "Risk assessment"] },
+    { title: "UI/UX Design", icon: "Palette", color: "#f59e0b", glow: "from-amber-400/20 to-amber-400/5", description: "We design interfaces that are intuitive, beautiful, and aligned with your brand.", details: ["Wireframing", "Design system", "Prototyping", "User testing"] },
+    { title: "Development", icon: "Code2", color: "#10b981", glow: "from-emerald-400/20 to-emerald-400/5", description: "We build scalable, clean code following best practices and industry standards.", details: ["Frontend development", "Backend APIs", "Database design", "Infrastructure setup"] },
+    { title: "Testing", icon: "Bug", color: "#8b5cf6", glow: "from-violet-400/20 to-violet-400/5", description: "We perform comprehensive testing to ensure quality, performance, and reliability.", details: ["Unit testing", "Integration tests", "Performance testing", "Security audit"] },
+    { title: "Launch", icon: "Rocket", color: "#ec4899", glow: "from-pink-400/20 to-pink-400/5", description: "We deploy with confidence, managing the release and ensuring smooth handoff.", details: ["Deployment planning", "Production setup", "Monitoring config", "Team training"] },
+    { title: "Maintenance", icon: "Wrench", color: "#f97316", glow: "from-orange-400/20 to-orange-400/5", description: "We provide ongoing support, updates, and optimization for long-term success.", details: ["Bug fixes", "Performance tuning", "Feature updates", "Security patches"] }
+  ],
+  advantages: [
+    { text: "Experienced Team" },
+    { text: "Agile Development" },
+    { text: "Fast Delivery" },
+    { text: "Affordable Pricing" },
+    { text: "Dedicated Support" },
+    { text: "Scalable Solutions" }
+  ],
+  projects: [
+    { title: "Retail operations portal", image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1200&q=80", goal: "Centralized order handling and team reporting.", result: "Reduced manual updates and improved turnaround time.", technologies: ["React", "Node.js", "MongoDB"] },
+    { title: "Healthcare booking suite", image: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=1200&q=80", goal: "A secure appointment and patient communication flow.", result: "Streamlined scheduling across multiple service lines.", technologies: ["Next.js", "AWS", "Docker"] },
+    { title: "Finance dashboard", image: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=1200&q=80", goal: "Real-time visibility into operational KPIs.", result: "Clearer reporting and easier stakeholder review.", technologies: ["React", "MongoDB", "AWS"] }
+  ],
+  testimonials: [
+    { name: "Maya Thompson", company: "Northstar Labs", photo: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=240&q=80", review: "The team translated our requirements into a clean product and kept the project moving steadily." },
+    { name: "Arjun Patel", company: "BlueRiver Ventures", photo: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=240&q=80", review: "Fast delivery, clear communication, and a result that matched our business goals." }
+  ],
+  faqs: [
+    { question: "How long does development take?", answer: "Timelines vary by scope, but most projects move through discovery, design, build, and launch in phased milestones." },
+    { question: "What technologies do you use?", answer: "We typically build with React, Next.js, Node.js, MongoDB, AWS, and Docker depending on the use case." },
+    { question: "Do you provide maintenance?", answer: "Yes. We can continue supporting launches with updates, fixes, and new feature work after deployment." },
+    { question: "What is the project cost?", answer: "Pricing depends on scope, complexity, and delivery timeline. Fixed packages and custom quotes are both available." }
+  ],
+  bottomCta: {
+    eyebrow: "CTA",
+    headline: "Let's build your next digital product",
+    body: "Book a consultation or contact us directly and we'll help you choose the right scope, timeline, and delivery path.",
+    primaryCta: "Contact Us",
+    secondaryCta: "Book Free Consultation"
+  }
+};
+
+const heroAction = (label, href, className) => {
+  if (!label) return null;
+  const target = href || "#contact-form";
+  return (
+    <a href={target} className={className}>
+      {label}
+    </a>
+  );
+};
+
+const mapPortfolioToCaseStudy = (item) => ({
+  title: item.title,
+  image: item.imageUrl || item.image,
+  goal: item.description || item.goal || "",
+  result: item.result || "",
+  technologies: item.technologies || []
+});
+
 const Services = () => {
+  const { content } = usePageContent("services", fallbacks);
   const [services, setServices] = useState([]);
   const [features, setFeatures] = useState([]);
   const [pricingPackages, setPricingPackages] = useState([]);
   const [searchParams] = useSearchParams();
   const searchTerm = searchParams.get("q")?.trim().toLowerCase() || "";
+  const [portfolioItems, setPortfolioItems] = useState([]);
+
+  const hero = content.hero || fallbacks.hero;
+  const overview = content.overview || fallbacks.overview;
+  const industries = content.industries?.length ? content.industries : fallbacks.industries;
+  const processSteps = content.processSteps?.length ? content.processSteps : fallbacks.processSteps;
+  const advantages = content.advantages?.length ? content.advantages : fallbacks.advantages;
+  const cmsProjects = content.projects?.length ? content.projects : fallbacks.projects;
+  const displayProjects =
+    portfolioItems.length > 0 ? portfolioItems.map(mapPortfolioToCaseStudy) : cmsProjects;
+  const testimonials = content.testimonials?.length ? content.testimonials : fallbacks.testimonials;
+  const faqs = content.faqs?.length ? content.faqs : fallbacks.faqs;
+  const bottomCta = content.bottomCta || fallbacks.bottomCta;
 
   const defaultServiceFeatures = [
     { title: "Responsive Design", icon: Sparkles, description: "Interfaces that adapt cleanly to every screen size." },
@@ -26,57 +131,6 @@ const Services = () => {
     { title: "Payment Gateway", icon: Lock, description: "Reliable checkout and billing flows for transactional products." },
     { title: "Cloud Deployment", icon: Cloud, description: "Deployable infrastructure with scalable hosting patterns." },
     { title: "AI Automation", icon: Bot, description: "Practical automations that reduce manual work and improve speed." }
-  ];
-
-  const industries = [
-    {
-      name: "Healthcare",
-      icon: Stethoscope,
-      color: "#ec4899",
-      glow: "from-pink-400/20 to-pink-400/5",
-      description: "HIPAA-compliant portals, appointment scheduling, and patient management systems.",
-      capabilities: ["Patient portals", "Appointment systems", "Telemedicine", "Medical records"]
-    },
-    {
-      name: "E-commerce",
-      icon: ShoppingCart,
-      color: "#f59e0b",
-      glow: "from-amber-400/20 to-amber-400/5",
-      description: "Conversion-focused storefronts, inventory management, and checkout optimization.",
-      capabilities: ["Product catalogs", "Payment integration", "Inventory tracking", "Order management"]
-    },
-    {
-      name: "Education",
-      icon: BookOpen,
-      color: "#06b6d4",
-      glow: "from-cyan-400/20 to-cyan-400/5",
-      description: "Learning management systems, course platforms, and student engagement tools.",
-      capabilities: ["LMS platforms", "Course delivery", "Student dashboards", "Progress tracking"]
-    },
-    {
-      name: "Finance",
-      icon: TrendingUp,
-      color: "#10b981",
-      glow: "from-emerald-400/20 to-emerald-400/5",
-      description: "Secure dashboards, transaction management, and real-time financial reporting.",
-      capabilities: ["Analytics dashboards", "Transaction handling", "Compliance reporting", "Security features"]
-    },
-    {
-      name: "Logistics",
-      icon: Truck,
-      color: "#3b82f6",
-      glow: "from-blue-400/20 to-blue-400/5",
-      description: "Real-time tracking, route optimization, and supply chain visibility.",
-      capabilities: ["Fleet tracking", "Route optimization", "Supply chain", "Real-time updates"]
-    },
-    {
-      name: "Real Estate",
-      icon: Building2,
-      color: "#8b5cf6",
-      glow: "from-violet-400/20 to-violet-400/5",
-      description: "Property portals, virtual tours, and lead management for agents.",
-      capabilities: ["Property listing", "Virtual tours", "Lead capture", "Agent tools"]
-    }
   ];
 
   const techStack = [
@@ -132,132 +186,6 @@ const Services = () => {
 
   const currentPricingPackages = pricingPackages.length > 0 ? pricingPackages : defaultPricingPackages;
 
-  const processSteps = [
-    {
-      title: "Requirement Gathering",
-      icon: Clipboard,
-      color: "#06b6d4",
-      glow: "from-cyan-400/20 to-cyan-400/5",
-      description: "We listen, analyze, and document your project goals, constraints, and success metrics.",
-      details: ["Stakeholder interviews", "Scope definition", "Requirements doc", "Success metrics"]
-    },
-    {
-      title: "Planning",
-      icon: MapPin,
-      color: "#3b82f6",
-      glow: "from-blue-400/20 to-blue-400/5",
-      description: "We create a detailed roadmap with milestones, timelines, and resource allocation.",
-      details: ["Technical roadmap", "Sprint planning", "Resource allocation", "Risk assessment"]
-    },
-    {
-      title: "UI/UX Design",
-      icon: Palette,
-      color: "#f59e0b",
-      glow: "from-amber-400/20 to-amber-400/5",
-      description: "We design interfaces that are intuitive, beautiful, and aligned with your brand.",
-      details: ["Wireframing", "Design system", "Prototyping", "User testing"]
-    },
-    {
-      title: "Development",
-      icon: Code2,
-      color: "#10b981",
-      glow: "from-emerald-400/20 to-emerald-400/5",
-      description: "We build scalable, clean code following best practices and industry standards.",
-      details: ["Frontend development", "Backend APIs", "Database design", "Infrastructure setup"]
-    },
-    {
-      title: "Testing",
-      icon: Bug,
-      color: "#8b5cf6",
-      glow: "from-violet-400/20 to-violet-400/5",
-      description: "We perform comprehensive testing to ensure quality, performance, and reliability.",
-      details: ["Unit testing", "Integration tests", "Performance testing", "Security audit"]
-    },
-    {
-      title: "Launch",
-      icon: Rocket,
-      color: "#ec4899",
-      glow: "from-pink-400/20 to-pink-400/5",
-      description: "We deploy with confidence, managing the release and ensuring smooth handoff.",
-      details: ["Deployment planning", "Production setup", "Monitoring config", "Team training"]
-    },
-    {
-      title: "Maintenance",
-      icon: Wrench,
-      color: "#f97316",
-      glow: "from-orange-400/20 to-orange-400/5",
-      description: "We provide ongoing support, updates, and optimization for long-term success.",
-      details: ["Bug fixes", "Performance tuning", "Feature updates", "Security patches"]
-    }
-  ];
-
-  const advantages = [
-    "Experienced Team",
-    "Agile Development",
-    "Fast Delivery",
-    "Affordable Pricing",
-    "Dedicated Support",
-    "Scalable Solutions"
-  ];
-
-  const projects = [
-    {
-      title: "Retail operations portal",
-      image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1200&q=80",
-      goal: "Centralized order handling and team reporting.",
-      result: "Reduced manual updates and improved turnaround time.",
-      technologies: ["React", "Node.js", "MongoDB"]
-    },
-    {
-      title: "Healthcare booking suite",
-      image: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=1200&q=80",
-      goal: "A secure appointment and patient communication flow.",
-      result: "Streamlined scheduling across multiple service lines.",
-      technologies: ["Next.js", "AWS", "Docker"]
-    },
-    {
-      title: "Finance dashboard",
-      image: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=1200&q=80",
-      goal: "Real-time visibility into operational KPIs.",
-      result: "Clearer reporting and easier stakeholder review.",
-      technologies: ["React", "MongoDB", "AWS"]
-    }
-  ];
-
-  const testimonials = [
-    {
-      name: "Maya Thompson",
-      company: "Northstar Labs",
-      photo: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=240&q=80",
-      review: "The team translated our requirements into a clean product and kept the project moving steadily."
-    },
-    {
-      name: "Arjun Patel",
-      company: "BlueRiver Ventures",
-      photo: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=240&q=80",
-      review: "Fast delivery, clear communication, and a result that matched our business goals."
-    }
-  ];
-
-  const faqs = [
-    {
-      question: "How long does development take?",
-      answer: "Timelines vary by scope, but most projects move through discovery, design, build, and launch in phased milestones."
-    },
-    {
-      question: "What technologies do you use?",
-      answer: "We typically build with React, Next.js, Node.js, MongoDB, AWS, and Docker depending on the use case."
-    },
-    {
-      question: "Do you provide maintenance?",
-      answer: "Yes. We can continue supporting launches with updates, fixes, and new feature work after deployment."
-    },
-    {
-      question: "What is the project cost?",
-      answer: "Pricing depends on scope, complexity, and delivery timeline. Fixed packages and custom quotes are both available."
-    }
-  ];
-
   useEffect(() => {
     const fetchServices = async () => {
       const { data } = await api.get("/services");
@@ -271,15 +199,11 @@ const Services = () => {
     const fetchFeatures = async () => {
       try {
         const { data } = await api.get("/features");
-        const featuresWithIcons = data.features.map((feature) => {
-          // Map icon string to icon component
-          const iconMap = { Sparkles, Layers3, Globe, ShieldCheck, Award, Lock, Cloud, Bot, Zap };
-          return {
-            title: feature.title,
-            icon: iconMap[feature.icon] || Sparkles,
-            description: feature.description
-          };
-        });
+        const featuresWithIcons = data.features.map((feature) => ({
+          title: feature.title,
+          icon: resolveIcon(feature.icon, Sparkles),
+          description: feature.description
+        }));
         setFeatures(featuresWithIcons.length > 0 ? featuresWithIcons : defaultServiceFeatures);
       } catch (_error) {
         setFeatures(defaultServiceFeatures);
@@ -302,6 +226,21 @@ const Services = () => {
     fetchPricingPackages();
   }, []);
 
+  useEffect(() => {
+    const fetchPortfolio = async () => {
+      try {
+        const { data } = await api.get("/portfolio");
+        if (data.portfolios?.length > 0) {
+          setPortfolioItems(data.portfolios);
+        }
+      } catch {
+        // keep CMS / fallback projects
+      }
+    };
+
+    fetchPortfolio();
+  }, []);
+
   const filteredServices = searchTerm
     ? services.filter((service) => {
       const searchableText = [service.title, service.description, service.category]
@@ -316,48 +255,31 @@ const Services = () => {
   return (
     <main className="space-y-16 pt-28 sm:pt-32 lg:pt-40">
       <HeroBanner
-        eyebrow="Services"
-        title="Our Services"
-        description="We build innovative software, web applications, mobile apps, and cloud-based solutions that help businesses grow, automate operations, and deliver exceptional customer experiences."
+        eyebrow={hero.eyebrow}
+        title={hero.title}
+        description={hero.description}
         background={<ServiceHeroBackground />}
-        primaryAction={
-          <a href="#contact-form" className="button-primary">
-            Get Free Quote
-          </a>
-        }
-        secondaryAction={
-          <a href="#contact-form" className="button-outline">
-            Schedule Call
-          </a>
-        }
+        primaryAction={heroAction(hero.primaryActionLabel || hero.primaryLabel, hero.primaryActionHref || hero.primaryHref, "button-primary")}
+        secondaryAction={heroAction(hero.secondaryActionLabel || hero.secondaryLabel, hero.secondaryActionHref || hero.secondaryHref, "button-outline")}
       />
 
       <section className="grid gap-4 sm:gap-6 lg:grid-cols-[1.05fr_0.95fr]">
         <div className="rounded-none border-y border-gray-100/15 bg-white px-4 sm:px-6 lg:px-10 py-8 sm:py-10 shadow-sm">
           <SectionHeading title="Service overview" subtitle="Overview" />
-          <p className="text-xs sm:text-sm leading-6 sm:leading-7 text-gray-600">
-            We build scalable, fast, and secure web applications using modern technologies. Our services are best for startups,
-            growing businesses, and teams that need a dependable product partner to move ideas into production.
-          </p>
+          <p className="text-xs sm:text-sm leading-6 sm:leading-7 text-gray-600">{overview.body}</p>
           <div className="mt-4 sm:mt-6 grid gap-2 sm:gap-4 sm:grid-cols-2">
-            {[
-              "Who needs it: startups, SMBs, and product teams",
-              "Business benefits: faster delivery, better UX, lower maintenance",
-              "What the service is: full-cycle design and engineering support",
-              "Outcomes: stronger conversions, scalable architecture, predictable delivery"
-            ].map((item) => (
+            {(overview.bullets || []).map((item) => (
               <div key={item} className="rounded-lg sm:rounded-2xl bg-mist p-2.5 sm:p-4 text-xs sm:text-sm text-gray-700">
                 {item}
               </div>
-            ))}"
             ))}
           </div>
         </div>
 
         <div className="overflow-hidden rounded-none border-y border-gray-100/15 bg-slate-950/40 shadow-sm">
           <img
-            src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1600&q=80"
-            alt="Team working on a service project"
+            src={overview.imageSrc}
+            alt={overview.imageAlt || "Team working on a service project"}
             className="h-full min-h-[250px] sm:min-h-[360px] w-full object-cover"
           />
         </div>
@@ -425,7 +347,9 @@ const Services = () => {
       <section>
         <SectionHeading title="Industries we serve" subtitle="Industries" />
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {industries.map(({ name, icon: Icon, color, glow, description, capabilities }, index) => (
+          {industries.map(({ name, icon, color, glow, description, capabilities }, index) => {
+            const Icon = resolveIcon(icon, Sparkles);
+            return (
             <div
               key={name}
               style={{ "--card-delay": `${index * 90}ms` }}
@@ -473,14 +397,18 @@ const Services = () => {
                 </a>
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       </section>
 
       <section className="rounded-none border-y border-gray-100/15 bg-slate-950/40 px-4 py-12 sm:px-6 lg:px-8">
         <SectionHeading title="Development process" subtitle="Workflow" />
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {processSteps.map(({ title, icon: Icon, color, glow, description, details }, index) => (
+          {processSteps.map(({ title, icon, color, glow, description, details }, index) => {
+            const Icon = resolveIcon(icon, Sparkles);
+            const detailList = Array.isArray(details) ? details : details ? [details] : [];
+            return (
             <div
               key={title}
               style={{ "--card-delay": `${index * 90}ms` }}
@@ -506,7 +434,7 @@ const Services = () => {
               <div className="relative mt-5 space-y-2">
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gray-500">Deliverables</p>
                 <div className="flex flex-wrap gap-2">
-                  {details.map((detail) => (
+                  {detailList.map((detail) => (
                     <span
                       key={detail}
                       className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-gray-400 transition duration-200 group-hover:border-brand/20 group-hover:bg-brand/10 group-hover:text-brand"
@@ -517,29 +445,33 @@ const Services = () => {
                 </div>
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       </section>
 
       <section>
         <SectionHeading title="Why choose us" subtitle="Advantages" />
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-          {advantages.map((item) => (
-            <div key={item} className="rounded-2xl border border-gray-100/15 bg-white p-6 shadow-sm">
+          {advantages.map((item) => {
+            const text = item.text || item;
+            return (
+            <div key={text} className="rounded-2xl border border-gray-100/15 bg-white p-6 shadow-sm">
               <div className="flex items-center gap-3">
                 <Zap className="h-5 w-5 text-brand" />
-                <h3 className="font-heading text-lg font-semibold text-ink">{item}</h3>
+                <h3 className="font-heading text-lg font-semibold text-ink">{text}</h3>
               </div>
               <p className="mt-3 text-sm text-gray-600">Reliable execution with a clear plan and steady communication.</p>
             </div>
-          ))}
+            );
+          })}
         </div>
       </section>
 
       <section>
         <SectionHeading title="Portfolio / case studies" subtitle="Projects" />
         <div className="grid gap-6 lg:grid-cols-3">
-          {projects.map((project) => (
+          {displayProjects.map((project) => (
             <article key={project.title} className="overflow-hidden rounded-2xl border border-gray-100/15 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md">
               <img src={project.image} alt={project.title} className="h-56 w-full object-cover" />
               <div className="p-6">
@@ -648,17 +580,15 @@ const Services = () => {
       <section className="rounded-none border-y border-gray-100/15 bg-slate-950/40 px-4 py-12 sm:px-6 lg:px-8">
         <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brand">CTA</p>
-            <h2 className="mt-3 font-heading text-3xl font-semibold text-ink sm:text-4xl">Let’s build your next digital product</h2>
-            <p className="mt-4 text-sm leading-7 text-gray-600">
-              Book a consultation or contact us directly and we’ll help you choose the right scope, timeline, and delivery path.
-            </p>
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brand">{bottomCta.eyebrow || "CTA"}</p>
+            <h2 className="mt-3 font-heading text-3xl font-semibold text-ink sm:text-4xl">{bottomCta.headline}</h2>
+            <p className="mt-4 text-sm leading-7 text-gray-600">{bottomCta.body}</p>
             <div className="mt-6 flex flex-wrap gap-4">
               <a href="#contact-form" className="button-primary">
-                Contact Us
+                {bottomCta.primaryCta || "Contact Us"}
               </a>
               <a href="#contact-form" className="button-outline">
-                Book Free Consultation
+                {bottomCta.secondaryCta || "Book Free Consultation"}
               </a>
             </div>
           </div>

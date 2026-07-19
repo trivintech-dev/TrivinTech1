@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import api from "../api/api.js";
+import { Button, Card, PageHeader } from "../components/admin/AdminUI.jsx";
 
 const AdminEmployeeForm = () => {
   const { id } = useParams();
@@ -129,26 +130,18 @@ const AdminEmployeeForm = () => {
   };
 
   return (
-    <div className="min-h-screen space-y-6 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 pt-32 md:pt-40">
-      <div className="mx-auto w-full max-w-4xl px-4 sm:px-6 lg:px-8">
-        <div className="rounded-3xl border border-slate-700 bg-slate-800 p-8 shadow-lg">
-          <Link to="/admin/employees" className="text-sm text-cyan-400 hover:text-cyan-300">
-            ← Back to Employees
-          </Link>
-          <h1 className="mt-4 text-3xl font-semibold text-white">
-            {isEdit ? "Edit Employee" : "Create New Employee"}
-          </h1>
-          <p className="mt-2 text-sm text-slate-300">
-            {isEdit ? "Update employee information" : "Add a new employee to the system"}
-          </p>
-        </div>
+    <div className="mx-auto w-full max-w-4xl space-y-6">
+      <PageHeader
+        title={isEdit ? "Edit employee" : "Create employee"}
+        description={isEdit ? "Update employee information" : "Add a new employee to the system"}
+      />
 
-        {error && <div className="rounded-3xl border border-red-900 bg-red-950 p-4 text-red-300">{error}</div>}
-        {success && <div className="rounded-3xl border border-green-900 bg-green-950 p-4 text-green-300">{success}</div>}
+      {error && <Card className="border-red-500/30 bg-red-500/10 p-4 text-sm text-red-300">{error}</Card>}
+      {success && <Card className="border-emerald-500/30 bg-emerald-500/10 p-4 text-sm text-emerald-300">{success}</Card>}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-6">
           {/* Basic Information */}
-          <section className="rounded-3xl border border-slate-700 bg-slate-800 p-8 shadow-lg">
+          <Card className="p-8">
             <h2 className="text-xl font-semibold text-white">Basic Information</h2>
 
             <div className="mt-6 grid gap-4 sm:grid-cols-2">
@@ -192,10 +185,10 @@ const AdminEmployeeForm = () => {
                 />
               </label>
             </div>
-          </section>
+          </Card>
 
           {/* Employment Information */}
-          <section className="rounded-3xl border border-slate-700 bg-slate-800 p-8 shadow-lg">
+          <Card className="p-8">
             <h2 className="text-xl font-semibold text-white">Employment Information</h2>
 
             <div className="mt-6 grid gap-4 sm:grid-cols-2">
@@ -278,10 +271,10 @@ const AdminEmployeeForm = () => {
                 </select>
               </label>
             </div>
-          </section>
+          </Card>
 
           {/* Professional Information */}
-          <section className="rounded-3xl border border-slate-700 bg-slate-800 p-8 shadow-lg">
+          <Card className="p-8">
             <h2 className="text-xl font-semibold text-white">Professional Information</h2>
 
             <div className="mt-6 grid gap-4 sm:grid-cols-2">
@@ -343,10 +336,10 @@ const AdminEmployeeForm = () => {
                 />
               </label>
             </div>
-          </section>
+          </Card>
 
           {/* Emergency Contact */}
-          <section className="rounded-3xl border border-slate-700 bg-slate-800 p-8 shadow-lg">
+          <Card className="p-8">
             <h2 className="text-xl font-semibold text-white">Emergency Contact</h2>
 
             <div className="mt-6 grid gap-4 sm:grid-cols-3">
@@ -394,27 +387,18 @@ const AdminEmployeeForm = () => {
                 />
               </label>
             </div>
-          </section>
+          </Card>
 
           {/* Action Buttons */}
           <div className="flex flex-col gap-4 sm:flex-row">
-            <button
-              type="submit"
-              disabled={loading}
-              className="rounded-2xl bg-cyan-600 px-6 py-3 font-semibold text-white transition hover:bg-cyan-700 disabled:opacity-50"
-            >
-              {loading ? "Saving..." : isEdit ? "Update Employee" : "Create Employee"}
-            </button>
-            <button
-              type="button"
-              onClick={() => navigate("/admin/employees")}
-              className="rounded-2xl border border-slate-600 bg-slate-700 px-6 py-3 font-semibold text-white transition hover:bg-slate-600"
-            >
+            <Button type="submit" loading={loading}>
+              {isEdit ? "Update employee" : "Create employee"}
+            </Button>
+            <Button type="button" variant="outline" onClick={() => navigate("/admin/employees")}>
               Cancel
-            </button>
+            </Button>
           </div>
         </form>
-      </div>
     </div>
   );
 };

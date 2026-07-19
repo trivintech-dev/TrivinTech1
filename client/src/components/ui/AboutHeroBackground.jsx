@@ -1,41 +1,41 @@
 const AboutHeroBackground = () => {
-    return (
-        <div className="absolute inset-0 overflow-hidden">
-            <div className="about-bg-orb about-bg-orb-a" />
-            <div className="about-bg-orb about-bg-orb-b" />
-            <div className="about-bg-orb about-bg-orb-c" />
+  return (
+    <div className="absolute inset-0 overflow-hidden">
+      <div className="about-bg-orb about-bg-orb-a" />
+      <div className="about-bg-orb about-bg-orb-b" />
+      <div className="about-bg-orb about-bg-orb-c" />
 
-            <div className="absolute inset-0 about-bg-grid" />
+      <div className="absolute inset-0 about-bg-grid" />
 
-            <div className="absolute inset-0 flex items-center justify-center">
-                <div className="about-bg-ring about-bg-ring-a" />
-                <div className="about-bg-ring about-bg-ring-b" />
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div className="about-bg-ring about-bg-ring-a" />
+        <div className="about-bg-ring about-bg-ring-b" />
 
-                <div className="about-bg-panel about-bg-panel-a">
-                    <div className="about-bg-panel-chip" />
-                    <div className="about-bg-panel-line" />
-                    <div className="about-bg-panel-line about-bg-panel-line-short" />
-                </div>
+        <div className="about-bg-panel about-bg-panel-a">
+          <div className="about-bg-panel-chip" />
+          <div className="about-bg-panel-line" />
+          <div className="about-bg-panel-line about-bg-panel-line-short" />
+        </div>
 
-                <div className="about-bg-panel about-bg-panel-b">
-                    <div className="about-bg-panel-chip about-bg-panel-chip-alt" />
-                    <div className="about-bg-panel-line" />
-                    <div className="about-bg-panel-line about-bg-panel-line-short" />
-                </div>
+        <div className="about-bg-panel about-bg-panel-b">
+          <div className="about-bg-panel-chip about-bg-panel-chip-alt" />
+          <div className="about-bg-panel-line" />
+          <div className="about-bg-panel-line about-bg-panel-line-short" />
+        </div>
 
-                <div className="about-bg-node about-bg-node-a" />
-                <div className="about-bg-node about-bg-node-b" />
-                <div className="about-bg-node about-bg-node-c" />
+        <div className="about-bg-node about-bg-node-a" />
+        <div className="about-bg-node about-bg-node-b" />
+        <div className="about-bg-node about-bg-node-c" />
 
-                <svg className="about-bg-flow" viewBox="0 0 900 420" aria-hidden="true">
-                    <path d="M70 210 C 160 120, 260 120, 340 200 S 520 300, 640 210 S 760 130, 850 200" />
-                    <path d="M120 95 C 250 170, 330 240, 430 190 S 620 95, 760 165" />
-                </svg>
-            </div>
+        <svg className="about-bg-flow" viewBox="0 0 900 420" aria-hidden="true">
+          <path d="M70 210 C 160 120, 260 120, 340 200 S 520 300, 640 210 S 760 130, 850 200" />
+          <path d="M120 95 C 250 170, 330 240, 430 190 S 620 95, 760 165" />
+        </svg>
+      </div>
 
-            <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-slate-950/65 to-transparent" />
+      <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-slate-950/65 to-transparent" />
 
-            <style>{`
+      <style>{`
         .about-bg-orb,
         .about-bg-ring,
         .about-bg-panel,
@@ -240,8 +240,8 @@ const AboutHeroBackground = () => {
           to { stroke-dashoffset: -140; }
         }
       `}</style>
-        </div>
-    );
+    </div>
+  );
 };
 
 export default AboutHeroBackground;

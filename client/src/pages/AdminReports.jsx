@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import api from "../api/api.js";
+import { Badge, Button, Card, PageHeader, Spinner, StatCard } from "../components/admin/AdminUI.jsx";
 
 const AdminReports = () => {
   const [employees, setEmployees] = useState([]);
@@ -121,36 +121,26 @@ const AdminReports = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white pt-40">
-        <div className="text-slate-700">Loading report data...</div>
+      <div className="flex min-h-[40vh] items-center justify-center gap-3 text-slate-400">
+        <Spinner className="h-6 w-6" />
+        Loading report data...
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen space-y-6 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 pt-32 md:pt-40">
-      <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="rounded-3xl border border-slate-700 bg-slate-800 p-8 shadow-lg">
-          <Link to="/admin" className="text-sm text-cyan-400 hover:text-cyan-300">
-            ← Back to Dashboard
-          </Link>
-          <div className="mt-4 flex items-end justify-between">
-            <div>
-              <h1 className="text-3xl font-semibold text-white">Employee Reports</h1>
-              <p className="mt-2 text-sm text-slate-300">Generate and analyze employee statistics</p>
-            </div>
-            <button
-              onClick={handleExport}
-              className="rounded-2xl bg-indigo-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-indigo-700"
-            >
-              📥 Export as CSV
-            </button>
-          </div>
-        </div>
+    <div className="space-y-6">
+      <PageHeader
+        title="Employee reports"
+        description="Generate and analyze employee statistics"
+        actions={
+          <Button onClick={handleExport} variant="outline">
+            Export CSV
+          </Button>
+        }
+      />
 
-        {/* Report Type Selector */}
-        <section className="rounded-3xl border border-slate-700 bg-slate-800 p-8 shadow-lg">
+        <Card className="p-8">
           <h2 className="text-lg font-semibold text-white">Select Report Type</h2>
           <div className="mt-6 grid gap-4 sm:grid-cols-3">
             <button
@@ -185,15 +175,15 @@ const AdminReports = () => {
               <p className="text-sm text-slate-300">Employment status breakdown</p>
             </button>
           </div>
-        </section>
+        </Card>
 
-        {error && <div className="rounded-3xl border border-red-900 bg-red-950 p-8 text-red-300">{error}</div>}
+        {error && <Card className="border-red-500/30 bg-red-500/10 p-6 text-red-300">{error}</Card>}
 
         {/* Report Content */}
         {reportType === "department" && (
           <section className="space-y-6">
             {Object.entries(reportData).map(([dept, data]) => (
-              <div key={dept} className="rounded-3xl border border-slate-700 bg-slate-800 p-8 shadow-lg">
+              <Card key={dept} className="p-8">
                 <div className="flex items-center justify-between">
                   <h3 className="text-xl font-semibold text-white">{dept}</h3>
                   <span className="rounded-full bg-cyan-500/20 px-3 py-1 text-sm font-semibold text-cyan-400">
@@ -235,7 +225,7 @@ const AdminReports = () => {
                     </div>
                   </div>
                 )}
-              </div>
+              </Card>
             ))}
           </section>
         )}
@@ -243,30 +233,28 @@ const AdminReports = () => {
         {reportType === "role" && (
           <section className="space-y-6">
             {Object.entries(reportData).map(([role, data]) => (
-              <div key={role} className="rounded-3xl border border-slate-700 bg-slate-800 p-8 shadow-lg">
+              <Card key={role} className="p-8">
                 <div className="flex items-center justify-between">
                   <h3 className="text-xl font-semibold text-white">{role}</h3>
-                  <span className="rounded-full bg-purple-500/20 px-3 py-1 text-sm font-semibold text-purple-400">
-                    {data.total} employees
-                  </span>
+                  <Badge tone="violet">{data.total} employees</Badge>
                 </div>
 
-                <div className="mt-6 grid gap-6 sm:grid-cols-4">
-                  <div className="rounded-2xl bg-blue-50 p-4">
-                    <p className="text-sm text-slate-600">Total</p>
-                    <p className="mt-2 text-2xl font-semibold text-blue-600">{data.total}</p>
+                <div className="mt-6 grid gap-4 sm:grid-cols-4">
+                  <div className="rounded-2xl border border-blue-500/30 bg-blue-500/10 p-4">
+                    <p className="text-sm text-slate-400">Total</p>
+                    <p className="mt-2 text-2xl font-semibold text-blue-400">{data.total}</p>
                   </div>
-                  <div className="rounded-2xl bg-green-50 p-4">
-                    <p className="text-sm text-slate-600">Active</p>
-                    <p className="mt-2 text-2xl font-semibold text-green-600">{data.active}</p>
+                  <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4">
+                    <p className="text-sm text-slate-400">Active</p>
+                    <p className="mt-2 text-2xl font-semibold text-emerald-400">{data.active}</p>
                   </div>
-                  <div className="rounded-2xl bg-yellow-50 p-4">
-                    <p className="text-sm text-slate-600">Avg Experience</p>
-                    <p className="mt-2 text-2xl font-semibold text-yellow-600">{data.avgExperience}y</p>
+                  <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4">
+                    <p className="text-sm text-slate-400">Avg experience</p>
+                    <p className="mt-2 text-2xl font-semibold text-amber-400">{data.avgExperience}y</p>
                   </div>
-                  <div className="rounded-2xl bg-red-50 p-4">
-                    <p className="text-sm text-slate-600">Resigned</p>
-                    <p className="mt-2 text-2xl font-semibold text-red-600">{data.resigned}</p>
+                  <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-4">
+                    <p className="text-sm text-slate-400">Resigned</p>
+                    <p className="mt-2 text-2xl font-semibold text-red-400">{data.resigned}</p>
                   </div>
                 </div>
 
@@ -285,65 +273,58 @@ const AdminReports = () => {
                     </div>
                   </div>
                 )}
-              </div>
+              </Card>
             ))}
           </section>
         )}
 
         {reportType === "status" && (
-          <section className="space-y-6">
-            <div className="grid gap-6 sm:grid-cols-3">
+          <section className="grid gap-6 sm:grid-cols-3">
               {Object.entries(reportData).map(([status, data]) => (
-                <div key={status} className="rounded-3xl border border-slate-700 bg-slate-800 p-6 shadow-lg">
+                <Card key={status} className="p-6">
                   <p className="font-semibold text-white">{status}</p>
                   <p className="mt-3 text-3xl font-semibold text-cyan-400">{data.total}</p>
 
                   {Object.keys(data.byRole).length > 0 && (
                     <div className="mt-4 space-y-2">
-                      <p className="text-xs font-semibold text-slate-600 uppercase">By Role</p>
+                      <p className="text-xs font-semibold uppercase text-slate-500">By role</p>
                       {Object.entries(data.byRole).map(([role, count]) => (
                         <div key={role} className="flex justify-between text-xs">
-                          <span className="text-slate-600">{role}</span>
-                          <span className="font-semibold text-slate-900">{count}</span>
+                          <span className="text-slate-400">{role}</span>
+                          <span className="font-semibold text-slate-200">{count}</span>
                         </div>
                       ))}
                     </div>
                   )}
-                </div>
+                </Card>
               ))}
-            </div>
           </section>
         )}
 
-        {/* Summary Stats */}
-        <section className="rounded-3xl border border-gray-100 bg-white p-8 shadow-sm">
-          <h2 className="text-lg font-semibold text-slate-900">Overall Summary</h2>
-          <div className="mt-6 grid gap-6 sm:grid-cols-4">
-            <div className="rounded-2xl bg-slate-50 p-4">
-              <p className="text-sm text-slate-600">Total Employees</p>
-              <p className="mt-2 text-2xl font-semibold text-slate-900">{employees.length}</p>
-            </div>
-            <div className="rounded-2xl bg-green-50 p-4">
-              <p className="text-sm text-slate-600">Active</p>
-              <p className="mt-2 text-2xl font-semibold text-green-600">
-                {employees.filter((e) => e.employmentStatus === "Active").length}
-              </p>
-            </div>
-            <div className="rounded-2xl bg-yellow-50 p-4">
-              <p className="text-sm text-slate-600">On Leave</p>
-              <p className="mt-2 text-2xl font-semibold text-yellow-600">
-                {employees.filter((e) => e.employmentStatus === "On Leave").length}
-              </p>
-            </div>
-            <div className="rounded-2xl bg-red-50 p-4">
-              <p className="text-sm text-slate-600">Resigned</p>
-              <p className="mt-2 text-2xl font-semibold text-red-600">
-                {employees.filter((e) => e.employmentStatus === "Resigned" || e.employmentStatus === "Terminated").length}
-              </p>
-            </div>
+        <Card className="p-8">
+          <h2 className="text-lg font-semibold text-white">Overall summary</h2>
+          <div className="mt-6 grid gap-4 sm:grid-cols-4">
+            <StatCard label="Total employees" value={employees.length} />
+            <StatCard
+              label="Active"
+              value={employees.filter((e) => e.employmentStatus === "Active").length}
+              tone="green"
+            />
+            <StatCard
+              label="On leave"
+              value={employees.filter((e) => e.employmentStatus === "On Leave").length}
+              tone="amber"
+            />
+            <StatCard
+              label="Resigned"
+              value={
+                employees.filter((e) => e.employmentStatus === "Resigned" || e.employmentStatus === "Terminated")
+                  .length
+              }
+              tone="violet"
+            />
           </div>
-        </section>
-      </div>
+        </Card>
     </div>
   );
 };

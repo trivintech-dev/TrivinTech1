@@ -17,14 +17,15 @@ const router = express.Router();
 
 // Public routes
 router.get("/", listTestimonials);
-router.get("/:id", getTestimonialById);
 
-// Admin routes
+// Admin routes (before /:id so "admin" is not treated as an id)
 router.get("/admin/all", requireAuth, requireAdmin, listAllTestimonials);
 router.post("/", requireAuth, requireAdmin, createTestimonial);
 router.put("/:id", requireAuth, requireAdmin, updateTestimonial);
 router.delete("/:id", requireAuth, requireAdmin, deleteTestimonial);
 router.post("/upload-image", requireAuth, requireAdmin, upload.single("image"), uploadTestimonialImage);
 router.delete("/image/delete", requireAuth, requireAdmin, deleteTestimonialImage);
+
+router.get("/:id", getTestimonialById);
 
 export default router;

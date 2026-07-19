@@ -1,8 +1,9 @@
 import TrustedClient from "../models/TrustedClient.js";
 
-export const listTrustedClients = async (_req, res, next) => {
+export const listTrustedClients = async (req, res, next) => {
     try {
-        const trustedClients = await TrustedClient.find({ isActive: true }).sort({ order: 1, createdAt: 1 });
+        const filter = req.query.all === "true" ? {} : { isActive: true };
+        const trustedClients = await TrustedClient.find(filter).sort({ order: 1, createdAt: 1 });
         return res.json({ trustedClients });
     } catch (error) {
         return next(error);

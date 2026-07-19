@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import api from "../api/api.js";
+import { Button, Card, PageHeader } from "../components/admin/AdminUI.jsx";
 
 const BulkImportEmployees = () => {
   const fileInputRef = useRef(null);
@@ -121,18 +122,14 @@ const BulkImportEmployees = () => {
   };
 
   return (
-    <div className="min-h-screen space-y-6 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 pt-32 md:pt-40">
-      <div className="mx-auto w-full max-w-4xl px-4 sm:px-6 lg:px-8">
-        <div className="rounded-3xl border border-slate-700 bg-slate-800 p-8 shadow-lg">
-          <Link to="/admin/employees" className="text-sm text-cyan-400 hover:text-cyan-300">
-            ← Back to Employees
-          </Link>
-          <h1 className="mt-4 text-3xl font-semibold text-white">Bulk Import Employees</h1>
-          <p className="mt-2 text-sm text-slate-300">Upload a CSV file to create multiple employees at once</p>
-        </div>
+    <div className="mx-auto w-full max-w-4xl space-y-6">
+      <PageHeader
+        title="Bulk import employees"
+        description="Upload a CSV file to create multiple employees at once"
+      />
 
         {/* Instructions */}
-        <section className="rounded-3xl border border-slate-700 bg-slate-800 p-8 shadow-lg">
+        <Card className="p-8">
           <h2 className="text-xl font-semibold text-white">CSV Format Guide</h2>
           <div className="mt-6 space-y-4">
             <p className="text-sm text-slate-300">
@@ -161,10 +158,10 @@ const BulkImportEmployees = () => {
               </ul>
             </div>
           </div>
-        </section>
+        </Card>
 
         {/* File Upload */}
-        <section className="rounded-3xl border border-slate-700 bg-slate-800 p-8 shadow-lg">
+        <Card className="p-8">
           <h2 className="text-xl font-semibold text-white">Select CSV File</h2>
           <div className="mt-6">
             <div
@@ -193,11 +190,11 @@ const BulkImportEmployees = () => {
               <p className="mt-1 text-xs text-cyan-300">or drag and drop</p>
             </div>
           </div>
-        </section>
+        </Card>
 
         {/* Preview */}
         {preview.length > 0 && (
-          <section className="rounded-3xl border border-slate-700 bg-slate-800 p-8 shadow-lg">
+          <Card className="p-8">
             <h2 className="text-xl font-semibold text-white">Preview</h2>
             <div className="mt-6 overflow-x-auto">
               <table className="w-full text-sm">
@@ -228,13 +225,13 @@ const BulkImportEmployees = () => {
                 </p>
               )}
             </div>
-          </section>
+          </Card>
         )}
 
-        {error && <div className="rounded-3xl border border-red-900 bg-red-950 p-4 text-red-300">{error}</div>}
+        {error && <Card className="border-red-500/30 bg-red-500/10 p-4 text-sm text-red-300">{error}</Card>}
 
         {result && (
-          <section className="rounded-3xl border border-slate-700 bg-slate-800 p-8 shadow-lg">
+          <Card className="p-8">
             <h2 className="text-xl font-semibold text-white">Import Results</h2>
             <div className="mt-6 grid gap-4 sm:grid-cols-3">
               <div className="rounded-2xl bg-blue-500/10 border border-blue-500/30 p-4">
@@ -253,36 +250,27 @@ const BulkImportEmployees = () => {
 
             {result.errors.length > 0 && (
               <div className="mt-6 space-y-2">
-                <p className="font-semibold text-slate-900">Errors:</p>
-                <div className="max-h-40 overflow-y-auto space-y-1 rounded-2xl bg-red-50 p-4">
+                <p className="font-semibold text-white">Errors:</p>
+                <div className="max-h-40 overflow-y-auto space-y-1 rounded-2xl border border-red-500/30 bg-red-500/10 p-4">
                   {result.errors.map((err, idx) => (
-                    <p key={idx} className="text-sm text-red-700">
+                    <p key={idx} className="text-sm text-red-300">
                       {err}
                     </p>
                   ))}
                 </div>
               </div>
             )}
-          </section>
+          </Card>
         )}
 
-        {/* Action Buttons */}
         <div className="flex gap-4">
-          <button
-            onClick={handleImport}
-            disabled={!file || importing}
-            className="rounded-2xl bg-indigo-600 px-6 py-3 font-semibold text-white transition hover:bg-indigo-700 disabled:opacity-50"
-          >
-            {importing ? "Importing..." : "Import Employees"}
-          </button>
-          <Link
-            to="/admin/employees"
-            className="rounded-2xl border border-slate-200 bg-white px-6 py-3 font-semibold text-slate-700 transition hover:bg-slate-50"
-          >
-            Back to Employees
-          </Link>
+          <Button onClick={handleImport} disabled={!file || importing} loading={importing}>
+            Import employees
+          </Button>
+          <Button as={Link} to="/admin/employees" variant="outline">
+            View employee list
+          </Button>
         </div>
-      </div>
     </div>
   );
 };

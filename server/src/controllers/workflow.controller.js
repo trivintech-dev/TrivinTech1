@@ -1,8 +1,9 @@
 import WorkflowStep from "../models/WorkflowStep.js";
 
-export const listWorkflowSteps = async (_req, res, next) => {
+export const listWorkflowSteps = async (req, res, next) => {
     try {
-        const workflowSteps = await WorkflowStep.find({ isActive: true }).sort({ order: 1, createdAt: 1 });
+        const filter = req.query.all === "true" ? {} : { isActive: true };
+        const workflowSteps = await WorkflowStep.find(filter).sort({ order: 1, createdAt: 1 });
         return res.json({ workflowSteps });
     } catch (error) {
         return next(error);

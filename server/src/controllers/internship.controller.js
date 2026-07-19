@@ -2,7 +2,8 @@ import Internship from "../models/Internship.js";
 
 export const listInternships = async (req, res, next) => {
   try {
-    const internships = await Internship.find({ isActive: true })
+    const filter = req.query.all === "true" ? {} : { isActive: true };
+    const internships = await Internship.find(filter)
       .sort({ createdAt: -1 })
       .populate("createdBy", "name");
 

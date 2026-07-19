@@ -1,185 +1,175 @@
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import api from "../api/api.js";
+import { useState } from "react";
+import { GraduationCap, Plus, Pencil, Trash2 } from "lucide-react";
+import DataTable from "../components/admin/DataTable.jsx";
+import useAdminResource from "../hooks/useAdminResource.js";
+import {
+  Badge,
+  Button,
+  ConfirmDialog,
+  Field,
+  IconButton,
+  Input,
+  Modal,
+  PageHeader,
+  Textarea,
+  Toggle
+} from "../components/admin/AdminUI.jsx";
 
-const emptyForm = { role: "", duration: "", eligibility: "", stipend: "", description: "" };
+const emptyForm = {
+  role: "",
+  duration: "",
+  eligibility: "",
+  stipend: "",
+  description: "",
+  isActive: true
+};
 
 const AdminInternships = () => {
-  const [internships, setInternships] = useState([]);
+  const { items, loading, saving, deleting, createItem, updateItem, deleteItem } = useAdminResource({
+    endpoint: "/internships",
+    listKey: "internships",
+    query: "all=true"
+  });
+
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(emptyForm);
-  const [editingId, setEditingId] = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
-  const fetchInternships = async () => {
-    try {
-      const { data } = await api.get("/internships/admin/all");
-      setInternships(data.internships);
-    } catch (error) {
-      console.error("Error fetching internships:", error);
-    }
+  const openCreate = () => {
+    setEditing(null);
+    setForm(emptyForm);
+    setModalOpen(true);
   };
 
-  useEffect(() => {
-    fetchInternships();
-  }, []);
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    try {
-      if (editingId) {
-        await api.put(`/internships/${editingId}`, form);
-      } else {
-        await api.post("/internships", form);
-      }
-      setForm(emptyForm);
-      setEditingId(null);
-      fetchInternships();
-    } catch (error) {
-      console.error("Error submitting form:", error);
-    }
-  };
-
-  const handleEdit = (internship) => {
-    setEditingId(internship._id);
+  const openEdit = (row) => {
+    setEditing(row);
     setForm({
-      role: internship.role || "",
-      duration: internship.duration || "",
-      eligibility: internship.eligibility || "",
-      stipend: internship.stipend || "",
-      description: internship.description || ""
+      role: row.role || "",
+      duration: row.duration || "",
+      eligibility: row.eligibility || "",
+      stipend: row.stipend || "",
+      description: row.description || "",
+      isActive: row.isActive ?? true
     });
+    setModalOpen(true);
   };
 
-  const handleDelete = async (id) => {
-    if (confirm("Are you sure you want to delete this internship?")) {
-      try {
-        await api.delete(`/internships/${id}`);
-        fetchInternships();
-      } catch (error) {
-        console.error("Error deleting internship:", error);
-      }
-    }
+  const closeModal = () => {
+    setModalOpen(false);
+    setEditing(null);
+    setForm(emptyForm);
   };
+
+  const handleSave = async () => {
+    const ok = editing ? await updateItem(editing._id, form) : await createItem(form);
+    if (ok) closeModal();
+  };
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    const ok = await deleteItem(deleteTarget._id);
+    if (ok) setDeleteTarget(null);
+  };
+
+  const columns = [
+    { key: "role", header: "Role", render: (row) => <span className="font-medium text-white">{row.role}</span> },
+    { key: "duration", header: "Duration" },
+    { key: "stipend", header: "Stipend" },
+    {
+      key: "isActive",
+      header: "Status",
+      render: (row) => (
+        <Badge tone={row.isActive ? "green" : "red"}>{row.isActive ? "Active" : "Inactive"}</Badge>
+      )
+    },
+    {
+      key: "actions",
+      header: "",
+      headerClassName: "text-right",
+      render: (row) => (
+        <div className="flex justify-end gap-1">
+          <IconButton icon={Pencil} label="Edit" onClick={() => openEdit(row)} />
+          <IconButton icon={Trash2} label="Delete" className="hover:text-red-300" onClick={() => setDeleteTarget(row)} />
+        </div>
+      )
+    }
+  ];
 
   return (
-    <div className="min-h-screen space-y-8 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4 pt-32 md:pt-40">
-      <div className="mx-auto max-w-7xl">
-        <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold text-white">Internship Management</h1>
-          <Link to="/admin" className="button-outline px-4 py-2 text-sm">
-            Back to Admin
-          </Link>
-        </div>
+    <div className="space-y-6">
+      <PageHeader
+        title="Internships"
+        description="Manage internship programs and listings."
+        actions={
+          <Button icon={Plus} onClick={openCreate} type="button">
+            Add internship
+          </Button>
+        }
+      />
 
-        {/* Form Section */}
-        <div className="mt-8 rounded-2xl border border-gray-100/15 bg-white/5 p-8">
-          <h2 className="text-xl font-semibold text-white">
-            {editingId ? "Edit Internship" : "Add New Internship"}
-          </h2>
-          <form onSubmit={handleSubmit} className="mt-6 space-y-6">
-            <div className="grid gap-6 md:grid-cols-2">
-              <input
-                type="text"
-                placeholder="Role (e.g., Frontend Intern)"
-                value={form.role}
-                onChange={(e) => setForm({ ...form, role: e.target.value })}
-                className="rounded-lg border border-gray-100/15 bg-white/5 px-4 py-2 text-white placeholder:text-gray-500 focus:border-brand/50 focus:outline-none"
-                required
-              />
-              <input
-                type="text"
-                placeholder="Duration (e.g., 3 months)"
-                value={form.duration}
-                onChange={(e) => setForm({ ...form, duration: e.target.value })}
-                className="rounded-lg border border-gray-100/15 bg-white/5 px-4 py-2 text-white placeholder:text-gray-500 focus:border-brand/50 focus:outline-none"
-                required
-              />
-              <input
-                type="text"
-                placeholder="Eligibility (e.g., Students or freshers)"
-                value={form.eligibility}
-                onChange={(e) => setForm({ ...form, eligibility: e.target.value })}
-                className="rounded-lg border border-gray-100/15 bg-white/5 px-4 py-2 text-white placeholder:text-gray-500 focus:border-brand/50 focus:outline-none"
-                required
-              />
-              <input
-                type="text"
-                placeholder="Stipend (e.g., Paid)"
-                value={form.stipend}
-                onChange={(e) => setForm({ ...form, stipend: e.target.value })}
-                className="rounded-lg border border-gray-100/15 bg-white/5 px-4 py-2 text-white placeholder:text-gray-500 focus:border-brand/50 focus:outline-none"
-                required
-              />
-            </div>
-            <textarea
-              placeholder="Description"
-              value={form.description}
-              onChange={(e) => setForm({ ...form, description: e.target.value })}
-              className="w-full rounded-lg border border-gray-100/15 bg-white/5 px-4 py-2 text-white placeholder:text-gray-500 focus:border-brand/50 focus:outline-none"
-              rows="4"
-            />
-            <div className="flex gap-3">
-              <button
-                type="submit"
-                className="button-primary px-6 py-2 text-sm"
-              >
-                {editingId ? "Update Internship" : "Add Internship"}
-              </button>
-              {editingId && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setEditingId(null);
-                    setForm(emptyForm);
-                  }}
-                  className="button-outline px-6 py-2 text-sm"
-                >
-                  Cancel
-                </button>
-              )}
-            </div>
-          </form>
-        </div>
+      <DataTable
+        columns={columns}
+        data={items}
+        loading={loading}
+        searchKeys={["role", "duration", "eligibility", "stipend"]}
+        searchPlaceholder="Search internships..."
+        emptyIcon={GraduationCap}
+        emptyTitle="No internships yet"
+        emptyDescription="Add internship roles for students and applicants."
+        emptyAction={
+          <Button icon={Plus} onClick={openCreate} type="button">
+            Add internship
+          </Button>
+        }
+      />
 
-        {/* Internships List */}
-        <div className="mt-8 space-y-4">
-          <h2 className="text-xl font-semibold text-white">All Internships</h2>
-          {internships.length === 0 ? (
-            <p className="text-gray-400">No internships found.</p>
-          ) : (
-            <div className="grid gap-4">
-              {internships.map((internship) => (
-                <div
-                  key={internship._id}
-                  className="flex items-center justify-between rounded-xl border border-gray-100/15 bg-white/5 p-4"
-                >
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-white">{internship.role}</h3>
-                    <div className="mt-2 grid gap-2 text-sm text-gray-400 md:grid-cols-2">
-                      <p><strong>Duration:</strong> {internship.duration}</p>
-                      <p><strong>Eligibility:</strong> {internship.eligibility}</p>
-                      <p><strong>Stipend:</strong> {internship.stipend}</p>
-                    </div>
-                  </div>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => handleEdit(internship)}
-                      className="button-outline px-4 py-2 text-xs"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(internship._id)}
-                      className="rounded-lg border border-red-400/30 bg-red-400/10 px-4 py-2 text-xs font-semibold text-red-300 transition hover:bg-red-400/20"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+      <Modal
+        open={modalOpen}
+        onClose={closeModal}
+        title={editing ? "Edit internship" : "Add internship"}
+        size="lg"
+        footer={
+          <>
+            <Button variant="outline" onClick={closeModal} disabled={saving} type="button">
+              Cancel
+            </Button>
+            <Button loading={saving} onClick={handleSave} type="button">
+              {editing ? "Save changes" : "Create internship"}
+            </Button>
+          </>
+        }
+      >
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field label="Role" required className="sm:col-span-2">
+            <Input value={form.role} onChange={(e) => setForm((p) => ({ ...p, role: e.target.value }))} required />
+          </Field>
+          <Field label="Duration" required>
+            <Input value={form.duration} onChange={(e) => setForm((p) => ({ ...p, duration: e.target.value }))} required />
+          </Field>
+          <Field label="Stipend" required>
+            <Input value={form.stipend} onChange={(e) => setForm((p) => ({ ...p, stipend: e.target.value }))} required />
+          </Field>
+          <Field label="Eligibility" required className="sm:col-span-2">
+            <Input value={form.eligibility} onChange={(e) => setForm((p) => ({ ...p, eligibility: e.target.value }))} required />
+          </Field>
+          <Field label="Description" className="sm:col-span-2">
+            <Textarea rows={4} value={form.description} onChange={(e) => setForm((p) => ({ ...p, description: e.target.value }))} />
+          </Field>
+          <div className="sm:col-span-2">
+            <Toggle label="Active listing" checked={form.isActive} onChange={(isActive) => setForm((p) => ({ ...p, isActive }))} />
+          </div>
         </div>
-      </div>
+      </Modal>
+
+      <ConfirmDialog
+        open={Boolean(deleteTarget)}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleDelete}
+        loading={deleting}
+        title="Delete internship?"
+        message={`Remove "${deleteTarget?.role || "this internship"}"? This cannot be undone.`}
+      />
     </div>
   );
 };

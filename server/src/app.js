@@ -16,6 +16,8 @@ import portfolioRoutes from "./routes/portfolio.routes.js";
 import testimonialRoutes from "./routes/testimonial.routes.js";
 import featureRoutes from "./routes/feature.routes.js";
 import internshipRoutes from "./routes/internship.routes.js";
+import contentRoutes from "./routes/content.routes.js";
+import siteSettingRoutes from "./routes/siteSetting.routes.js";
 import { errorHandler, notFound } from "./middleware/error.js";
 
 const app = express();
@@ -48,6 +50,8 @@ app.use("/api/portfolio", portfolioRoutes);
 app.use("/api/testimonials", testimonialRoutes);
 app.use("/api/features", featureRoutes);
 app.use("/api/internships", internshipRoutes);
+app.use("/api/content", contentRoutes);
+app.use("/api/settings", siteSettingRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

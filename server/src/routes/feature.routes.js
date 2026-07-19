@@ -14,12 +14,13 @@ const router = express.Router();
 
 // Public routes
 router.get("/", listFeatures);
-router.get("/:id", getFeatureById);
 
-// Admin routes
+// Admin routes (before /:id so "admin" is not treated as an id)
 router.get("/admin/all", requireAuth, requireAdmin, listAllFeatures);
 router.post("/", requireAuth, requireAdmin, createFeature);
 router.put("/:id", requireAuth, requireAdmin, updateFeature);
 router.delete("/:id", requireAuth, requireAdmin, deleteFeature);
+
+router.get("/:id", getFeatureById);
 
 export default router;

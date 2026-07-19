@@ -1,114 +1,176 @@
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import api from "../api/api.js";
+import { useState } from "react";
+import { Plus, Pencil, Trash2, BriefcaseBusiness } from "lucide-react";
+import DataTable from "../components/admin/DataTable.jsx";
+import useAdminResource from "../hooks/useAdminResource.js";
+import {
+  Badge,
+  Button,
+  ConfirmDialog,
+  Field,
+  IconButton,
+  Input,
+  Modal,
+  PageHeader,
+  Textarea,
+  Toggle
+} from "../components/admin/AdminUI.jsx";
 
-const emptyForm = { title: "", location: "", type: "", salaryRange: "", description: "" };
+const emptyForm = {
+  title: "",
+  location: "",
+  type: "",
+  salaryRange: "",
+  description: "",
+  isActive: true
+};
 
 const AdminJobs = () => {
-  const [jobs, setJobs] = useState([]);
+  const { items, loading, saving, deleting, createItem, updateItem, deleteItem } = useAdminResource({
+    endpoint: "/jobs",
+    listKey: "jobs",
+    query: "all=true"
+  });
+
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(emptyForm);
-  const [editingId, setEditingId] = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
-  const fetchJobs = async () => {
-    const { data } = await api.get("/jobs");
-    setJobs(data.jobs);
-  };
-
-  useEffect(() => {
-    fetchJobs();
-  }, []);
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    if (editingId) {
-      await api.put(`/jobs/${editingId}`, form);
-    } else {
-      await api.post("/jobs", form);
-    }
+  const openCreate = () => {
+    setEditing(null);
     setForm(emptyForm);
-    setEditingId(null);
-    fetchJobs();
+    setModalOpen(true);
   };
 
-  const handleEdit = (job) => {
-    setEditingId(job._id);
+  const openEdit = (row) => {
+    setEditing(row);
     setForm({
-      title: job.title || "",
-      location: job.location || "",
-      type: job.type || "",
-      salaryRange: job.salaryRange || "",
-      description: job.description || ""
+      title: row.title || "",
+      location: row.location || "",
+      type: row.type || "",
+      salaryRange: row.salaryRange || "",
+      description: row.description || "",
+      isActive: row.isActive ?? true
     });
+    setModalOpen(true);
   };
 
-  const handleDelete = async (id) => {
-    await api.delete(`/jobs/${id}`);
-    fetchJobs();
+  const closeModal = () => {
+    setModalOpen(false);
+    setEditing(null);
+    setForm(emptyForm);
   };
+
+  const handleSave = async () => {
+    const ok = editing ? await updateItem(editing._id, form) : await createItem(form);
+    if (ok) closeModal();
+  };
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    const ok = await deleteItem(deleteTarget._id);
+    if (ok) setDeleteTarget(null);
+  };
+
+  const columns = [
+    { key: "title", header: "Title", render: (row) => <span className="font-medium text-white">{row.title}</span> },
+    { key: "location", header: "Location" },
+    { key: "type", header: "Type" },
+    { key: "salaryRange", header: "Salary" },
+    {
+      key: "isActive",
+      header: "Status",
+      render: (row) => (
+        <Badge tone={row.isActive ? "green" : "red"}>{row.isActive ? "Active" : "Inactive"}</Badge>
+      )
+    },
+    {
+      key: "actions",
+      header: "",
+      headerClassName: "text-right",
+      render: (row) => (
+        <div className="flex justify-end gap-1">
+          <IconButton icon={Pencil} label="Edit" onClick={() => openEdit(row)} />
+          <IconButton icon={Trash2} label="Delete" className="hover:text-red-300" onClick={() => setDeleteTarget(row)} />
+        </div>
+      )
+    }
+  ];
 
   return (
-    <div className="min-h-screen space-y-8 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4 pt-32 md:pt-40">
-      <div className="mx-auto w-full max-w-7xl">
-        <div className="rounded-3xl border border-slate-700 bg-slate-800 p-6 shadow-lg">
-          <Link to="/admin" className="text-sm text-cyan-400 hover:text-cyan-300">
-            ← Back to Dashboard
-          </Link>
-          <h1 className="mt-4 font-heading text-2xl font-semibold text-white">Manage job requirements</h1>
-          <form onSubmit={handleSubmit} className="mt-6 grid gap-4 md:grid-cols-2">
-            <input
-              placeholder="Title"
-              value={form.title}
-              onChange={(event) => setForm((prev) => ({ ...prev, title: event.target.value }))}
-              className="rounded-xl border border-slate-600 bg-slate-700 px-3 py-2 text-white placeholder-slate-400 focus:border-cyan-500 focus:outline-none"
-              required
-            />
-            <input
-              placeholder="Location"
-              value={form.location}
-              onChange={(event) => setForm((prev) => ({ ...prev, location: event.target.value }))}
-              className="rounded-xl border border-slate-600 bg-slate-700 px-3 py-2 text-white placeholder-slate-400 focus:border-cyan-500 focus:outline-none"
-            />
-            <input
-              placeholder="Type"
-              value={form.type}
-              onChange={(event) => setForm((prev) => ({ ...prev, type: event.target.value }))}
-              className="rounded-xl border border-slate-600 bg-slate-700 px-3 py-2 text-white placeholder-slate-400 focus:border-cyan-500 focus:outline-none"
-            />
-            <input
-              placeholder="Salary range"
-              value={form.salaryRange}
-              onChange={(event) => setForm((prev) => ({ ...prev, salaryRange: event.target.value }))}
-              className="rounded-xl border border-slate-600 bg-slate-700 px-3 py-2 text-white placeholder-slate-400 focus:border-cyan-500 focus:outline-none"
-            />
-            <input
-              placeholder="Description"
-              value={form.description}
-              onChange={(event) => setForm((prev) => ({ ...prev, description: event.target.value }))}
-              className="rounded-xl border border-slate-600 bg-slate-700 px-3 py-2 text-white placeholder-slate-400 focus:border-cyan-500 focus:outline-none"
-            />
-            <button type="submit" className="button-primary md:col-span-2">
-              {editingId ? "Update job" : "Add job"}
-            </button>
-          </form>
-        </div>
+    <div className="space-y-6">
+      <PageHeader
+        title="Job openings"
+        description="Manage job listings and requirements."
+        actions={
+          <Button icon={Plus} onClick={openCreate} type="button">
+            Add job
+          </Button>
+        }
+      />
 
-        <div className="grid gap-4 md:grid-cols-2">
-          {jobs.map((job) => (
-            <div key={job._id} className="rounded-3xl border border-slate-700 bg-slate-800 p-6 shadow-lg">
-              <h2 className="font-heading text-lg font-semibold text-white">{job.title}</h2>
-              <p className="mt-2 text-sm text-slate-300">{job.description}</p>
-              <div className="mt-4 flex gap-3">
-                <button type="button" onClick={() => handleEdit(job)} className="button-primary">
-                  Edit
-                </button>
-                <button type="button" onClick={() => handleDelete(job._id)} className="button-outline">
-                  Delete
-                </button>
-              </div>
-            </div>
-          ))}
+      <DataTable
+        columns={columns}
+        data={items}
+        loading={loading}
+        searchKeys={["title", "location", "type", "salaryRange"]}
+        searchPlaceholder="Search jobs..."
+        emptyIcon={BriefcaseBusiness}
+        emptyTitle="No jobs yet"
+        emptyDescription="Create a job posting for candidates to view and apply."
+        emptyAction={
+          <Button icon={Plus} onClick={openCreate} type="button">
+            Add job
+          </Button>
+        }
+      />
+
+      <Modal
+        open={modalOpen}
+        onClose={closeModal}
+        title={editing ? "Edit job" : "Add job"}
+        size="lg"
+        footer={
+          <>
+            <Button variant="outline" onClick={closeModal} disabled={saving} type="button">
+              Cancel
+            </Button>
+            <Button loading={saving} onClick={handleSave} type="button">
+              {editing ? "Save changes" : "Create job"}
+            </Button>
+          </>
+        }
+      >
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field label="Title" required className="sm:col-span-2">
+            <Input value={form.title} onChange={(e) => setForm((p) => ({ ...p, title: e.target.value }))} required />
+          </Field>
+          <Field label="Location">
+            <Input value={form.location} onChange={(e) => setForm((p) => ({ ...p, location: e.target.value }))} />
+          </Field>
+          <Field label="Type">
+            <Input value={form.type} onChange={(e) => setForm((p) => ({ ...p, type: e.target.value }))} placeholder="Full-time, Remote..." />
+          </Field>
+          <Field label="Salary range" className="sm:col-span-2">
+            <Input value={form.salaryRange} onChange={(e) => setForm((p) => ({ ...p, salaryRange: e.target.value }))} />
+          </Field>
+          <Field label="Description" className="sm:col-span-2">
+            <Textarea rows={5} value={form.description} onChange={(e) => setForm((p) => ({ ...p, description: e.target.value }))} />
+          </Field>
+          <div className="sm:col-span-2">
+            <Toggle label="Active listing" checked={form.isActive} onChange={(isActive) => setForm((p) => ({ ...p, isActive }))} />
+          </div>
         </div>
-      </div>
+      </Modal>
+
+      <ConfirmDialog
+        open={Boolean(deleteTarget)}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleDelete}
+        loading={deleting}
+        title="Delete job?"
+        message={`Remove "${deleteTarget?.title || "this job"}"? This cannot be undone.`}
+      />
     </div>
   );
 };

@@ -1,6 +1,19 @@
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import api from "../api/api.js";
+import { useState } from "react";
+import { Briefcase, Plus, Pencil, Trash2 } from "lucide-react";
+import DataTable from "../components/admin/DataTable.jsx";
+import useAdminResource from "../hooks/useAdminResource.js";
+import {
+  Badge,
+  Button,
+  ConfirmDialog,
+  Field,
+  IconButton,
+  Input,
+  Modal,
+  PageHeader,
+  Textarea,
+  Toggle
+} from "../components/admin/AdminUI.jsx";
 
 const emptyForm = {
   title: "",
@@ -14,150 +27,171 @@ const emptyForm = {
 };
 
 const AdminServices = () => {
-  const [services, setServices] = useState([]);
-  const [form, setForm] = useState(emptyForm);
-  const [editingId, setEditingId] = useState(null);
+  const { items, loading, saving, deleting, createItem, updateItem, deleteItem } = useAdminResource({
+    endpoint: "/services",
+    listKey: "services",
+    query: "all=true"
+  });
 
-  const fetchServices = async () => {
-    const { data } = await api.get("/services");
-    setServices(data.services);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editing, setEditing] = useState(null);
+  const [form, setForm] = useState(emptyForm);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+
+  const openCreate = () => {
+    setEditing(null);
+    setForm(emptyForm);
+    setModalOpen(true);
   };
 
-  useEffect(() => {
-    fetchServices();
-  }, []);
+  const openEdit = (row) => {
+    setEditing(row);
+    setForm({
+      title: row.title || "",
+      summary: row.summary || "",
+      description: row.description || "",
+      price: row.price ?? "",
+      category: row.category || "",
+      duration: row.duration || "",
+      imageUrl: row.imageUrl || "",
+      isActive: row.isActive ?? true
+    });
+    setModalOpen(true);
+  };
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+  const closeModal = () => {
+    setModalOpen(false);
+    setEditing(null);
+    setForm(emptyForm);
+  };
+
+  const handleSave = async () => {
     const payload = {
       ...form,
       price: form.price === "" ? 0 : Number(form.price)
     };
+    const ok = editing ? await updateItem(editing._id, payload) : await createItem(payload);
+    if (ok) closeModal();
+  };
 
-    if (editingId) {
-      await api.put(`/services/${editingId}`, payload);
-    } else {
-      await api.post("/services", payload);
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    const ok = await deleteItem(deleteTarget._id);
+    if (ok) setDeleteTarget(null);
+  };
+
+  const columns = [
+    { key: "title", header: "Title", render: (row) => <span className="font-medium text-white">{row.title}</span> },
+    { key: "category", header: "Category" },
+    {
+      key: "price",
+      header: "Price",
+      render: (row) => <span>{row.price ?? 0}</span>
+    },
+    {
+      key: "isActive",
+      header: "Status",
+      render: (row) => (
+        <Badge tone={row.isActive ? "green" : "red"}>{row.isActive ? "Active" : "Inactive"}</Badge>
+      )
+    },
+    {
+      key: "actions",
+      header: "",
+      headerClassName: "text-right",
+      render: (row) => (
+        <div className="flex justify-end gap-1">
+          <IconButton icon={Pencil} label="Edit" onClick={() => openEdit(row)} />
+          <IconButton icon={Trash2} label="Delete" className="hover:text-red-300" onClick={() => setDeleteTarget(row)} />
+        </div>
+      )
     }
-    setForm(emptyForm);
-    setEditingId(null);
-    fetchServices();
-  };
-
-  const handleEdit = (service) => {
-    setEditingId(service._id);
-    setForm({
-      title: service.title || "",
-      summary: service.summary || "",
-      description: service.description || "",
-      price: service.price ?? "",
-      category: service.category || "",
-      duration: service.duration || "",
-      imageUrl: service.imageUrl || "",
-      isActive: service.isActive ?? true
-    });
-  };
-
-  const handleDelete = async (id) => {
-    await api.delete(`/services/${id}`);
-    fetchServices();
-  };
+  ];
 
   return (
-    <div className="min-h-screen space-y-8 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4 pt-32 md:pt-40">
-      <div className="mx-auto w-full max-w-7xl">
-        <div className="rounded-3xl border border-slate-700 bg-slate-800 p-6 shadow-lg">
-          <Link to="/admin" className="text-sm text-cyan-400 hover:text-cyan-300">
-            ← Back to Dashboard
-          </Link>
-          <h1 className="mt-4 font-heading text-2xl font-semibold text-white">Manage services</h1>
-          <form onSubmit={handleSubmit} className="mt-6 grid gap-4 md:grid-cols-2">
-            <input
-              placeholder="Title"
-              value={form.title}
-              onChange={(event) => setForm((prev) => ({ ...prev, title: event.target.value }))}
-              className="rounded-xl border border-slate-600 bg-slate-700 px-3 py-2 text-white placeholder-slate-400 focus:border-cyan-500 focus:outline-none"
-              required
-            />
-            <input
-              placeholder="Summary"
-              value={form.summary}
-              onChange={(event) => setForm((prev) => ({ ...prev, summary: event.target.value }))}
-              className="rounded-xl border border-slate-600 bg-slate-700 px-3 py-2 text-white placeholder-slate-400 focus:border-cyan-500 focus:outline-none"
-            />
-            <input
-              placeholder="Category"
-              value={form.category}
-              onChange={(event) => setForm((prev) => ({ ...prev, category: event.target.value }))}
-              className="rounded-xl border border-slate-600 bg-slate-700 px-3 py-2 text-white placeholder-slate-400 focus:border-cyan-500 focus:outline-none"
-            />
-            <input
-              placeholder="Price"
-              type="number"
-              value={form.price}
-              onChange={(event) => setForm((prev) => ({ ...prev, price: event.target.value }))}
-              className="rounded-xl border border-slate-600 bg-slate-700 px-3 py-2 text-white placeholder-slate-400 focus:border-cyan-500 focus:outline-none"
-            />
-            <input
-              placeholder="Duration"
-              value={form.duration}
-              onChange={(event) => setForm((prev) => ({ ...prev, duration: event.target.value }))}
-              className="rounded-xl border border-slate-600 bg-slate-700 px-3 py-2 text-white placeholder-slate-400 focus:border-cyan-500 focus:outline-none"
-            />
-            <input
-              placeholder="Image URL"
-              value={form.imageUrl}
-              onChange={(event) => setForm((prev) => ({ ...prev, imageUrl: event.target.value }))}
-              className="rounded-xl border border-slate-600 bg-slate-700 px-3 py-2 text-white placeholder-slate-400 focus:border-cyan-500 focus:outline-none md:col-span-2"
-            />
-            <input
-              placeholder="Description"
-              value={form.description}
-              onChange={(event) => setForm((prev) => ({ ...prev, description: event.target.value }))}
-              className="rounded-xl border border-slate-600 bg-slate-700 px-3 py-2 text-white placeholder-slate-400 focus:border-cyan-500 focus:outline-none md:col-span-2"
-            />
-            <label className="flex items-center gap-3 rounded-xl border border-slate-600 bg-slate-700 px-3 py-2 text-sm text-slate-300 md:col-span-2">
-              <input
-                type="checkbox"
-                checked={form.isActive}
-                onChange={(event) => setForm((prev) => ({ ...prev, isActive: event.target.checked }))}
-                className="h-4 w-4 rounded border-slate-500 bg-slate-600"
-              />
-              Active on site
-            </label>
-            <button type="submit" className="button-primary md:col-span-2">
-              {editingId ? "Update service" : "Add service"}
-            </button>
-          </form>
-        </div>
+    <div className="space-y-6">
+      <PageHeader
+        title="Services"
+        description="Manage service offerings shown on the site."
+        actions={
+          <Button icon={Plus} onClick={openCreate} type="button">
+            Add service
+          </Button>
+        }
+      />
 
-        <div className="grid gap-4 md:grid-cols-2">
-          {services.map((service) => (
-            <div key={service._id} className="rounded-3xl border border-slate-700 bg-slate-800 p-6 shadow-lg">
-              <h2 className="font-heading text-lg font-semibold text-white">{service.title}</h2>
-              <div className="mt-2 flex flex-wrap gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
-                <span>{service.category || "Uncategorized"}</span>
-                <span>{service.duration || "No duration"}</span>
-                <span>{service.isActive ? "Active" : "Inactive"}</span>
-              </div>
-              <p className="mt-2 text-sm text-slate-300">{service.summary || "No summary provided."}</p>
-              <p className="mt-2 text-sm text-slate-400">{service.description || "No description provided."}</p>
-              <div className="mt-3 text-sm font-medium text-slate-300">Price: {service.price ?? 0}</div>
-              {service.imageUrl ? (
-                <p className="mt-1 break-all text-xs text-slate-500">Image: {service.imageUrl}</p>
-              ) : null}
-              <div className="mt-4 flex gap-3">
-                <button type="button" onClick={() => handleEdit(service)} className="button-primary">
-                  Edit
-                </button>
-                <button type="button" onClick={() => handleDelete(service._id)} className="button-outline">
-                  Delete
-                </button>
-              </div>
-            </div>
-          ))}
+      <DataTable
+        columns={columns}
+        data={items}
+        loading={loading}
+        searchKeys={["title", "category", "summary"]}
+        searchPlaceholder="Search services..."
+        emptyIcon={Briefcase}
+        emptyTitle="No services yet"
+        emptyDescription="Add a service to display it on the public site."
+        emptyAction={
+          <Button icon={Plus} onClick={openCreate} type="button">
+            Add service
+          </Button>
+        }
+      />
+
+      <Modal
+        open={modalOpen}
+        onClose={closeModal}
+        title={editing ? "Edit service" : "Add service"}
+        size="lg"
+        footer={
+          <>
+            <Button variant="outline" onClick={closeModal} disabled={saving} type="button">
+              Cancel
+            </Button>
+            <Button loading={saving} onClick={handleSave} type="button">
+              {editing ? "Save changes" : "Create service"}
+            </Button>
+          </>
+        }
+      >
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field label="Title" required className="sm:col-span-2">
+            <Input value={form.title} onChange={(e) => setForm((p) => ({ ...p, title: e.target.value }))} required />
+          </Field>
+          <Field label="Summary" className="sm:col-span-2">
+            <Input value={form.summary} onChange={(e) => setForm((p) => ({ ...p, summary: e.target.value }))} />
+          </Field>
+          <Field label="Category">
+            <Input value={form.category} onChange={(e) => setForm((p) => ({ ...p, category: e.target.value }))} />
+          </Field>
+          <Field label="Price">
+            <Input type="number" min="0" value={form.price} onChange={(e) => setForm((p) => ({ ...p, price: e.target.value }))} />
+          </Field>
+          <Field label="Duration">
+            <Input value={form.duration} onChange={(e) => setForm((p) => ({ ...p, duration: e.target.value }))} />
+          </Field>
+          <Field label="Image URL">
+            <Input value={form.imageUrl} onChange={(e) => setForm((p) => ({ ...p, imageUrl: e.target.value }))} />
+          </Field>
+          <Field label="Description" className="sm:col-span-2">
+            <Textarea rows={4} value={form.description} onChange={(e) => setForm((p) => ({ ...p, description: e.target.value }))} />
+          </Field>
+          <div className="sm:col-span-2">
+            <Toggle
+              label="Active on site"
+              checked={form.isActive}
+              onChange={(isActive) => setForm((p) => ({ ...p, isActive }))}
+            />
+          </div>
         </div>
-      </div>
+      </Modal>
+
+      <ConfirmDialog
+        open={Boolean(deleteTarget)}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleDelete}
+        loading={deleting}
+        title="Delete service?"
+        message={`Remove "${deleteTarget?.title || "this service"}"? This cannot be undone.`}
+      />
     </div>
   );
 };

@@ -1,91 +1,158 @@
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { useCallback, useEffect, useState } from "react";
+import { HelpCircle, MessageSquare } from "lucide-react";
 import api from "../api/api.js";
+import DataTable from "../components/admin/DataTable.jsx";
+import { useToast } from "../components/admin/ToastProvider.jsx";
+import {
+  Badge,
+  Button,
+  Field,
+  Modal,
+  PageHeader,
+  Textarea
+} from "../components/admin/AdminUI.jsx";
+
+const statusTone = (status) => (status === "responded" ? "green" : "amber");
 
 const AdminQueries = () => {
+  const toast = useToast();
   const [queries, setQueries] = useState([]);
-  const [editing, setEditing] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [selected, setSelected] = useState(null);
   const [responseText, setResponseText] = useState("");
+  const [responding, setResponding] = useState(false);
+
+  const loadQueries = useCallback(async () => {
+    setLoading(true);
+    try {
+      const { data } = await api.get("/queries");
+      setQueries(data.queries || []);
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Failed to load queries");
+    } finally {
+      setLoading(false);
+    }
+  }, [toast]);
 
   useEffect(() => {
-    const load = async () => {
-      try {
-        const { data } = await api.get("/queries");
-        setQueries(data.queries);
-      } catch (err) {
-        // ignore
-      }
-    };
+    loadQueries();
+  }, [loadQueries]);
 
-    load();
-  }, []);
-
-  const handleRespond = (q) => {
-    setEditing(q._id);
-    setResponseText(q.response || "");
+  const openRespond = (row) => {
+    setSelected(row);
+    setResponseText(row.response || "");
   };
 
-  const submitResponse = async (id) => {
+  const submitResponse = async () => {
+    if (!selected) return;
+    setResponding(true);
     try {
-      const { data } = await api.post(`/queries/${id}/response`, { response: responseText });
-      setQueries((s) => s.map((q) => (q._id === id ? data.query : q)));
-      setEditing(null);
-    } catch (err) {
-      // ignore
+      const { data } = await api.post(`/queries/${selected._id}/response`, { response: responseText });
+      setQueries((current) => current.map((row) => (row._id === selected._id ? data.query : row)));
+      toast.success("Response saved");
+      setSelected(null);
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Failed to send response");
+    } finally {
+      setResponding(false);
     }
   };
 
-  return (
-    <div className="min-h-screen space-y-6 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4 pt-32 md:pt-40">
-      <div className="mx-auto w-full max-w-4xl">
-        <div className="rounded-3xl border border-slate-700 bg-slate-800 p-8 shadow-lg">
-          <Link to="/admin" className="text-sm text-cyan-400 hover:text-cyan-300">
-            ← Back to Dashboard
-          </Link>
-          <h2 className="mt-4 font-heading text-2xl font-semibold text-white">User Queries</h2>
-          <p className="mt-2 text-sm text-slate-300">Manage and respond to user inquiries</p>
+  const columns = [
+    {
+      key: "subject",
+      header: "Subject",
+      render: (row) => <span className="font-medium text-white">{row.subject}</span>
+    },
+    {
+      key: "user",
+      header: "From",
+      render: (row) => (
+        <div>
+          <p className="text-slate-200">{row.user?.name || "—"}</p>
+          <p className="text-xs text-slate-500">{row.user?.email || ""}</p>
         </div>
-        <div className="space-y-4">
-          {queries.map((q) => (
-            <div key={q._id} className="rounded-lg border border-slate-700 bg-slate-800 p-4 shadow-lg">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="font-semibold text-white">{q.subject}</div>
-                  <div className="text-sm text-slate-400">From: {q.user?.name || q.user?.email || "—"}</div>
-                </div>
-                <div className="text-sm text-slate-500">{q.status}</div>
-              </div>
-              <p className="mt-2 text-slate-300">{q.message}</p>
+      )
+    },
+    {
+      key: "status",
+      header: "Status",
+      render: (row) => <Badge tone={statusTone(row.status)}>{row.status || "open"}</Badge>
+    },
+    {
+      key: "createdAt",
+      header: "Received",
+      render: (row) => (
+        <span className="text-slate-400">{row.createdAt ? new Date(row.createdAt).toLocaleDateString() : "—"}</span>
+      )
+    },
+    {
+      key: "actions",
+      header: "",
+      headerClassName: "text-right",
+      render: (row) => (
+        <div className="flex justify-end">
+          <Button size="sm" variant="outline" icon={MessageSquare} onClick={() => openRespond(row)} type="button">
+            {row.response ? "Edit response" : "Respond"}
+          </Button>
+        </div>
+      )
+    }
+  ];
 
-              {editing === q._id ? (
-                <div className="mt-3 space-y-2">
-                  <textarea
-                    value={responseText}
-                    onChange={(e) => setResponseText(e.target.value)}
-                    rows={4}
-                    className="block w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-white placeholder-slate-400 focus:border-cyan-500 focus:outline-none"
-                  />
-                  <div className="flex gap-2">
-                    <button onClick={() => submitResponse(q._id)} className="button-primary">
-                      Save response
-                    </button>
-                    <button onClick={() => setEditing(null)} className="button-outline">
-                      Cancel
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <div className="mt-3 flex items-center gap-3">
-                  {q.response && <div className="text-sm text-slate-300">Response: {q.response}</div>}
-                  <button onClick={() => handleRespond(q)} className="text-sm text-cyan-400 hover:text-cyan-300">
-                    {q.response ? "Edit response" : "Respond"}
-                  </button>
-                </div>
-              )}
+  return (
+    <div className="space-y-6">
+      <PageHeader title="User queries" description="Review and respond to logged-in user inquiries." />
+
+      <DataTable
+        columns={columns}
+        data={queries}
+        loading={loading}
+        searchKeys={["subject", "message", "status"]}
+        searchPlaceholder="Search queries..."
+        emptyIcon={HelpCircle}
+        emptyTitle="No queries yet"
+        emptyDescription="User-submitted questions will appear here."
+      />
+
+      <Modal
+        open={Boolean(selected)}
+        onClose={() => setSelected(null)}
+        title={selected?.subject || "Respond to query"}
+        description={
+          selected
+            ? `${selected.user?.name || "User"}${selected.user?.email ? ` · ${selected.user.email}` : ""}`
+            : undefined
+        }
+        size="lg"
+        footer={
+          <>
+            <Button variant="outline" onClick={() => setSelected(null)} disabled={responding} type="button">
+              Cancel
+            </Button>
+            <Button loading={responding} onClick={submitResponse} type="button">
+              Save response
+            </Button>
+          </>
+        }
+      >
+        {selected && (
+          <div className="space-y-4">
+            <div className="rounded-lg border border-slate-700 bg-slate-900/50 p-4 text-sm text-slate-300">
+              <p className="whitespace-pre-wrap">{selected.message}</p>
             </div>
-          ))}
-        </div>
-      </div>
+            {selected.response ? (
+              <div className="rounded-lg border border-slate-700/50 bg-slate-900/30 p-3 text-sm text-slate-400">
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Previous response</p>
+                <p className="mt-2 whitespace-pre-wrap text-slate-300">{selected.response}</p>
+              </div>
+            ) : null}
+            <Field label="Your response" required>
+              <Textarea rows={5} value={responseText} onChange={(e) => setResponseText(e.target.value)} />
+            </Field>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 };

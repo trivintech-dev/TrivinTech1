@@ -1,12 +1,20 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { Plus, Users } from "lucide-react";
 import api from "../api/api.js";
+import DataTable from "../components/admin/DataTable.jsx";
+import { Badge, Button, Card, PageHeader, Select } from "../components/admin/AdminUI.jsx";
+
+const statusTone = (status) => {
+  if (status === "Active") return "green";
+  if (status === "On Leave") return "amber";
+  return "red";
+};
 
 const AdminEmployeeList = () => {
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [searchTerm, setSearchTerm] = useState("");
   const [filterDesignation, setFilterDesignation] = useState("");
 
   useEffect(() => {
@@ -31,55 +39,103 @@ const AdminEmployeeList = () => {
 
     try {
       await api.delete(`/employees/${id}`);
-      setEmployees(employees.filter((emp) => emp._id !== id));
+      setEmployees((prev) => prev.filter((emp) => emp._id !== id));
     } catch (err) {
       setError(err.response?.data?.message || "Failed to delete employee");
     }
   };
 
-  const filteredEmployees = employees.filter((emp) => {
-    const matchesSearch =
-      emp.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      emp.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      emp.employeeId?.includes(searchTerm);
+  const tableData = useMemo(() => {
+    if (!filterDesignation) return employees;
+    return employees.filter((emp) => emp.designation === filterDesignation);
+  }, [employees, filterDesignation]);
 
-    const matchesDesignation = !filterDesignation || emp.designation === filterDesignation;
-
-    return matchesSearch && matchesDesignation;
-  });
+  const columns = useMemo(
+    () => [
+      {
+        key: "name",
+        header: "Employee",
+        render: (emp) => (
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full border border-cyan-500/30 bg-cyan-500/10">
+              <span className="text-sm font-semibold text-cyan-300">{emp.name?.charAt(0) || "?"}</span>
+            </div>
+            <div>
+              <p className="font-medium text-white">{emp.name}</p>
+              <p className="text-xs text-slate-500">{emp.employeeId}</p>
+            </div>
+          </div>
+        )
+      },
+      { key: "email", header: "Email" },
+      { key: "designation", header: "Designation", render: (emp) => emp.designation || "N/A" },
+      { key: "department", header: "Department", render: (emp) => emp.department || "N/A" },
+      {
+        key: "employmentStatus",
+        header: "Status",
+        render: (emp) => <Badge tone={statusTone(emp.employmentStatus)}>{emp.employmentStatus || "Active"}</Badge>
+      },
+      {
+        key: "actions",
+        header: "Actions",
+        headerClassName: "text-right",
+        className: "text-right",
+        render: (emp) => (
+          <div className="flex flex-wrap justify-end gap-2">
+            <Button as={Link} to={`/admin/employees/${emp._id}`} variant="outline" size="sm">
+              View
+            </Button>
+            <Button as={Link} to={`/admin/employees/${emp._id}/edit`} variant="subtle" size="sm">
+              Edit
+            </Button>
+            <Button variant="danger" size="sm" onClick={() => handleDelete(emp._id)}>
+              Delete
+            </Button>
+          </div>
+        )
+      }
+    ],
+    []
+  );
 
   return (
-    <div className="min-h-screen space-y-6 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 pt-32 md:pt-40">
-      <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="rounded-3xl border border-slate-700 bg-slate-800 p-8 shadow-lg">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="text-sm uppercase tracking-[0.24em] text-slate-400">Employee Management</p>
-              <h1 className="mt-2 text-3xl font-semibold text-white">All Employees</h1>
-            </div>
-            <Link
-              to="/admin/employees/create"
-              className="inline-flex items-center justify-center rounded-2xl bg-indigo-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-indigo-700"
-            >
-              + Add Employee
-            </Link>
-          </div>
+    <div className="space-y-6">
+      <PageHeader
+        title="Employees"
+        description="Create, edit, and manage team profiles"
+        actions={
+          <Button as={Link} to="/admin/employees/create" icon={Plus}>
+            Add employee
+          </Button>
+        }
+      />
 
-          {/* Search & Filter */}
-          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <input
-              type="text"
-              placeholder="Search by name, email, or employee ID"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="rounded-2xl border border-slate-600 bg-slate-700 px-4 py-3 text-sm text-white placeholder-slate-400 focus:border-cyan-500 focus:outline-none"
-            />
-            <select
+      {error && (
+        <Card className="border-red-500/30 bg-red-500/10 p-4 text-sm text-red-300">{error}</Card>
+      )}
+
+      <Card className="p-6">
+        <DataTable
+          columns={columns}
+          data={tableData}
+          loading={loading}
+          searchKeys={["name", "email", "employeeId"]}
+          searchPlaceholder="Search by name, email, or ID"
+          emptyIcon={Users}
+          emptyTitle="No employees found"
+          emptyDescription="Adjust filters or add a new team member."
+          emptyAction={
+            <Button as={Link} to="/admin/employees/create" icon={Plus}>
+              Add employee
+            </Button>
+          }
+          toolbar={
+            <Select
               value={filterDesignation}
               onChange={(e) => setFilterDesignation(e.target.value)}
-              className="rounded-2xl border border-slate-600 bg-slate-700 px-4 py-3 text-sm text-white focus:border-cyan-500 focus:outline-none"
+              className="w-full max-w-xs"
             >
-              <option value="">All Designations</option>
+              <option value="">All designations</option>
               <option value="Developer">Developer</option>
               <option value="Intern">Intern</option>
               <option value="Manager">Manager</option>
@@ -87,92 +143,10 @@ const AdminEmployeeList = () => {
               <option value="Technical Support Executive">Tech Support</option>
               <option value="HR">HR</option>
               <option value="Sales">Sales</option>
-            </select>
-          </div>
-        </div>
-
-        {error && <div className="rounded-3xl border border-red-900 bg-red-950 p-8 text-red-300">{error}</div>}
-
-        {loading ? (
-          <div className="rounded-3xl border border-slate-700 bg-slate-800 p-8 text-center text-slate-300">
-            Loading employees...
-          </div>
-        ) : filteredEmployees.length === 0 ? (
-          <div className="rounded-3xl border border-slate-700 bg-slate-800 p-8 text-center text-slate-300">
-            No employees found
-          </div>
-        ) : (
-          <div className="rounded-3xl border border-slate-700 bg-slate-800 shadow-lg overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-slate-700 border-b border-slate-600">
-                  <tr>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-white">Employee</th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-white">Email</th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-white">Designation</th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-white">Department</th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-white">Status</th>
-                    <th className="px-6 py-4 text-right text-sm font-semibold text-white">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-700">
-                  {filteredEmployees.map((emp) => (
-                    <tr key={emp._id} className="hover:bg-slate-700 transition">
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
-                          <div className="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center">
-                            <span className="text-sm font-semibold text-indigo-600">{emp.name.charAt(0)}</span>
-                          </div>
-                          <div>
-                            <p className="font-medium text-white">{emp.name}</p>
-                            <p className="text-xs text-slate-400">{emp.employeeId}</p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-sm text-slate-300">{emp.email}</td>
-                      <td className="px-6 py-4 text-sm text-slate-300">{emp.designation || "N/A"}</td>
-                      <td className="px-6 py-4 text-sm text-slate-300">{emp.department || "N/A"}</td>
-                      <td className="px-6 py-4">
-                        <span
-                          className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
-                            emp.employmentStatus === "Active"
-                              ? "bg-green-100 text-green-800"
-                              : emp.employmentStatus === "On Leave"
-                              ? "bg-yellow-100 text-yellow-800"
-                              : "bg-red-100 text-red-800"
-                          }`}
-                        >
-                          {emp.employmentStatus || "Active"}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-right space-x-2">
-                        <Link
-                          to={`/admin/employees/${emp._id}`}
-                          className="inline-flex items-center rounded-2xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
-                        >
-                          View
-                        </Link>
-                        <Link
-                          to={`/admin/employees/${emp._id}/edit`}
-                          className="inline-flex items-center rounded-2xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
-                        >
-                          Edit
-                        </Link>
-                        <button
-                          onClick={() => handleDelete(emp._id)}
-                          className="inline-flex items-center rounded-2xl border border-red-200 bg-red-50 px-3 py-2 text-xs font-semibold text-red-700 transition hover:bg-red-100"
-                        >
-                          Delete
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-      </div>
+            </Select>
+          }
+        />
+      </Card>
     </div>
   );
 };

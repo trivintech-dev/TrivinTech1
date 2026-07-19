@@ -1,177 +1,206 @@
-import { useEffect, useState } from "react";
-import api from "../api/api.js";
+import { useState } from "react";
+import { GitBranch, Plus, Pencil, Trash2 } from "lucide-react";
+import DataTable from "../components/admin/DataTable.jsx";
+import useAdminResource from "../hooks/useAdminResource.js";
+import {
+  Badge,
+  Button,
+  ConfirmDialog,
+  Field,
+  IconButton,
+  Input,
+  Modal,
+  PageHeader,
+  Textarea,
+  Toggle
+} from "../components/admin/AdminUI.jsx";
+
+const linesToArray = (text) =>
+  text
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+const arrayToLines = (value) => (Array.isArray(value) ? value.join("\n") : "");
 
 const emptyForm = {
-    step: "",
-    title: "",
-    summary: "",
-    duration: "",
-    highlights: "",
-    order: 0,
-    isActive: true
+  step: "",
+  title: "",
+  summary: "",
+  duration: "",
+  highlights: "",
+  order: 0,
+  isActive: true
 };
 
 const AdminWorkflow = () => {
-    const [workflowSteps, setWorkflowSteps] = useState([]);
-    const [form, setForm] = useState(emptyForm);
-    const [editingId, setEditingId] = useState(null);
+  const { items, loading, saving, deleting, createItem, updateItem, deleteItem } = useAdminResource({
+    endpoint: "/workflow-steps",
+    listKey: "workflowSteps",
+    query: "all=true"
+  });
 
-    const fetchWorkflowSteps = async () => {
-        const { data } = await api.get("/workflow-steps");
-        setWorkflowSteps(data.workflowSteps);
-    };
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editing, setEditing] = useState(null);
+  const [form, setForm] = useState(emptyForm);
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
-    useEffect(() => {
-        fetchWorkflowSteps();
-    }, []);
+  const openCreate = () => {
+    setEditing(null);
+    setForm(emptyForm);
+    setModalOpen(true);
+  };
 
-    const handleSubmit = async (event) => {
-        event.preventDefault();
+  const openEdit = (row) => {
+    setEditing(row);
+    setForm({
+      step: row.step || "",
+      title: row.title || "",
+      summary: row.summary || "",
+      duration: row.duration || "",
+      highlights: arrayToLines(row.highlights),
+      order: row.order ?? 0,
+      isActive: row.isActive ?? true
+    });
+    setModalOpen(true);
+  };
 
-        const payload = {
-            ...form,
-            order: Number(form.order) || 0,
-            highlights: form.highlights
-                .split("\n")
-                .map((item) => item.trim())
-                .filter(Boolean)
-        };
+  const closeModal = () => {
+    setModalOpen(false);
+    setEditing(null);
+    setForm(emptyForm);
+  };
 
-        if (editingId) {
-            await api.put(`/workflow-steps/${editingId}`, payload);
-        } else {
-            await api.post("/workflow-steps", payload);
-        }
+  const buildPayload = () => ({
+    step: form.step,
+    title: form.title,
+    summary: form.summary,
+    duration: form.duration,
+    order: Number(form.order) || 0,
+    isActive: form.isActive,
+    highlights: linesToArray(form.highlights)
+  });
 
-        setForm(emptyForm);
-        setEditingId(null);
-        fetchWorkflowSteps();
-    };
+  const handleSave = async () => {
+    const payload = buildPayload();
+    const ok = editing ? await updateItem(editing._id, payload) : await createItem(payload);
+    if (ok) closeModal();
+  };
 
-    const handleEdit = (workflowStep) => {
-        setEditingId(workflowStep._id);
-        setForm({
-            step: workflowStep.step || "",
-            title: workflowStep.title || "",
-            summary: workflowStep.summary || "",
-            duration: workflowStep.duration || "",
-            highlights: Array.isArray(workflowStep.highlights) ? workflowStep.highlights.join("\n") : "",
-            order: workflowStep.order ?? 0,
-            isActive: workflowStep.isActive ?? true
-        });
-    };
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    const ok = await deleteItem(deleteTarget._id);
+    if (ok) setDeleteTarget(null);
+  };
 
-    const handleDelete = async (id) => {
-        await api.delete(`/workflow-steps/${id}`);
-        fetchWorkflowSteps();
-    };
-
-    return (
-        <div className="min-h-screen space-y-8 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4 pt-32 md:pt-40">
-            <div className="mx-auto w-full max-w-7xl">
-                <div className="rounded-3xl border border-slate-700 bg-slate-800 p-6 shadow-lg">
-                    <h1 className="font-heading text-2xl font-semibold text-white">Manage workflow steps</h1>
-                    <p className="mt-2 text-sm text-slate-300">Add, update, or remove the development process cards shown on the home page.</p>
-                    <form onSubmit={handleSubmit} className="mt-6 grid gap-4 md:grid-cols-2">
-                        <input
-                            placeholder="Step code"
-                            value={form.step}
-                            onChange={(event) => setForm((prev) => ({ ...prev, step: event.target.value }))}
-                            className="rounded-xl border border-slate-600 bg-slate-700 px-3 py-2 text-white placeholder-slate-400 focus:border-cyan-500 focus:outline-none"
-                            required
-                        />
-                        <input
-                            placeholder="Title"
-                            value={form.title}
-                            onChange={(event) => setForm((prev) => ({ ...prev, title: event.target.value }))}
-                            className="rounded-xl border border-slate-600 bg-slate-700 px-3 py-2 text-white placeholder-slate-400 focus:border-cyan-500 focus:outline-none"
-                            required
-                        />
-                        <textarea
-                            placeholder="Summary"
-                            value={form.summary}
-                            onChange={(event) => setForm((prev) => ({ ...prev, summary: event.target.value }))}
-                            className="min-h-28 rounded-xl border border-slate-600 bg-slate-700 px-3 py-2 text-white placeholder-slate-400 focus:border-cyan-500 focus:outline-none md:col-span-2"
-                            required
-                        />
-                        <input
-                            placeholder="Duration"
-                            value={form.duration}
-                            onChange={(event) => setForm((prev) => ({ ...prev, duration: event.target.value }))}
-                            className="rounded-xl border border-slate-600 bg-slate-700 px-3 py-2 text-white placeholder-slate-400 focus:border-cyan-500 focus:outline-none"
-                        />
-                        <input
-                            placeholder="Order"
-                            type="number"
-                            value={form.order}
-                            onChange={(event) => setForm((prev) => ({ ...prev, order: event.target.value }))}
-                            className="rounded-xl border border-slate-600 bg-slate-700 px-3 py-2 text-white placeholder-slate-400 focus:border-cyan-500 focus:outline-none"
-                        />
-                        <label className="flex items-center gap-3 rounded-xl border border-slate-600 bg-slate-700 px-3 py-2 text-sm text-slate-300 md:col-span-2">
-                            <input
-                                type="checkbox"
-                                checked={form.isActive}
-                                onChange={(event) => setForm((prev) => ({ ...prev, isActive: event.target.checked }))}
-                                className="h-4 w-4 rounded border-slate-500 bg-slate-600"
-                            />
-                            Active on home page
-                        </label>
-                        <textarea
-                            placeholder="Highlights, one per line"
-                            value={form.highlights}
-                            onChange={(event) => setForm((prev) => ({ ...prev, highlights: event.target.value }))}
-                            className="min-h-28 rounded-xl border border-slate-600 bg-slate-700 px-3 py-2 text-white placeholder-slate-400 focus:border-cyan-500 focus:outline-none md:col-span-2"
-                        />
-                        <button type="submit" className="button-primary md:col-span-2">
-                            {editingId ? "Update workflow step" : "Add workflow step"}
-                        </button>
-                        {editingId ? (
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    setEditingId(null);
-                                    setForm(emptyForm);
-                                }}
-                                className="button-outline md:col-span-2"
-                            >
-                                Cancel edit
-                            </button>
-                        ) : null}
-                    </form>
-                </div>
-
-                <div className="grid gap-4 md:grid-cols-2">
-                    {workflowSteps.map((workflowStep) => (
-                        <div key={workflowStep._id} className="rounded-3xl border border-slate-700 bg-slate-800 p-6 shadow-lg">
-                            <div className="flex items-start justify-between gap-4">
-                                <div>
-                                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-400">{workflowStep.step}</p>
-                                    <h2 className="mt-2 font-heading text-lg font-semibold text-white">{workflowStep.title}</h2>
-                                </div>
-                                <span className="rounded-full bg-slate-700 border border-slate-600 px-3 py-1 text-xs text-slate-300">{workflowStep.duration || "No duration"}</span>
-                            </div>
-                            <p className="mt-3 text-sm text-slate-300">{workflowStep.summary}</p>
-                            <div className="mt-4 flex flex-wrap gap-2">
-                                {(workflowStep.highlights || []).map((highlight) => (
-                                    <span key={highlight} className="rounded-full border border-slate-600 bg-slate-700 px-3 py-1 text-xs text-slate-300">
-                                        {highlight}
-                                    </span>
-                                ))}
-                            </div>
-                            <div className="mt-4 flex gap-3">
-                                <button type="button" onClick={() => handleEdit(workflowStep)} className="button-primary">
-                                    Edit
-                                </button>
-                                <button type="button" onClick={() => handleDelete(workflowStep._id)} className="button-outline">
-                                    Delete
-                                </button>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </div>
+  const columns = [
+    {
+      key: "step",
+      header: "Step",
+      render: (row) => <span className="font-mono text-xs text-cyan-400">{row.step}</span>
+    },
+    { key: "title", header: "Title", render: (row) => <span className="font-medium text-white">{row.title}</span> },
+    { key: "duration", header: "Duration" },
+    { key: "order", header: "Order" },
+    {
+      key: "isActive",
+      header: "Status",
+      render: (row) => (
+        <Badge tone={row.isActive ? "green" : "red"}>{row.isActive ? "Active" : "Inactive"}</Badge>
+      )
+    },
+    {
+      key: "actions",
+      header: "",
+      headerClassName: "text-right",
+      render: (row) => (
+        <div className="flex justify-end gap-1">
+          <IconButton icon={Pencil} label="Edit" onClick={() => openEdit(row)} />
+          <IconButton icon={Trash2} label="Delete" className="hover:text-red-300" onClick={() => setDeleteTarget(row)} />
         </div>
-    );
+      )
+    }
+  ];
+
+  return (
+    <div className="space-y-6">
+      <PageHeader
+        title="Workflow steps"
+        description="Development process cards on the home page."
+        actions={
+          <Button icon={Plus} onClick={openCreate} type="button">
+            Add step
+          </Button>
+        }
+      />
+
+      <DataTable
+        columns={columns}
+        data={items}
+        loading={loading}
+        searchKeys={["step", "title", "summary"]}
+        searchPlaceholder="Search workflow steps..."
+        emptyIcon={GitBranch}
+        emptyTitle="No workflow steps"
+        emptyDescription="Add steps to explain your delivery process."
+        emptyAction={
+          <Button icon={Plus} onClick={openCreate} type="button">
+            Add step
+          </Button>
+        }
+      />
+
+      <Modal
+        open={modalOpen}
+        onClose={closeModal}
+        title={editing ? "Edit workflow step" : "Add workflow step"}
+        size="lg"
+        footer={
+          <>
+            <Button variant="outline" onClick={closeModal} disabled={saving} type="button">
+              Cancel
+            </Button>
+            <Button loading={saving} onClick={handleSave} type="button">
+              {editing ? "Save changes" : "Create step"}
+            </Button>
+          </>
+        }
+      >
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field label="Step code" required>
+            <Input value={form.step} onChange={(e) => setForm((p) => ({ ...p, step: e.target.value }))} placeholder="01" required />
+          </Field>
+          <Field label="Title" required>
+            <Input value={form.title} onChange={(e) => setForm((p) => ({ ...p, title: e.target.value }))} required />
+          </Field>
+          <Field label="Duration">
+            <Input value={form.duration} onChange={(e) => setForm((p) => ({ ...p, duration: e.target.value }))} />
+          </Field>
+          <Field label="Order">
+            <Input type="number" value={form.order} onChange={(e) => setForm((p) => ({ ...p, order: e.target.value }))} />
+          </Field>
+          <Field label="Summary" required className="sm:col-span-2">
+            <Textarea rows={3} value={form.summary} onChange={(e) => setForm((p) => ({ ...p, summary: e.target.value }))} required />
+          </Field>
+          <Field label="Highlights" hint="One highlight per line" className="sm:col-span-2">
+            <Textarea rows={4} value={form.highlights} onChange={(e) => setForm((p) => ({ ...p, highlights: e.target.value }))} />
+          </Field>
+          <div className="sm:col-span-2">
+            <Toggle label="Active on home page" checked={form.isActive} onChange={(isActive) => setForm((p) => ({ ...p, isActive }))} />
+          </div>
+        </div>
+      </Modal>
+
+      <ConfirmDialog
+        open={Boolean(deleteTarget)}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleDelete}
+        loading={deleting}
+        title="Delete workflow step?"
+        message={`Remove "${deleteTarget?.title || "this step"}"? This cannot be undone.`}
+      />
+    </div>
+  );
 };
 
 export default AdminWorkflow;

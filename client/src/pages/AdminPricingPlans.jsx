@@ -1,138 +1,213 @@
-import { useEffect, useState } from "react";
-import api from "../api/api.js";
+import { useState } from "react";
+import { CreditCard, Plus, Pencil, Trash2 } from "lucide-react";
+import DataTable from "../components/admin/DataTable.jsx";
+import useAdminResource from "../hooks/useAdminResource.js";
+import {
+  Badge,
+  Button,
+  ConfirmDialog,
+  Field,
+  IconButton,
+  Input,
+  Modal,
+  PageHeader,
+  Textarea,
+  Toggle
+} from "../components/admin/AdminUI.jsx";
+
+const linesToArray = (text) =>
+  text
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+const arrayToLines = (value) => (Array.isArray(value) ? value.join("\n") : "");
 
 const emptyForm = {
-    name: "",
-    price: "",
-    description: "",
-    badge: "",
-    idealFor: "",
-    features: "",
-    order: 0,
-    featured: false,
-    isActive: true
+  name: "",
+  price: "",
+  description: "",
+  badge: "",
+  idealFor: "",
+  features: "",
+  order: 0,
+  featured: false,
+  isActive: true
 };
 
 const AdminPricingPlans = () => {
-    const [pricingPlans, setPricingPlans] = useState([]);
-    const [form, setForm] = useState(emptyForm);
-    const [editingId, setEditingId] = useState(null);
+  const { items, loading, saving, deleting, createItem, updateItem, deleteItem } = useAdminResource({
+    endpoint: "/pricing-plans",
+    listKey: "pricingPlans",
+    query: "all=true"
+  });
 
-    const fetchPricingPlans = async () => {
-        const { data } = await api.get("/pricing-plans/admin");
-        setPricingPlans(data.pricingPlans);
-    };
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editing, setEditing] = useState(null);
+  const [form, setForm] = useState(emptyForm);
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
-    useEffect(() => {
-        fetchPricingPlans();
-    }, []);
+  const openCreate = () => {
+    setEditing(null);
+    setForm(emptyForm);
+    setModalOpen(true);
+  };
 
-    const handleSubmit = async (event) => {
-        event.preventDefault();
+  const openEdit = (row) => {
+    setEditing(row);
+    setForm({
+      name: row.name || "",
+      price: row.price || "",
+      description: row.description || "",
+      badge: row.badge || "",
+      idealFor: row.idealFor || "",
+      features: arrayToLines(row.features),
+      order: row.order ?? 0,
+      featured: row.featured ?? false,
+      isActive: row.isActive ?? true
+    });
+    setModalOpen(true);
+  };
 
-        const payload = {
-            ...form,
-            order: Number(form.order) || 0,
-            features: form.features
-                .split(/\r?\n/)
-                .map((item) => item.trim())
-                .filter(Boolean)
-        };
+  const closeModal = () => {
+    setModalOpen(false);
+    setEditing(null);
+    setForm(emptyForm);
+  };
 
-        if (editingId) {
-            await api.put(`/pricing-plans/${editingId}`, payload);
-        } else {
-            await api.post("/pricing-plans", payload);
-        }
+  const buildPayload = () => ({
+    name: form.name,
+    price: form.price,
+    description: form.description,
+    badge: form.badge,
+    idealFor: form.idealFor,
+    order: Number(form.order) || 0,
+    featured: form.featured,
+    isActive: form.isActive,
+    features: linesToArray(form.features)
+  });
 
-        setForm(emptyForm);
-        setEditingId(null);
-        fetchPricingPlans();
-    };
+  const handleSave = async () => {
+    const payload = buildPayload();
+    const ok = editing ? await updateItem(editing._id, payload) : await createItem(payload);
+    if (ok) closeModal();
+  };
 
-    const handleEdit = (pricingPlan) => {
-        setEditingId(pricingPlan._id);
-        setForm({
-            name: pricingPlan.name || "",
-            price: pricingPlan.price || "",
-            description: pricingPlan.description || "",
-            badge: pricingPlan.badge || "",
-            idealFor: pricingPlan.idealFor || "",
-            features: Array.isArray(pricingPlan.features) ? pricingPlan.features.join("\n") : "",
-            order: pricingPlan.order ?? 0,
-            featured: pricingPlan.featured ?? false,
-            isActive: pricingPlan.isActive ?? true
-        });
-    };
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    const ok = await deleteItem(deleteTarget._id);
+    if (ok) setDeleteTarget(null);
+  };
 
-    const handleDelete = async (id) => {
-        await api.delete(`/pricing-plans/${id}`);
-        fetchPricingPlans();
-    };
-
-    return (
-        <div className="min-h-screen space-y-8 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4 pt-32 md:pt-40">
-            <div className="mx-auto w-full max-w-7xl">
-                <div className="rounded-3xl border border-slate-700 bg-slate-800 p-6 shadow-lg">
-                    <h1 className="font-heading text-2xl font-semibold text-white">Manage pricing plans</h1>
-                    <p className="mt-2 text-sm text-slate-300">Add, update, and remove the package cards shown on the home and services pages.</p>
-                    <form onSubmit={handleSubmit} className="mt-6 grid gap-4 md:grid-cols-2">
-                        <input placeholder="Plan name" value={form.name} onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))} className="rounded-xl border border-slate-600 bg-slate-700 px-3 py-2 text-white placeholder-slate-400 focus:border-cyan-500 focus:outline-none" required />
-                        <input placeholder="Price" value={form.price} onChange={(event) => setForm((prev) => ({ ...prev, price: event.target.value }))} className="rounded-xl border border-slate-600 bg-slate-700 px-3 py-2 text-white placeholder-slate-400 focus:border-cyan-500 focus:outline-none" required />
-                        <textarea placeholder="Description" value={form.description} onChange={(event) => setForm((prev) => ({ ...prev, description: event.target.value }))} className="min-h-28 rounded-xl border border-slate-600 bg-slate-700 px-3 py-2 text-white placeholder-slate-400 focus:border-cyan-500 focus:outline-none md:col-span-2" required></textarea>
-                        <input placeholder="Badge text" value={form.badge} onChange={(event) => setForm((prev) => ({ ...prev, badge: event.target.value }))} className="rounded-xl border border-slate-600 bg-slate-700 px-3 py-2 text-white placeholder-slate-400 focus:border-cyan-500 focus:outline-none" />
-                        <input placeholder="Ideal for" value={form.idealFor} onChange={(event) => setForm((prev) => ({ ...prev, idealFor: event.target.value }))} className="rounded-xl border border-slate-600 bg-slate-700 px-3 py-2 text-white placeholder-slate-400 focus:border-cyan-500 focus:outline-none" />
-                        <input placeholder="Order" type="number" value={form.order} onChange={(event) => setForm((prev) => ({ ...prev, order: event.target.value }))} className="rounded-xl border border-slate-600 bg-slate-700 px-3 py-2 text-white placeholder-slate-400 focus:border-cyan-500 focus:outline-none" />
-                        <label className="flex items-center gap-3 rounded-xl border border-slate-600 bg-slate-700 px-3 py-2 text-sm text-slate-300 md:col-span-2">
-                            <input type="checkbox" checked={form.featured} onChange={(event) => setForm((prev) => ({ ...prev, featured: event.target.checked }))} className="h-4 w-4 rounded border-slate-500 bg-slate-600" />
-                            Featured plan
-                        </label>
-                        <label className="flex items-center gap-3 rounded-xl border border-slate-600 bg-slate-700 px-3 py-2 text-sm text-slate-300 md:col-span-2">
-                            <input type="checkbox" checked={form.isActive} onChange={(event) => setForm((prev) => ({ ...prev, isActive: event.target.checked }))} className="h-4 w-4 rounded border-slate-500 bg-slate-600" />
-                            Active on site
-                        </label>
-                        <textarea placeholder="Features, one per line" value={form.features} onChange={(event) => setForm((prev) => ({ ...prev, features: event.target.value }))} className="min-h-28 rounded-xl border border-slate-600 bg-slate-700 px-3 py-2 text-white placeholder-slate-400 focus:border-cyan-500 focus:outline-none md:col-span-2"></textarea>
-                        <button type="submit" className="button-primary md:col-span-2">{editingId ? "Update pricing plan" : "Add pricing plan"}</button>
-                        {editingId ? (
-                            <button type="button" onClick={() => { setEditingId(null); setForm(emptyForm); }} className="button-outline md:col-span-2">Cancel edit</button>
-                        ) : null}
-                    </form>
-                </div>
-
-                <div className="grid gap-4 md:grid-cols-2">
-                {pricingPlans.map((pricingPlan) => (
-                    <div key={pricingPlan._id} className="rounded-3xl border border-slate-700 bg-slate-800 p-6 shadow-lg">
-                        <div className="flex items-start justify-between gap-4">
-                            <div>
-                                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-400">{pricingPlan.name}</p>
-                                <h2 className="mt-2 font-heading text-lg font-semibold text-white">{pricingPlan.price}</h2>
-                            </div>
-                            <div className="flex flex-col items-end gap-2">
-                                {pricingPlan.featured ? <span className="rounded-full bg-cyan-500/20 px-3 py-1 text-xs text-cyan-400">Featured</span> : null}
-                                <span className="rounded-full bg-slate-700 border border-slate-600 px-3 py-1 text-xs text-slate-300">Order {pricingPlan.order ?? 0}</span>
-                            </div>
-                        </div>
-                        <p className="mt-3 text-sm text-slate-300">{pricingPlan.description}</p>
-                        <div className="mt-3 flex flex-wrap gap-2 text-xs text-slate-400">
-                            {pricingPlan.badge ? <span className="rounded-full border border-slate-600 bg-slate-700 px-3 py-1 text-slate-300">{pricingPlan.badge}</span> : null}
-                            {pricingPlan.idealFor ? <span className="rounded-full border border-slate-600 bg-slate-700 px-3 py-1 text-slate-300">{pricingPlan.idealFor}</span> : null}
-                            <span className="rounded-full border border-slate-600 bg-slate-700 px-3 py-1 text-slate-300">{pricingPlan.isActive ? "Active" : "Inactive"}</span>
-                        </div>
-                        <div className="mt-4 flex flex-wrap gap-2">
-                            {(pricingPlan.features || []).map((feature) => (
-                                <span key={feature} className="rounded-full border border-slate-600 bg-slate-700 px-3 py-1 text-xs text-slate-300">{feature}</span>
-                            ))}
-                        </div>
-                        <div className="mt-4 flex gap-3">
-                            <button type="button" onClick={() => handleEdit(pricingPlan)} className="button-primary">Edit</button>
-                            <button type="button" onClick={() => handleDelete(pricingPlan._id)} className="button-outline">Delete</button>
-                        </div>
-                    </div>
-                ))}
-                </div>
-            </div>
+  const columns = [
+    { key: "name", header: "Plan", render: (row) => <span className="font-medium text-white">{row.name}</span> },
+    { key: "price", header: "Price" },
+    {
+      key: "featured",
+      header: "Featured",
+      render: (row) => (row.featured ? <Badge tone="cyan">Featured</Badge> : <span className="text-slate-500">—</span>)
+    },
+    {
+      key: "isActive",
+      header: "Status",
+      render: (row) => (
+        <Badge tone={row.isActive ? "green" : "red"}>{row.isActive ? "Active" : "Inactive"}</Badge>
+      )
+    },
+    {
+      key: "actions",
+      header: "",
+      headerClassName: "text-right",
+      render: (row) => (
+        <div className="flex justify-end gap-1">
+          <IconButton icon={Pencil} label="Edit" onClick={() => openEdit(row)} />
+          <IconButton icon={Trash2} label="Delete" className="hover:text-red-300" onClick={() => setDeleteTarget(row)} />
         </div>
-    );
+      )
+    }
+  ];
+
+  return (
+    <div className="space-y-6">
+      <PageHeader
+        title="Pricing plans"
+        description="Package cards on the home and services pages."
+        actions={
+          <Button icon={Plus} onClick={openCreate} type="button">
+            Add plan
+          </Button>
+        }
+      />
+
+      <DataTable
+        columns={columns}
+        data={items}
+        loading={loading}
+        searchKeys={["name", "price", "badge", "idealFor"]}
+        searchPlaceholder="Search plans..."
+        emptyIcon={CreditCard}
+        emptyTitle="No pricing plans"
+        emptyDescription="Create pricing tiers for your offerings."
+        emptyAction={
+          <Button icon={Plus} onClick={openCreate} type="button">
+            Add plan
+          </Button>
+        }
+      />
+
+      <Modal
+        open={modalOpen}
+        onClose={closeModal}
+        title={editing ? "Edit pricing plan" : "Add pricing plan"}
+        size="lg"
+        footer={
+          <>
+            <Button variant="outline" onClick={closeModal} disabled={saving} type="button">
+              Cancel
+            </Button>
+            <Button loading={saving} onClick={handleSave} type="button">
+              {editing ? "Save changes" : "Create plan"}
+            </Button>
+          </>
+        }
+      >
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field label="Plan name" required>
+            <Input value={form.name} onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))} required />
+          </Field>
+          <Field label="Price" required>
+            <Input value={form.price} onChange={(e) => setForm((p) => ({ ...p, price: e.target.value }))} required />
+          </Field>
+          <Field label="Badge text">
+            <Input value={form.badge} onChange={(e) => setForm((p) => ({ ...p, badge: e.target.value }))} />
+          </Field>
+          <Field label="Ideal for">
+            <Input value={form.idealFor} onChange={(e) => setForm((p) => ({ ...p, idealFor: e.target.value }))} />
+          </Field>
+          <Field label="Display order">
+            <Input type="number" value={form.order} onChange={(e) => setForm((p) => ({ ...p, order: e.target.value }))} />
+          </Field>
+          <Field label="Description" required className="sm:col-span-2">
+            <Textarea rows={3} value={form.description} onChange={(e) => setForm((p) => ({ ...p, description: e.target.value }))} required />
+          </Field>
+          <Field label="Features" hint="One feature per line" className="sm:col-span-2">
+            <Textarea rows={5} value={form.features} onChange={(e) => setForm((p) => ({ ...p, features: e.target.value }))} />
+          </Field>
+          <Toggle label="Featured plan" checked={form.featured} onChange={(featured) => setForm((p) => ({ ...p, featured }))} />
+          <Toggle label="Active on site" checked={form.isActive} onChange={(isActive) => setForm((p) => ({ ...p, isActive }))} />
+        </div>
+      </Modal>
+
+      <ConfirmDialog
+        open={Boolean(deleteTarget)}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleDelete}
+        loading={deleting}
+        title="Delete pricing plan?"
+        message={`Remove "${deleteTarget?.name || "this plan"}"? This cannot be undone.`}
+      />
+    </div>
+  );
 };
 
 export default AdminPricingPlans;

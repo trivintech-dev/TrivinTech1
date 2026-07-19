@@ -13,13 +13,152 @@ import CircularGallery from "../components/ui/circular-gallery.jsx";
 import { BiLogoAws } from "react-icons/bi";
 import { FaJava, FaLaravel, FaPhp, FaPython } from "react-icons/fa6";
 import { SiDocker, SiMongodb, SiNextdotjs, SiNodedotjs, SiReact, SiSpringboot, SiTailwindcss, SiVuedotjs } from "react-icons/si";
+import usePageContent from "../hooks/usePageContent.js";
+import { resolveIcon } from "../lib/iconMap.js";
+
+const homeFallbacks = {
+  hero: {
+    eyebrow: "Software company",
+    title: "Build, scale, and support every digital move with confidence.",
+    description:
+      "TRIVIN combines product strategy, design, and engineering to deliver measurable outcomes. We help teams ship faster with modern tooling and clear delivery milestones.",
+    primaryActionLabel: "Explore services",
+    primaryActionHref: "/services",
+    secondaryActionLabel: "See job openings",
+    secondaryActionHref: "/jobs"
+  },
+  serviceHighlights: [
+    { title: "Web Development", category: "Build", icon: "Code2", description: "Fast, responsive websites and platforms built for scale." },
+    { title: "Mobile App Development", category: "Build", icon: "Smartphone", description: "Native and cross-platform apps with smooth user experiences." },
+    { title: "UI/UX Design", category: "Design", icon: "Sparkles", description: "Interfaces, prototypes, and design systems that convert." },
+    { title: "SaaS Development", category: "Build", icon: "Layers3", description: "Subscription products with stable architecture and growth ready flows." },
+    { title: "E-commerce Solutions", category: "Build", icon: "Globe", description: "Storefronts, checkout flows, and retention-focused commerce." },
+    { title: "AI Automation", category: "Automation", icon: "Bot", description: "Workflow automation, assistants, and practical AI integrations." },
+    { title: "Cloud Services", category: "Cloud", icon: "Cloud", description: "Deployment, infrastructure, and reliability for modern products." }
+  ],
+  gallery: [
+    { image: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=800&h=600", text: "Web Development" },
+    { image: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=800&h=600", text: "Mobile Apps" },
+    { image: "https://images.unsplash.com/photo-1561070791-2526d30994b5?auto=format&fit=crop&w=800&h=600", text: "UI/UX Design" },
+    { image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&h=600", text: "SaaS Solutions" },
+    { image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=800&h=600", text: "E-commerce" },
+    { image: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=800&h=600", text: "AI Automation" }
+  ],
+  about: {
+    sectionSubtitle: "About",
+    sectionTitle: "About the company",
+    kicker: "Who we are",
+    headline: "A product delivery team for modern businesses.",
+    body: "We combine strategy, design, and engineering to turn ideas into products that are stable, useful, and ready to grow."
+  },
+  aboutStats: [
+    { label: "Experience", value: "8+ years across web and mobile delivery" },
+    { label: "Team strength", value: "Designers, developers, and cloud engineers" },
+    { label: "Mission", value: "Ship reliable products with clear outcomes" },
+    { label: "Vision", value: "Be the team clients trust for long-term growth" }
+  ],
+  advantages: [
+    { text: "Experienced Developers" },
+    { text: "Fast Delivery" },
+    { text: "Affordable Pricing" },
+    { text: "24/7 Support" },
+    { text: "Secure Solutions" },
+    { text: "Scalable Architecture" }
+  ],
+  projects: [
+    {
+      title: "Fintech dashboard",
+      image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80",
+      technologies: ["React", "Node.js", "MongoDB"],
+      industry: "Fintech",
+      liveLink: "/services"
+    },
+    {
+      title: "Healthcare booking app",
+      image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?auto=format&fit=crop&w=1200&q=80",
+      technologies: ["Next.js", "AWS", "Tailwind"],
+      industry: "Healthcare",
+      liveLink: "/contact"
+    },
+    {
+      title: "Retail commerce platform",
+      image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1200&q=80",
+      technologies: ["Vue", "Python", "MongoDB"],
+      industry: "Retail",
+      liveLink: "/services"
+    }
+  ],
+  techStack: [
+    { name: "React", icon: "SiReact", color: "#61dafb", glow: "from-cyan-400/20 to-cyan-400/5" },
+    { name: "Next.js", icon: "SiNextdotjs", color: "#ffffff", glow: "from-gray-200/15 to-gray-200/5" },
+    { name: "Node.js", icon: "SiNodedotjs", color: "#68a063", glow: "from-emerald-400/20 to-emerald-400/5" },
+    { name: "MongoDB", icon: "SiMongodb", color: "#47a248", glow: "from-green-400/20 to-green-400/5" },
+    { name: "AWS", icon: "BiLogoAws", color: "#ff9900", glow: "from-amber-400/20 to-amber-400/5" },
+    { name: "Docker", icon: "SiDocker", color: "#2496ed", glow: "from-sky-400/20 to-sky-400/5" },
+    { name: "Java", icon: "FaJava", color: "#f89820", glow: "from-orange-400/20 to-orange-400/5" },
+    { name: "Python", icon: "FaPython", color: "#3776ab", glow: "from-blue-400/20 to-blue-400/5" },
+    { name: "MERN Stack", badge: "MERN", color: "#6ee7ff", glow: "from-cyan-400/20 to-cyan-400/5" },
+    { name: "MEAN Stack", badge: "MEAN", color: "#22c55e", glow: "from-emerald-400/20 to-emerald-400/5" },
+    { name: "PHP", icon: "FaPhp", color: "#777bb4", glow: "from-violet-400/20 to-violet-400/5" },
+    { name: "Laravel", icon: "FaLaravel", color: "#ff2d20", glow: "from-red-400/20 to-red-400/5" },
+    { name: "Spring Boot", icon: "SiSpringboot", color: "#6db33f", glow: "from-lime-400/20 to-lime-400/5" }
+  ],
+  faqs: [
+    { question: "Project timeline?", answer: "Most projects start within a discovery sprint and ship in phases based on scope and priority." },
+    { question: "Cost estimation?", answer: "We estimate after requirement analysis so the budget matches the real scope and delivery plan." },
+    { question: "Support availability?", answer: "We provide ongoing support options after launch, including maintenance and updates." },
+    { question: "Technologies used?", answer: "We typically build with React, Node.js, MongoDB, Tailwind, and cloud-native tooling." }
+  ]
+};
+
+const heroAction = (label, href, className) => {
+  if (!label) return null;
+  const target = href || "/";
+  if (target.startsWith("/")) {
+    return (
+      <Link to={target} className={className}>
+        {label}
+      </Link>
+    );
+  }
+  return (
+    <a href={target} className={className}>
+      {label}
+    </a>
+  );
+};
+
+const mapPortfolioToProject = (item) => ({
+  title: item.title,
+  image: item.imageUrl || item.image,
+  technologies: item.technologies || [],
+  industry: item.category || item.industry,
+  liveLink: item.projectUrl || item.liveLink || "#"
+});
+
 const Home = () => {
+  const { content } = usePageContent("home", homeFallbacks);
   const [services, setServices] = useState([]);
   const [jobs, setJobs] = useState([]);
   const [activeProcessStep, setActiveProcessStep] = useState(0);
   const [workflowSteps, setWorkflowSteps] = useState([]);
   const [trustedClients, setTrustedClients] = useState([]);
   const [pricingPlans, setPricingPlans] = useState([]);
+  const [portfolioItems, setPortfolioItems] = useState([]);
+
+  const hero = content.hero || homeFallbacks.hero;
+  const serviceHighlights = content.serviceHighlights?.length ? content.serviceHighlights : homeFallbacks.serviceHighlights;
+  const galleryItems = content.gallery?.length ? content.gallery : homeFallbacks.gallery;
+  const about = content.about || homeFallbacks.about;
+  const aboutStats = content.aboutStats?.length ? content.aboutStats : homeFallbacks.aboutStats;
+  const advantages = content.advantages?.length ? content.advantages : homeFallbacks.advantages;
+  const cmsProjects = content.projects?.length ? content.projects : homeFallbacks.projects;
+  const techStack = content.techStack?.length ? content.techStack : homeFallbacks.techStack;
+  const faqs = content.faqs?.length ? content.faqs : homeFallbacks.faqs;
+  const displayProjects =
+    portfolioItems.length > 0 ? portfolioItems.map(mapPortfolioToProject) : cmsProjects;
+  const carouselServices = [...serviceHighlights, ...serviceHighlights];
+  const stackCarousel = [...techStack, ...techStack];
 
   const defaultWorkflowSteps = [
     {
@@ -82,102 +221,12 @@ const Home = () => {
     }
   ];
 
-  const serviceHighlights = [
-    { title: "Web Development", category: "Build", icon: Code2, description: "Fast, responsive websites and platforms built for scale." },
-    { title: "Mobile App Development", category: "Build", icon: Smartphone, description: "Native and cross-platform apps with smooth user experiences." },
-    { title: "UI/UX Design", category: "Design", icon: Sparkles, description: "Interfaces, prototypes, and design systems that convert." },
-    { title: "SaaS Development", category: "Build", icon: Layers3, description: "Subscription products with stable architecture and growth ready flows." },
-    { title: "E-commerce Solutions", category: "Build", icon: Globe, description: "Storefronts, checkout flows, and retention-focused commerce." },
-    { title: "AI Automation", category: "Automation", icon: Bot, description: "Workflow automation, assistants, and practical AI integrations." },
-    { title: "Cloud Services", category: "Cloud", icon: Cloud, description: "Deployment, infrastructure, and reliability for modern products." }
-  ];
-
-  const carouselServices = [...serviceHighlights, ...serviceHighlights];
-
   const serviceCategoryStyles = {
     Build: "border-cyan-400/25 bg-cyan-400/12 text-cyan-200 shadow-[0_0_18px_rgba(34,211,238,0.14)]",
     Design: "border-fuchsia-400/25 bg-fuchsia-400/12 text-fuchsia-200 shadow-[0_0_18px_rgba(232,121,249,0.14)]",
     Automation: "border-amber-400/25 bg-amber-400/12 text-amber-200 shadow-[0_0_18px_rgba(251,191,36,0.14)]",
     Cloud: "border-sky-400/25 bg-sky-400/12 text-sky-200 shadow-[0_0_18px_rgba(56,189,248,0.14)]"
   };
-
-  const galleryItems = [
-    {
-      image: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=800&h=600",
-      text: "Web Development"
-    },
-    {
-      image: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=800&h=600",
-      text: "Mobile Apps"
-    },
-    {
-      image: "https://images.unsplash.com/photo-1561070791-2526d30994b5?auto=format&fit=crop&w=800&h=600",
-      text: "UI/UX Design"
-    },
-    {
-      image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&h=600",
-      text: "SaaS Solutions"
-    },
-    {
-      image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=800&h=600",
-      text: "E-commerce"
-    },
-    {
-      image: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=800&h=600",
-      text: "AI Automation"
-    }
-  ];
-
-  const advantages = [
-    "Experienced Developers",
-    "Fast Delivery",
-    "Affordable Pricing",
-    "24/7 Support",
-    "Secure Solutions",
-    "Scalable Architecture"
-  ];
-
-  const projects = [
-    {
-      title: "Fintech dashboard",
-      image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80",
-      technologies: ["React", "Node.js", "MongoDB"],
-      industry: "Fintech",
-      liveLink: "/services"
-    },
-    {
-      title: "Healthcare booking app",
-      image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?auto=format&fit=crop&w=1200&q=80",
-      technologies: ["Next.js", "AWS", "Tailwind"],
-      industry: "Healthcare",
-      liveLink: "/contact"
-    },
-    {
-      title: "Retail commerce platform",
-      image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1200&q=80",
-      technologies: ["Vue", "Python", "MongoDB"],
-      industry: "Retail",
-      liveLink: "/services"
-    }
-  ];
-
-  const techStack = [
-    { name: "React", icon: SiReact, color: "#61dafb", glow: "from-cyan-400/20 to-cyan-400/5" },
-    { name: "Next.js", icon: SiNextdotjs, color: "#ffffff", glow: "from-gray-200/15 to-gray-200/5" },
-    { name: "Node.js", icon: SiNodedotjs, color: "#68a063", glow: "from-emerald-400/20 to-emerald-400/5" },
-    { name: "MongoDB", icon: SiMongodb, color: "#47a248", glow: "from-green-400/20 to-green-400/5" },
-    { name: "AWS", icon: BiLogoAws, color: "#ff9900", glow: "from-amber-400/20 to-amber-400/5" },
-    { name: "Docker", icon: SiDocker, color: "#2496ed", glow: "from-sky-400/20 to-sky-400/5" },
-    { name: "Java", icon: FaJava, color: "#f89820", glow: "from-orange-400/20 to-orange-400/5" },
-    { name: "Python", icon: FaPython, color: "#3776ab", glow: "from-blue-400/20 to-blue-400/5" },
-    { name: "MERN Stack", badge: "MERN", color: "#6ee7ff", glow: "from-cyan-400/20 to-cyan-400/5" },
-    { name: "MEAN Stack", badge: "MEAN", color: "#22c55e", glow: "from-emerald-400/20 to-emerald-400/5" },
-    { name: "PHP", icon: FaPhp, color: "#777bb4", glow: "from-violet-400/20 to-violet-400/5" },
-    { name: "Laravel", icon: FaLaravel, color: "#ff2d20", glow: "from-red-400/20 to-red-400/5" },
-    { name: "Spring Boot", icon: SiSpringboot, color: "#6db33f", glow: "from-lime-400/20 to-lime-400/5" }
-  ];
-
-  const stackCarousel = [...techStack, ...techStack];
 
   const projectTechnologyIcons = {
     React: SiReact,
@@ -189,30 +238,6 @@ const Home = () => {
     Vue: SiVuedotjs,
     Python: FaPython
   };
-
-  const testimonials = [
-    {
-      name: "Sarah Collins",
-      company: "Northstar Labs",
-      rating: 5,
-      photo: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=240&q=80",
-      review: "TRIVIN delivered a clean product roadmap and a reliable build faster than we expected."
-    },
-    {
-      name: "Daniel Ahmed",
-      company: "Atlas Startup Studio",
-      rating: 5,
-      photo: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=240&q=80",
-      review: "The team was responsive, practical, and strong on both design and engineering execution."
-    },
-    {
-      name: "Priya Nair",
-      company: "BlueRiver Ventures",
-      rating: 5,
-      photo: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=240&q=80",
-      review: "Their delivery process gave us clarity, and the final product felt polished from day one."
-    }
-  ];
 
   const defaultPricingPlans = [
     {
@@ -241,25 +266,6 @@ const Home = () => {
       idealFor: "Complex builds",
       featured: false,
       features: ["Dedicated team", "Architecture planning", "Ongoing maintenance"]
-    }
-  ];
-
-  const faqs = [
-    {
-      question: "Project timeline?",
-      answer: "Most projects start within a discovery sprint and ship in phases based on scope and priority."
-    },
-    {
-      question: "Cost estimation?",
-      answer: "We estimate after requirement analysis so the budget matches the real scope and delivery plan."
-    },
-    {
-      question: "Support availability?",
-      answer: "We provide ongoing support options after launch, including maintenance and updates."
-    },
-    {
-      question: "Technologies used?",
-      answer: "We typically build with React, Node.js, MongoDB, Tailwind, and cloud-native tooling."
     }
   ];
 
@@ -323,6 +329,21 @@ const Home = () => {
     fetchPricingPlans();
   }, []);
 
+  useEffect(() => {
+    const fetchPortfolio = async () => {
+      try {
+        const { data } = await api.get("/portfolio");
+        if (data.portfolios?.length > 0) {
+          setPortfolioItems(data.portfolios);
+        }
+      } catch {
+        // keep CMS / fallback projects
+      }
+    };
+
+    fetchPortfolio();
+  }, []);
+
   const currentWorkflowSteps = workflowSteps.length > 0 ? workflowSteps : defaultWorkflowSteps;
   const workflowStepCount = currentWorkflowSteps.length;
   const currentTrustedClients = trustedClients.length > 0 ? trustedClients : defaultTrustedClients;
@@ -345,21 +366,21 @@ const Home = () => {
   return (
     <div className="space-y-12 pt-28 sm:pt-32 lg:pt-40">
       <HeroBanner
-        eyebrow="Software company"
-        title="Build, scale, and support every digital move with confidence."
-        description="TRIVIN combines product strategy, design, and engineering to deliver measurable outcomes. We help teams ship faster with modern tooling and clear delivery milestones."
+        eyebrow={hero.eyebrow}
+        title={hero.title}
+        description={hero.description}
         background={<ShaderBackground />}
         className="min-h-[78vh] rounded-none py-10 sm:py-12 lg:py-14"
-        primaryAction={
-          <Link to="/services" className="button-primary">
-            Explore services
-          </Link>
-        }
-        secondaryAction={
-          <Link to="/jobs" className="button-outline">
-            See job openings
-          </Link>
-        }
+        primaryAction={heroAction(
+          hero.primaryActionLabel || hero.primaryLabel,
+          hero.primaryActionHref || hero.primaryHref,
+          "button-primary"
+        )}
+        secondaryAction={heroAction(
+          hero.secondaryActionLabel || hero.secondaryLabel,
+          hero.secondaryActionHref || hero.secondaryHref,
+          "button-outline"
+        )}
       />
 
       <section className="rounded-none border-y border-gray-100/15 bg-slate-950/40 px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
@@ -413,7 +434,9 @@ const Home = () => {
         <SectionHeading title="Main services" subtitle="Offerings" />
         <div className="offerings-carousel rounded-[1.75rem] border border-white/10 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 px-4 py-5 shadow-[0_18px_50px_rgba(2,8,20,0.45)] md:px-6 lg:px-7">
           <div className="offerings-carousel-track">
-            {carouselServices.map(({ title, category, icon: Icon, description }, index) => (
+            {carouselServices.map(({ title, category, icon, description }, index) => {
+              const Icon = resolveIcon(icon, Sparkles);
+              return (
               <div
                 key={`${title}-${index}`}
                 className="offerings-feature-card offerings-carousel-item group relative overflow-hidden rounded-[1.5rem] border border-white/10 bg-white/5 p-6 text-ink transition duration-300 hover:-translate-y-1 hover:border-brand/30 hover:shadow-[0_18px_40px_rgba(2,8,20,0.45)]"
@@ -452,7 +475,8 @@ const Home = () => {
                   </span>
                 </div>
               </div>
-            ))}
+            );
+            })}
           </div>
         </div>
       </section>
@@ -471,23 +495,16 @@ const Home = () => {
       </section>
 
       <section>
-        <SectionHeading title="About the company" subtitle="About" />
+        <SectionHeading title={about.sectionTitle || "About the company"} subtitle={about.sectionSubtitle || "About"} />
         <div className="grid gap-4 sm:gap-6 lg:grid-cols-[1.2fr_0.8fr]">
           <div className="rounded-xl sm:rounded-2xl border border-gray-100/15 bg-white p-4 sm:p-8 shadow-sm">
-            <p className="text-xs sm:text-sm uppercase tracking-[0.2em] text-brand">Who we are</p>
+            <p className="text-xs sm:text-sm uppercase tracking-[0.2em] text-brand">{about.kicker || "Who we are"}</p>
             <h3 className="mt-2 sm:mt-3 font-heading text-xl sm:text-2xl font-semibold text-ink">
-              A product delivery team for modern businesses.
+              {about.headline || "A product delivery team for modern businesses."}
             </h3>
-            <p className="mt-4 text-sm leading-7 text-gray-600">
-              We combine strategy, design, and engineering to turn ideas into products that are stable, useful, and ready to grow.
-            </p>
+            <p className="mt-4 text-sm leading-7 text-gray-600">{about.body}</p>
             <div className="mt-4 sm:mt-6 grid gap-3 sm:gap-4 sm:grid-cols-2">
-              {[
-                { label: "Experience", value: "8+ years across web and mobile delivery" },
-                { label: "Team strength", value: "Designers, developers, and cloud engineers" },
-                { label: "Mission", value: "Ship reliable products with clear outcomes" },
-                { label: "Vision", value: "Be the team clients trust for long-term growth" }
-              ].map((item) => (
+              {aboutStats.map((item) => (
                 <div key={item.label} className="rounded-lg sm:rounded-xl bg-mist p-3 sm:p-4">
                   <p className="text-xs uppercase tracking-[0.16em] text-brand">{item.label}</p>
                   <p className="mt-1 sm:mt-2 text-xs sm:text-sm text-gray-700">{item.value}</p>
@@ -503,12 +520,15 @@ const Home = () => {
                 <span className="text-xs sm:text-sm font-semibold uppercase tracking-[0.2em]">Why choose us</span>
               </div>
               <div className="mt-4 sm:mt-5 grid gap-2 sm:gap-3 sm:grid-cols-2 lg:grid-cols-1">
-                {advantages.map((item) => (
-                  <div key={item} className="flex items-center gap-2 sm:gap-3 rounded-lg sm:rounded-xl bg-white/5 px-3 sm:px-4 py-2 sm:py-3">
+                {advantages.map((item) => {
+                  const text = item.text || item;
+                  return (
+                  <div key={text} className="flex items-center gap-2 sm:gap-3 rounded-lg sm:rounded-xl bg-white/5 px-3 sm:px-4 py-2 sm:py-3">
                     <Zap className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-brand flex-shrink-0" />
-                    <span className="text-xs sm:text-sm">{item}</span>
+                    <span className="text-xs sm:text-sm">{text}</span>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
 
@@ -547,7 +567,7 @@ const Home = () => {
       <section>
         <SectionHeading title="Portfolio / projects" subtitle="Work" />
         <div className="grid gap-6 lg:grid-cols-3">
-          {projects.map((project) => (
+          {displayProjects.map((project) => (
             <article
               key={project.title}
               className="overflow-hidden rounded-2xl border border-gray-100/15 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md"
@@ -584,7 +604,9 @@ const Home = () => {
         <SectionHeading title="Technologies we use" subtitle="Stack" />
         <div className="tech-carousel overflow-hidden">
           <div className="tech-carousel-track">
-            {stackCarousel.map(({ name, icon: Icon, badge, color, glow }, index) => (
+            {stackCarousel.map(({ name, icon, badge, color, glow }, index) => {
+              const Icon = icon ? resolveIcon(icon) : null;
+              return (
               <div
                 key={`${name}-${index}`}
                 className="tech-carousel-item group relative overflow-hidden rounded-[1.4rem] border border-white/10 bg-white/6 p-5 text-center shadow-sm transition duration-300 hover:-translate-y-1 hover:border-brand/25 hover:shadow-[0_18px_40px_rgba(2,8,20,0.35)]"
@@ -602,7 +624,8 @@ const Home = () => {
                 <p className="relative mt-4 text-sm font-semibold text-ink">{name}</p>
                 <p className="relative mt-2 text-xs uppercase tracking-[0.18em] text-gray-500">Technology</p>
               </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>

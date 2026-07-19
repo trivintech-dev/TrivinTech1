@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import api from "../api/api.js";
+import { Badge, Card, PageHeader, Select, Spinner, StatCard } from "../components/admin/AdminUI.jsx";
 
 const AdminActivityDashboard = () => {
   const [activities, setActivities] = useState([]);
@@ -24,7 +24,7 @@ const AdminActivityDashboard = () => {
 
       // Fetch activities - using user endpoint for now
       const { data: actData } = await api.get("/users/me/activity");
-      let filtered = actData.activity || [];
+      let filtered = actData.activities || actData.activity || [];
 
       if (filterType) {
         filtered = filtered.filter((a) => a.type === filterType);
@@ -69,99 +69,74 @@ const AdminActivityDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen space-y-6 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 pt-32 md:pt-40">
-      <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="rounded-3xl border border-slate-700 bg-slate-800 p-8 shadow-lg">
-          <Link to="/admin" className="text-sm text-cyan-400 hover:text-cyan-300">
-            ← Back to Dashboard
-          </Link>
-          <div className="mt-4">
-            <h1 className="text-3xl font-semibold text-white">Activity Dashboard</h1>
-            <p className="mt-2 text-sm text-slate-300">Monitor employee activities and engagement</p>
-          </div>
-        </div>
+    <div className="space-y-6">
+      <PageHeader title="Activity dashboard" description="Monitor employee activities and engagement" />
 
-        {/* Stats */}
-        <section className="grid gap-6 md:grid-cols-4">
-          <div className="rounded-3xl border border-slate-700 bg-slate-800 p-6 shadow-lg">
-            <p className="text-sm text-slate-400">Total Activities</p>
-            <p className="mt-2 text-3xl font-semibold text-cyan-400">{activityStats.total}</p>
-          </div>
-          <div className="rounded-3xl border border-slate-700 bg-slate-800 p-6 shadow-lg">
-            <p className="text-sm text-slate-400">Logins</p>
-            <p className="mt-2 text-3xl font-semibold text-blue-400">{activityStats.login}</p>
-          </div>
-          <div className="rounded-3xl border border-slate-700 bg-slate-800 p-6 shadow-lg">
-            <p className="text-sm text-slate-400">Profile Updates</p>
-            <p className="mt-2 text-3xl font-semibold text-purple-400">{activityStats.profile_update}</p>
-          </div>
-          <div className="rounded-3xl border border-slate-700 bg-slate-800 p-6 shadow-lg">
-            <p className="text-sm text-slate-400">Password Changes</p>
-            <p className="mt-2 text-3xl font-semibold text-orange-600">{activityStats.password_change}</p>
-          </div>
+        <section className="grid gap-4 md:grid-cols-4">
+          <StatCard label="Total activities" value={activityStats.total} icon={undefined} />
+          <StatCard label="Logins" value={activityStats.login} tone="green" />
+          <StatCard label="Profile updates" value={activityStats.profile_update} tone="violet" />
+          <StatCard label="Password changes" value={activityStats.password_change} tone="amber" />
         </section>
 
-        {/* Filters */}
-        <section className="rounded-3xl border border-gray-100 bg-white p-8 shadow-sm">
-          <h2 className="text-lg font-semibold text-slate-900">Filters</h2>
+        <Card className="p-6">
+          <h2 className="text-lg font-semibold text-white">Filters</h2>
           <div className="mt-4 grid gap-4 sm:grid-cols-3">
             <label className="block">
-              <span className="text-sm text-slate-600">Date Range</span>
-              <select
+              <span className="text-sm text-slate-400">Date range</span>
+              <Select
                 value={dateRange}
                 onChange={(e) => setDateRange(Number(e.target.value))}
-                className="mt-2 w-full rounded-2xl border border-gray-200 bg-slate-50 px-4 py-3 text-sm focus:border-indigo-500 focus:outline-none"
+                className="mt-2"
               >
                 <option value={1}>Last 24 hours</option>
                 <option value={7}>Last 7 days</option>
                 <option value={30}>Last 30 days</option>
                 <option value={90}>Last 90 days</option>
-              </select>
+              </Select>
             </label>
             <label className="block">
-              <span className="text-sm text-slate-600">Activity Type</span>
-              <select
-                value={filterType}
-                onChange={(e) => setFilterType(e.target.value)}
-                className="mt-2 w-full rounded-2xl border border-gray-200 bg-slate-50 px-4 py-3 text-sm focus:border-indigo-500 focus:outline-none"
-              >
+              <span className="text-sm text-slate-400">Activity type</span>
+              <Select value={filterType} onChange={(e) => setFilterType(e.target.value)} className="mt-2">
                 <option value="">All Types</option>
                 <option value="login">Login</option>
                 <option value="logout">Logout</option>
                 <option value="profile_update">Profile Update</option>
                 <option value="password_change">Password Change</option>
-              </select>
+              </Select>
             </label>
           </div>
-        </section>
+        </Card>
 
-        {/* Activity Log */}
-        <section className="rounded-3xl border border-gray-100 bg-white shadow-sm overflow-hidden">
-          <div className="p-8">
-            <h2 className="text-lg font-semibold text-slate-900">Activity Log</h2>
+        <Card className="overflow-hidden">
+          <div className="border-b border-slate-800 p-6">
+            <h2 className="text-lg font-semibold text-white">Activity log</h2>
           </div>
-          {error && <div className="border-t border-gray-100 bg-red-50 px-8 py-4 text-red-700">{error}</div>}
+          {error && <div className="border-b border-slate-800 bg-red-500/10 px-6 py-4 text-sm text-red-300">{error}</div>}
           {loading ? (
-            <div className="border-t border-gray-100 px-8 py-4 text-center text-slate-700">Loading activities...</div>
+            <div className="flex items-center justify-center gap-3 px-6 py-12 text-slate-400">
+              <Spinner /> Loading activities...
+            </div>
           ) : activities.length === 0 ? (
-            <div className="border-t border-gray-100 px-8 py-4 text-center text-slate-700">No activities found</div>
+            <div className="px-6 py-12 text-center text-sm text-slate-500">No activities found</div>
           ) : (
-            <div className="divide-y divide-gray-100 border-t border-gray-100">
+            <div className="divide-y divide-slate-800">
               {activities.map((activity, idx) => (
-                <div key={idx} className="px-8 py-4 hover:bg-slate-50 transition">
+                <div key={idx} className="px-6 py-4 transition hover:bg-slate-800/40">
                   <div className="flex items-start gap-4">
                     <span className="text-2xl">{getActivityIcon(activity.type)}</span>
                     <div className="flex-1">
-                      <div className="flex items-center justify-between">
-                        <p className="font-medium text-slate-900">{activity.description}</p>
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <p className="font-medium text-slate-200">{activity.description}</p>
                         <span className="text-xs text-slate-500">
                           {new Date(activity.createdAt).toLocaleString()}
                         </span>
                       </div>
-                      <p className="mt-1 text-sm text-slate-600">Type: {activity.type}</p>
+                      <div className="mt-1">
+                        <Badge tone="cyan">{activity.type}</Badge>
+                      </div>
                       {activity.metadata && (
-                        <div className="mt-2 grid gap-2 text-xs text-slate-600">
+                        <div className="mt-2 grid gap-2 text-xs text-slate-500">
                           {activity.metadata.ip && <p>IP: {activity.metadata.ip}</p>}
                           {activity.metadata.userAgent && <p>Device: {activity.metadata.userAgent}</p>}
                           {activity.metadata.fields && activity.metadata.fields.length > 0 && (
@@ -175,11 +150,10 @@ const AdminActivityDashboard = () => {
               ))}
             </div>
           )}
-        </section>
+        </Card>
 
-        {/* Employee Engagement Summary */}
-        <section className="rounded-3xl border border-gray-100 bg-white p-8 shadow-sm">
-          <h2 className="text-lg font-semibold text-slate-900">Top Active Employees</h2>
+        <Card className="p-6">
+          <h2 className="text-lg font-semibold text-white">Top active employees</h2>
           <div className="mt-6 space-y-3">
             {employees
               .map((emp) => ({
@@ -190,24 +164,21 @@ const AdminActivityDashboard = () => {
               .sort((a, b) => b.activityCount - a.activityCount)
               .slice(0, 5)
               .map((emp) => (
-                <div key={emp._id} className="flex items-center justify-between rounded-2xl bg-slate-50 p-3">
+                <div key={emp._id} className="flex items-center justify-between rounded-xl border border-slate-700/60 bg-slate-900/30 p-3">
                   <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center">
-                      <span className="text-sm font-semibold text-indigo-600">{emp.name.charAt(0)}</span>
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-cyan-500/10">
+                      <span className="text-sm font-semibold text-cyan-300">{emp.name.charAt(0)}</span>
                     </div>
                     <div>
-                      <p className="font-medium text-slate-900">{emp.name}</p>
-                      <p className="text-xs text-slate-600">{emp.designation}</p>
+                      <p className="font-medium text-white">{emp.name}</p>
+                      <p className="text-xs text-slate-500">{emp.designation}</p>
                     </div>
                   </div>
-                  <span className="rounded-full bg-indigo-100 px-3 py-1 text-sm font-semibold text-indigo-800">
-                    {emp.activityCount} activities
-                  </span>
+                  <Badge tone="cyan">{emp.activityCount} activities</Badge>
                 </div>
               ))}
           </div>
-        </section>
-      </div>
+        </Card>
     </div>
   );
 };

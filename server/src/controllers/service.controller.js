@@ -7,9 +7,10 @@ const slugify = (value) => {
     .replace(/(^-|-$)+/g, "");
 };
 
-export const listServices = async (_req, res, next) => {
+export const listServices = async (req, res, next) => {
   try {
-    const services = await Service.find({ isActive: true }).sort({ createdAt: -1 });
+    const filter = req.query.all === "true" ? {} : { isActive: true };
+    const services = await Service.find(filter).sort({ createdAt: -1 });
     return res.json({ services });
   } catch (error) {
     return next(error);

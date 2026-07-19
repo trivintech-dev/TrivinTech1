@@ -1,335 +1,231 @@
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import api from "../api/api.js";
+import { useState } from "react";
+import { FolderKanban, Plus, Pencil, Trash2 } from "lucide-react";
+import DataTable from "../components/admin/DataTable.jsx";
+import ImageUpload from "../components/admin/ImageUpload.jsx";
+import useAdminResource from "../hooks/useAdminResource.js";
+import {
+  Badge,
+  Button,
+  ConfirmDialog,
+  Field,
+  IconButton,
+  Input,
+  Modal,
+  PageHeader,
+  Textarea,
+  Toggle
+} from "../components/admin/AdminUI.jsx";
+
+const linesToArray = (text) =>
+  text
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+const arrayToLines = (value) => (Array.isArray(value) ? value.join("\n") : "");
 
 const emptyForm = {
-    title: "",
-    description: "",
-    category: "",
-    technologies: "",
-    imageUrl: "",
-    imagePublicId: "",
-    projectUrl: "",
-    order: 0,
-    isActive: true
+  title: "",
+  description: "",
+  category: "",
+  technologies: "",
+  imageUrl: "",
+  imagePublicId: "",
+  projectUrl: "",
+  order: 0,
+  isActive: true
 };
 
 const AdminPortfolio = () => {
-    const [portfolios, setPortfolios] = useState([]);
-    const [form, setForm] = useState(emptyForm);
-    const [editingId, setEditingId] = useState(null);
-    const [uploading, setUploading] = useState(false);
-    const [uploadMessage, setUploadMessage] = useState("");
+  const { items, loading, saving, deleting, createItem, updateItem, deleteItem } = useAdminResource({
+    endpoint: "/portfolio",
+    listKey: "portfolios",
+    query: "all=true"
+  });
 
-    const fetchPortfolios = async () => {
-        try {
-            const { data } = await api.get("/portfolio");
-            setPortfolios(data.portfolios);
-        } catch (error) {
-            console.error("Error fetching portfolios:", error);
-        }
-    };
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editing, setEditing] = useState(null);
+  const [form, setForm] = useState(emptyForm);
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
-    useEffect(() => {
-        fetchPortfolios();
-    }, []);
+  const openCreate = () => {
+    setEditing(null);
+    setForm(emptyForm);
+    setModalOpen(true);
+  };
 
-    const handleImageUpload = async (event) => {
-        const file = event.target.files?.[0];
-        if (!file) return;
+  const openEdit = (row) => {
+    setEditing(row);
+    setForm({
+      title: row.title || "",
+      description: row.description || "",
+      category: row.category || "",
+      technologies: arrayToLines(row.technologies),
+      imageUrl: row.imageUrl || "",
+      imagePublicId: row.imagePublicId || "",
+      projectUrl: row.projectUrl || "",
+      order: row.order ?? 0,
+      isActive: row.isActive ?? true
+    });
+    setModalOpen(true);
+  };
 
-        setUploading(true);
-        setUploadMessage("");
+  const closeModal = () => {
+    setModalOpen(false);
+    setEditing(null);
+    setForm(emptyForm);
+  };
 
-        try {
-            const formData = new FormData();
-            formData.append("image", file);
+  const buildPayload = () => ({
+    title: form.title,
+    description: form.description,
+    category: form.category,
+    technologies: linesToArray(form.technologies),
+    imageUrl: form.imageUrl,
+    imagePublicId: form.imagePublicId,
+    projectUrl: form.projectUrl,
+    order: Number(form.order) || 0,
+    isActive: form.isActive
+  });
 
-            const { data } = await api.post("/portfolio/upload-image", formData, {
-                headers: { "Content-Type": "multipart/form-data" }
-            });
+  const handleSave = async () => {
+    const payload = buildPayload();
+    const ok = editing ? await updateItem(editing._id, payload) : await createItem(payload);
+    if (ok) closeModal();
+  };
 
-            setForm((prev) => ({
-                ...prev,
-                imageUrl: data.imageUrl,
-                imagePublicId: data.imagePublicId
-            }));
-            setUploadMessage("Image uploaded successfully!");
-        } catch (error) {
-            setUploadMessage("Image upload failed. Please try again.");
-            console.error("Upload error:", error);
-        } finally {
-            setUploading(false);
-        }
-    };
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    const ok = await deleteItem(deleteTarget._id);
+    if (ok) setDeleteTarget(null);
+  };
 
-    const handleDeleteImage = async () => {
-        if (!form.imagePublicId) return;
-
-        try {
-            await api.delete("/portfolio/image/delete", {
-                data: { publicId: form.imagePublicId }
-            });
-
-            setForm((prev) => ({
-                ...prev,
-                imageUrl: "",
-                imagePublicId: ""
-            }));
-            setUploadMessage("Image deleted successfully!");
-        } catch (error) {
-            console.error("Delete error:", error);
-            setUploadMessage("Image deletion failed.");
-        }
-    };
-
-    const handleSubmit = async (event) => {
-        event.preventDefault();
-
-        const payload = {
-            title: form.title,
-            description: form.description,
-            category: form.category,
-            technologies: form.technologies
-                .split(",")
-                .map((t) => t.trim())
-                .filter(Boolean),
-            imageUrl: form.imageUrl,
-            imagePublicId: form.imagePublicId,
-            projectUrl: form.projectUrl,
-            order: Number(form.order) || 0,
-            isActive: form.isActive
-        };
-
-        try {
-            if (editingId) {
-                await api.put(`/portfolio/${editingId}`, payload);
-            } else {
-                await api.post("/portfolio", payload);
-            }
-
-            setForm(emptyForm);
-            setEditingId(null);
-            setUploadMessage("");
-            fetchPortfolios();
-        } catch (error) {
-            console.error("Submit error:", error);
-            setUploadMessage("Failed to save portfolio item.");
-        }
-    };
-
-    const handleEdit = (portfolio) => {
-        setEditingId(portfolio._id);
-        setForm({
-            title: portfolio.title || "",
-            description: portfolio.description || "",
-            category: portfolio.category || "",
-            technologies: (portfolio.technologies || []).join(", "),
-            imageUrl: portfolio.imageUrl || "",
-            imagePublicId: portfolio.imagePublicId || "",
-            projectUrl: portfolio.projectUrl || "",
-            order: portfolio.order ?? 0,
-            isActive: portfolio.isActive ?? true
-        });
-        window.scrollTo(0, 0);
-    };
-
-    const handleDelete = async (id, imagePublicId) => {
-        if (!window.confirm("Are you sure you want to delete this portfolio item?")) return;
-
-        try {
-            if (imagePublicId) {
-                await api.delete("/portfolio/image/delete", {
-                    data: { publicId: imagePublicId }
-                });
-            }
-
-            await api.delete(`/portfolio/${id}`);
-            fetchPortfolios();
-        } catch (error) {
-            console.error("Delete error:", error);
-        }
-    };
-
-    return (
-        <div className="min-h-screen space-y-8 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4 pt-32 md:pt-40">
-            <div className="mx-auto w-full max-w-7xl">
-                <div className="rounded-3xl border border-slate-700 bg-slate-800 p-6 shadow-lg">
-                    <Link to="/admin" className="text-sm text-cyan-400 hover:text-cyan-300">
-                        ← Back to Dashboard
-                    </Link>
-                    <h1 className="mt-4 font-heading text-2xl font-semibold text-white">Manage portfolio & projects</h1>
-                    <p className="mt-2 text-sm text-slate-300">Create, update, and remove portfolio project cards with images.</p>
-
-                    <form onSubmit={handleSubmit} className="mt-6 grid gap-4 md:grid-cols-2">
-                        <input
-                            placeholder="Project title"
-                            value={form.title}
-                            onChange={(event) => setForm((prev) => ({ ...prev, title: event.target.value }))}
-                            className="rounded-xl border border-slate-600 bg-slate-700 px-3 py-2 text-white placeholder-slate-400 focus:border-cyan-500 focus:outline-none"
-                            required
-                        />
-                        <input
-                            placeholder="Category"
-                            value={form.category}
-                            onChange={(event) => setForm((prev) => ({ ...prev, category: event.target.value }))}
-                            className="rounded-xl border border-slate-600 bg-slate-700 px-3 py-2 text-white placeholder-slate-400 focus:border-cyan-500 focus:outline-none"
-                        />
-                        <input
-                            placeholder="Project URL"
-                            value={form.projectUrl}
-                            onChange={(event) => setForm((prev) => ({ ...prev, projectUrl: event.target.value }))}
-                            className="rounded-xl border border-slate-600 bg-slate-700 px-3 py-2 text-white placeholder-slate-400 focus:border-cyan-500 focus:outline-none"
-                        />
-                        <input
-                            placeholder="Order"
-                            type="number"
-                            value={form.order}
-                            onChange={(event) => setForm((prev) => ({ ...prev, order: event.target.value }))}
-                            className="rounded-xl border border-slate-600 bg-slate-700 px-3 py-2 text-white placeholder-slate-400 focus:border-cyan-500 focus:outline-none"
-                        />
-                        <textarea
-                            placeholder="Description"
-                            value={form.description}
-                            onChange={(event) => setForm((prev) => ({ ...prev, description: event.target.value }))}
-                            className="min-h-24 rounded-xl border border-slate-600 bg-slate-700 px-3 py-2 text-white placeholder-slate-400 focus:border-cyan-500 focus:outline-none md:col-span-2"
-                        />
-                        <input
-                            placeholder="Technologies (comma-separated: React, Node.js, etc.)"
-                            value={form.technologies}
-                            onChange={(event) => setForm((prev) => ({ ...prev, technologies: event.target.value }))}
-                            className="rounded-xl border border-slate-600 bg-slate-700 px-3 py-2 text-white placeholder-slate-400 focus:border-cyan-500 focus:outline-none md:col-span-2"
-                        />
-
-                        <div className="md:col-span-2">
-                            <label className="block text-sm font-medium text-slate-300 mb-2">Upload Project Image</label>
-                            <input
-                                type="file"
-                                accept="image/*"
-                                onChange={handleImageUpload}
-                                disabled={uploading}
-                                className="rounded-xl border border-slate-600 bg-slate-700 px-3 py-2 text-white placeholder-slate-400 focus:border-cyan-500 focus:outline-none w-full"
-                            />
-                            {uploading && <p className="mt-2 text-sm text-cyan-400">Uploading...</p>}
-                            {uploadMessage && (
-                                <p className={`mt-2 text-sm ${uploadMessage.includes("successfully") ? "text-green-400" : "text-red-400"}`}>
-                                    {uploadMessage}
-                                </p>
-                            )}
-
-                            {form.imageUrl && (
-                                <div className="mt-4">
-                                    <div className="flex items-end gap-4">
-                                        <div className="flex-1">
-                                            <img
-                                                src={form.imageUrl}
-                                                alt="Preview"
-                                                className="h-40 w-full object-cover rounded-xl border border-slate-600"
-                                            />
-                                        </div>
-                                        <button
-                                            type="button"
-                                            onClick={handleDeleteImage}
-                                            className="button-outline px-3 py-2 text-sm"
-                                        >
-                                            Remove Image
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-
-                        <label className="flex items-center gap-3 rounded-xl border border-slate-600 bg-slate-700 px-3 py-2 text-sm text-slate-300 md:col-span-2">
-                            <input
-                                type="checkbox"
-                                checked={form.isActive}
-                                onChange={(event) => setForm((prev) => ({ ...prev, isActive: event.target.checked }))}
-                                className="h-4 w-4 rounded border-slate-500 bg-slate-600"
-                            />
-                            Active on portfolio page
-                        </label>
-
-                        <button type="submit" className="button-primary md:col-span-2">
-                            {editingId ? "Update portfolio item" : "Add portfolio item"}
-                        </button>
-
-                        {editingId ? (
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    setEditingId(null);
-                                    setForm(emptyForm);
-                                    setUploadMessage("");
-                                }}
-                                className="button-outline md:col-span-2"
-                            >
-                                Cancel edit
-                            </button>
-                        ) : null}
-                    </form>
-                </div>
-
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                    {portfolios.map((portfolio) => (
-                        <div key={portfolio._id} className="rounded-3xl border border-slate-700 bg-slate-800 p-6 shadow-lg overflow-hidden">
-                            {portfolio.imageUrl && (
-                                <img
-                                    src={portfolio.imageUrl}
-                                    alt={portfolio.title}
-                                    className="h-48 w-full object-cover rounded-xl mb-4"
-                                />
-                            )}
-                            <div>
-                                <h2 className="font-heading text-lg font-semibold text-white">{portfolio.title}</h2>
-                                {portfolio.category && (
-                                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-400 mt-1">
-                                        {portfolio.category}
-                                    </p>
-                                )}
-                                {portfolio.technologies && portfolio.technologies.length > 0 && (
-                                    <div className="mt-2 flex flex-wrap gap-1">
-                                        {portfolio.technologies.map((tech) => (
-                                            <span key={tech} className="text-xs bg-slate-700 text-slate-300 px-2 py-1 rounded">
-                                                {tech}
-                                            </span>
-                                        ))}
-                                    </div>
-                                )}
-                                {portfolio.description && (
-                                    <p className="mt-3 text-sm text-slate-300 line-clamp-3">{portfolio.description}</p>
-                                )}
-                                {portfolio.projectUrl && (
-                                    <p className="mt-2 text-xs text-slate-400 truncate">
-                                        <a href={portfolio.projectUrl} target="_blank" rel="noreferrer" className="text-cyan-400 hover:underline">
-                                            {portfolio.projectUrl}
-                                        </a>
-                                    </p>
-                                )}
-                                <div className="mt-2 flex items-center justify-between">
-                                    <span className="text-xs text-slate-400">Order: {portfolio.order}</span>
-                                    <span className={`text-xs px-2 py-1 rounded ${portfolio.isActive ? "bg-green-500/20 text-green-400" : "bg-red-500/20 text-red-400"}`}>
-                                        {portfolio.isActive ? "Active" : "Inactive"}
-                                    </span>
-                                </div>
-                            </div>
-                            <div className="mt-4 flex gap-3">
-                                <button type="button" onClick={() => handleEdit(portfolio)} className="button-primary flex-1">
-                                    Edit
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => handleDelete(portfolio._id, portfolio.imagePublicId)}
-                                    className="button-outline flex-1"
-                                >
-                                    Delete
-                                </button>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </div>
+  const columns = [
+    {
+      key: "title",
+      header: "Project",
+      render: (row) => (
+        <div className="flex items-center gap-3">
+          {row.imageUrl ? (
+            <img src={row.imageUrl} alt="" className="h-10 w-14 rounded object-cover" />
+          ) : null}
+          <div>
+            <p className="font-medium text-white">{row.title}</p>
+            <p className="text-xs text-slate-500">{row.category || "—"}</p>
+          </div>
         </div>
-    );
+      )
+    },
+    { key: "order", header: "Order" },
+    {
+      key: "isActive",
+      header: "Status",
+      render: (row) => (
+        <Badge tone={row.isActive ? "green" : "red"}>{row.isActive ? "Active" : "Inactive"}</Badge>
+      )
+    },
+    {
+      key: "actions",
+      header: "",
+      headerClassName: "text-right",
+      render: (row) => (
+        <div className="flex justify-end gap-1">
+          <IconButton icon={Pencil} label="Edit" onClick={() => openEdit(row)} />
+          <IconButton icon={Trash2} label="Delete" className="hover:text-red-300" onClick={() => setDeleteTarget(row)} />
+        </div>
+      )
+    }
+  ];
+
+  return (
+    <div className="space-y-6">
+      <PageHeader
+        title="Portfolio"
+        description="Project cards on the portfolio page."
+        actions={
+          <Button icon={Plus} onClick={openCreate} type="button">
+            Add project
+          </Button>
+        }
+      />
+
+      <DataTable
+        columns={columns}
+        data={items}
+        loading={loading}
+        searchKeys={["title", "category", "description"]}
+        searchPlaceholder="Search projects..."
+        emptyIcon={FolderKanban}
+        emptyTitle="No portfolio items"
+        emptyDescription="Showcase your work with project entries."
+        emptyAction={
+          <Button icon={Plus} onClick={openCreate} type="button">
+            Add project
+          </Button>
+        }
+      />
+
+      <Modal
+        open={modalOpen}
+        onClose={closeModal}
+        title={editing ? "Edit project" : "Add project"}
+        size="lg"
+        footer={
+          <>
+            <Button variant="outline" onClick={closeModal} disabled={saving} type="button">
+              Cancel
+            </Button>
+            <Button loading={saving} onClick={handleSave} type="button">
+              {editing ? "Save changes" : "Create project"}
+            </Button>
+          </>
+        }
+      >
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field label="Title" required className="sm:col-span-2">
+            <Input value={form.title} onChange={(e) => setForm((p) => ({ ...p, title: e.target.value }))} required />
+          </Field>
+          <Field label="Category">
+            <Input value={form.category} onChange={(e) => setForm((p) => ({ ...p, category: e.target.value }))} />
+          </Field>
+          <Field label="Project URL">
+            <Input value={form.projectUrl} onChange={(e) => setForm((p) => ({ ...p, projectUrl: e.target.value }))} />
+          </Field>
+          <Field label="Display order">
+            <Input type="number" value={form.order} onChange={(e) => setForm((p) => ({ ...p, order: e.target.value }))} />
+          </Field>
+          <Field label="Description" className="sm:col-span-2">
+            <Textarea rows={3} value={form.description} onChange={(e) => setForm((p) => ({ ...p, description: e.target.value }))} />
+          </Field>
+          <Field label="Technologies" hint="One technology per line" className="sm:col-span-2">
+            <Textarea rows={4} value={form.technologies} onChange={(e) => setForm((p) => ({ ...p, technologies: e.target.value }))} />
+          </Field>
+          <div className="sm:col-span-2">
+            <ImageUpload
+              uploadUrl="/portfolio/upload-image"
+              value={form.imageUrl}
+              publicId={form.imagePublicId}
+              onChange={({ imageUrl, imagePublicId }) =>
+                setForm((p) => ({ ...p, imageUrl, imagePublicId: imagePublicId || "" }))
+              }
+            />
+          </div>
+          <div className="sm:col-span-2">
+            <Toggle label="Active on portfolio page" checked={form.isActive} onChange={(isActive) => setForm((p) => ({ ...p, isActive }))} />
+          </div>
+        </div>
+      </Modal>
+
+      <ConfirmDialog
+        open={Boolean(deleteTarget)}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleDelete}
+        loading={deleting}
+        title="Delete portfolio item?"
+        message={`Remove "${deleteTarget?.title || "this project"}"? This cannot be undone.`}
+      />
+    </div>
+  );
 };
 
 export default AdminPortfolio;

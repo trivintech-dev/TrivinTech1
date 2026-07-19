@@ -14,12 +14,13 @@ const router = express.Router();
 
 // Public routes
 router.get("/", listInternships);
-router.get("/:id", getInternshipById);
 
-// Admin routes
+// Admin routes (before /:id so "admin" is not treated as an id)
 router.get("/admin/all", requireAuth, requireAdmin, listAllInternships);
 router.post("/", requireAuth, requireAdmin, createInternship);
 router.put("/:id", requireAuth, requireAdmin, updateInternship);
 router.delete("/:id", requireAuth, requireAdmin, deleteInternship);
+
+router.get("/:id", getInternshipById);
 
 export default router;
