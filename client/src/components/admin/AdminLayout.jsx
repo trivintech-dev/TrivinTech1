@@ -46,7 +46,13 @@ const navGroups = [
       { label: "Services", to: "/admin/pages/services", icon: Layers3 },
       { label: "Careers", to: "/admin/pages/jobs", icon: BriefcaseBusiness },
       { label: "Contact", to: "/admin/pages/contact", icon: Phone },
-      { label: "Investor", to: "/admin/pages/investor", icon: TrendingUp }
+      { label: "Investor", to: "/admin/pages/investor", icon: TrendingUp },
+      { label: "Blog", to: "/admin/pages/blog", icon: BookOpen },
+      { label: "Privacy", to: "/admin/pages/privacy", icon: FileText },
+      { label: "Terms", to: "/admin/pages/terms", icon: FileText },
+      { label: "Product discovery", to: "/admin/pages/product-discovery", icon: Sparkles },
+      { label: "Design & engineering", to: "/admin/pages/design-engineering", icon: Layers3 },
+      { label: "Cloud & DevOps", to: "/admin/pages/cloud-devops", icon: Globe }
     ]
   },
   {

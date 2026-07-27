@@ -46,6 +46,12 @@ const AdminContacts = lazy(() => import("./pages/AdminContacts.jsx"));
 const ContactUs = lazy(() => import("./pages/ContactUs.jsx"));
 const AboutUs = lazy(() => import("./pages/AboutUs.jsx"));
 const Investor = lazy(() => import("./pages/Investor.jsx"));
+const Blog = lazy(() => import("./pages/Blog.jsx"));
+const Privacy = lazy(() => import("./pages/Privacy.jsx"));
+const Terms = lazy(() => import("./pages/Terms.jsx"));
+const ProductDiscovery = lazy(() => import("./pages/ProductDiscovery.jsx"));
+const DesignEngineering = lazy(() => import("./pages/DesignEngineering.jsx"));
+const CloudDevops = lazy(() => import("./pages/CloudDevops.jsx"));
 const NotFound = lazy(() => import("./pages/NotFound.jsx"));
 
 const App = () => {
@@ -181,6 +187,12 @@ const App = () => {
               <Route path="/contact" element={<ContactUs />} />
               <Route path="/about" element={<AboutUs />} />
               <Route path="/investors" element={<Investor />} />
+              <Route path="/blog" element={<Blog />} />
+              <Route path="/privacy" element={<Privacy />} />
+              <Route path="/terms" element={<Terms />} />
+              <Route path="/product-discovery" element={<ProductDiscovery />} />
+              <Route path="/design-engineering" element={<DesignEngineering />} />
+              <Route path="/cloud-devops" element={<CloudDevops />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>

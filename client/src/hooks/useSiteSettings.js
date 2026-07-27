@@ -13,7 +13,7 @@ const defaultSettings = {
   },
   socials: [],
   nav: [],
-  footer: { tagline: "", columns: [], legalText: "Privacy · Terms" }
+  footer: { tagline: "", columns: [], legalText: "Privacy · Terms", legalLinks: [{ label: "Privacy", to: "/privacy" }, { label: "Terms", to: "/terms" }] }
 };
 
 const useSiteSettings = () => {

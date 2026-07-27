@@ -412,6 +412,188 @@ export const PAGE_SCHEMAS = {
       },
       { key: "contactCta", label: "Investor contact CTA", kind: "single", fields: ctaFields }
     ]
+  },
+  blog: {
+    label: "Blog",
+    description: "Blog hero, intro, article cards, and CTA.",
+    sections: [
+      { key: "hero", label: "Hero", kind: "single", fields: heroFields },
+      {
+        key: "intro",
+        label: "Intro",
+        kind: "single",
+        fields: [
+          { name: "subtitle", label: "Subtitle", type: "text" },
+          { name: "title", label: "Title", type: "text", full: true },
+          { name: "body", label: "Body", type: "textarea", rows: 4, full: true }
+        ]
+      },
+      {
+        key: "posts",
+        label: "Articles",
+        kind: "list",
+        itemTitle: (item) => item.title || "Article",
+        newItem: () => ({ title: "", category: "", summary: "", date: "", readTime: "", image: "" }),
+        fields: [
+          { name: "title", label: "Title", type: "text", full: true },
+          { name: "category", label: "Category", type: "text" },
+          { name: "date", label: "Date", type: "text" },
+          { name: "readTime", label: "Read time", type: "text" },
+          { name: "summary", label: "Summary", type: "textarea", rows: 3, full: true },
+          { name: "image", label: "Image URL", type: "text", full: true }
+        ]
+      },
+      { key: "cta", label: "CTA", kind: "single", fields: ctaFields }
+    ]
+  },
+  privacy: {
+    label: "Privacy",
+    description: "Privacy policy page content.",
+    sections: [
+      { key: "hero", label: "Hero", kind: "single", fields: heroFields },
+      {
+        key: "intro",
+        label: "Intro",
+        kind: "single",
+        fields: [
+          { name: "subtitle", label: "Subtitle", type: "text" },
+          { name: "title", label: "Title", type: "text", full: true },
+          { name: "body", label: "Body", type: "textarea", rows: 4, full: true }
+        ]
+      },
+      {
+        key: "sections",
+        label: "Policy sections",
+        kind: "list",
+        itemTitle: (item) => item.title || "Section",
+        newItem: () => ({ title: "", body: "", items: [] }),
+        fields: [
+          { name: "title", label: "Title", type: "text", full: true },
+          { name: "body", label: "Body", type: "textarea", rows: 4, full: true },
+          { name: "items", label: "Bullet points", type: "list", full: true }
+        ],
+        columns: 1
+      },
+      { key: "cta", label: "CTA", kind: "single", fields: ctaFields }
+    ]
+  },
+  terms: {
+    label: "Terms",
+    description: "Terms of use page content.",
+    sections: [
+      { key: "hero", label: "Hero", kind: "single", fields: heroFields },
+      {
+        key: "intro",
+        label: "Intro",
+        kind: "single",
+        fields: [
+          { name: "subtitle", label: "Subtitle", type: "text" },
+          { name: "title", label: "Title", type: "text", full: true },
+          { name: "body", label: "Body", type: "textarea", rows: 4, full: true }
+        ]
+      },
+      {
+        key: "sections",
+        label: "Terms sections",
+        kind: "list",
+        itemTitle: (item) => item.title || "Section",
+        newItem: () => ({ title: "", body: "", items: [] }),
+        fields: [
+          { name: "title", label: "Title", type: "text", full: true },
+          { name: "body", label: "Body", type: "textarea", rows: 4, full: true },
+          { name: "items", label: "Bullet points", type: "list", full: true }
+        ],
+        columns: 1
+      },
+      { key: "cta", label: "CTA", kind: "single", fields: ctaFields }
+    ]
+  },
+  "product-discovery": {
+    label: "Product discovery",
+    description: "Product discovery service page.",
+    sections: [
+      { key: "hero", label: "Hero", kind: "single", fields: heroFields },
+      {
+        key: "intro",
+        label: "Intro",
+        kind: "single",
+        fields: [
+          { name: "subtitle", label: "Subtitle", type: "text" },
+          { name: "title", label: "Title", type: "text", full: true },
+          { name: "body", label: "Body", type: "textarea", rows: 4, full: true }
+        ]
+      },
+      {
+        key: "highlights",
+        label: "Highlights",
+        kind: "list",
+        itemTitle: (item) => item.title || "Highlight",
+        newItem: () => ({ title: "", description: "" }),
+        fields: [
+          { name: "title", label: "Title", type: "text" },
+          { name: "description", label: "Description", type: "textarea", rows: 3, full: true }
+        ]
+      },
+      { key: "cta", label: "CTA", kind: "single", fields: ctaFields }
+    ]
+  },
+  "design-engineering": {
+    label: "Design & engineering",
+    description: "Design and engineering service page.",
+    sections: [
+      { key: "hero", label: "Hero", kind: "single", fields: heroFields },
+      {
+        key: "intro",
+        label: "Intro",
+        kind: "single",
+        fields: [
+          { name: "subtitle", label: "Subtitle", type: "text" },
+          { name: "title", label: "Title", type: "text", full: true },
+          { name: "body", label: "Body", type: "textarea", rows: 4, full: true }
+        ]
+      },
+      {
+        key: "highlights",
+        label: "Highlights",
+        kind: "list",
+        itemTitle: (item) => item.title || "Highlight",
+        newItem: () => ({ title: "", description: "" }),
+        fields: [
+          { name: "title", label: "Title", type: "text" },
+          { name: "description", label: "Description", type: "textarea", rows: 3, full: true }
+        ]
+      },
+      { key: "cta", label: "CTA", kind: "single", fields: ctaFields }
+    ]
+  },
+  "cloud-devops": {
+    label: "Cloud & DevOps",
+    description: "Cloud and DevOps service page.",
+    sections: [
+      { key: "hero", label: "Hero", kind: "single", fields: heroFields },
+      {
+        key: "intro",
+        label: "Intro",
+        kind: "single",
+        fields: [
+          { name: "subtitle", label: "Subtitle", type: "text" },
+          { name: "title", label: "Title", type: "text", full: true },
+          { name: "body", label: "Body", type: "textarea", rows: 4, full: true }
+        ]
+      },
+      {
+        key: "highlights",
+        label: "Highlights",
+        kind: "list",
+        itemTitle: (item) => item.title || "Highlight",
+        newItem: () => ({ title: "", description: "" }),
+        fields: [
+          { name: "title", label: "Title", type: "text" },
+          { name: "description", label: "Description", type: "textarea", rows: 3, full: true }
+        ]
+      },
+      { key: "cta", label: "CTA", kind: "single", fields: ctaFields }
+    ]
   }
 };
 
@@ -451,6 +633,42 @@ export const PAGE_LIST = [
     label: PAGE_SCHEMAS.investor.label,
     description: PAGE_SCHEMAS.investor.description,
     path: "/investors"
+  },
+  {
+    slug: "blog",
+    label: PAGE_SCHEMAS.blog.label,
+    description: PAGE_SCHEMAS.blog.description,
+    path: "/blog"
+  },
+  {
+    slug: "privacy",
+    label: PAGE_SCHEMAS.privacy.label,
+    description: PAGE_SCHEMAS.privacy.description,
+    path: "/privacy"
+  },
+  {
+    slug: "terms",
+    label: PAGE_SCHEMAS.terms.label,
+    description: PAGE_SCHEMAS.terms.description,
+    path: "/terms"
+  },
+  {
+    slug: "product-discovery",
+    label: PAGE_SCHEMAS["product-discovery"].label,
+    description: PAGE_SCHEMAS["product-discovery"].description,
+    path: "/product-discovery"
+  },
+  {
+    slug: "design-engineering",
+    label: PAGE_SCHEMAS["design-engineering"].label,
+    description: PAGE_SCHEMAS["design-engineering"].description,
+    path: "/design-engineering"
+  },
+  {
+    slug: "cloud-devops",
+    label: PAGE_SCHEMAS["cloud-devops"].label,
+    description: PAGE_SCHEMAS["cloud-devops"].description,
+    path: "/cloud-devops"
   }
 ];
 

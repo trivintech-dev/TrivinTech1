@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { FaFacebookF, FaInstagram, FaLinkedinIn, FaYoutube } from "react-icons/fa";
 import useSiteSettings from "../hooks/useSiteSettings.js";
 import { resolveIcon } from "../lib/iconMap.js";
@@ -26,6 +27,64 @@ const platformIcons = {
   youtube: FaYoutube
 };
 
+/** Fallback paths for legacy string-only footer items */
+const FOOTER_PATHS = {
+  "about us": "/about",
+  careers: "/jobs",
+  blog: "/blog",
+  "product discovery": "/product-discovery",
+  "design & engineering": "/design-engineering",
+  "design and engineering": "/design-engineering",
+  "cloud & devops": "/cloud-devops",
+  "cloud and devops": "/cloud-devops",
+  privacy: "/privacy",
+  terms: "/terms",
+  "privacy policy": "/privacy",
+  "terms of use": "/terms",
+  "terms of service": "/terms"
+};
+
+const normalizeFooterLink = (item) => {
+  if (item && typeof item === "object") {
+    const label = item.label || item.title || item.text || "";
+    const to = item.to || item.href || FOOTER_PATHS[label.trim().toLowerCase()] || "#";
+    return { label, to };
+  }
+
+  if (typeof item === "string") {
+    if (item.includes("|")) {
+      const [label, to] = item.split("|").map((part) => part.trim());
+      return { label, to: to || FOOTER_PATHS[label.toLowerCase()] || "#" };
+    }
+    return {
+      label: item,
+      to: FOOTER_PATHS[item.trim().toLowerCase()] || "#"
+    };
+  }
+
+  return { label: String(item || ""), to: "#" };
+};
+
+const FooterLink = ({ to, children }) => {
+  if (!to || to === "#") {
+    return <span className="text-gray-600">{children}</span>;
+  }
+
+  if (to.startsWith("http") || to.startsWith("mailto:") || to.startsWith("tel:")) {
+    return (
+      <a href={to} className="text-gray-600 transition hover:text-brand" target="_blank" rel="noreferrer">
+        {children}
+      </a>
+    );
+  }
+
+  return (
+    <Link to={to} className="text-gray-600 transition hover:text-brand">
+      {children}
+    </Link>
+  );
+};
+
 const Footer = () => {
   const { settings } = useSiteSettings();
   const brandName = settings.brand?.name || "TRIVIN";
@@ -33,14 +92,41 @@ const Footer = () => {
     settings.footer?.tagline ||
     settings.brand?.tagline ||
     "Product strategy, engineering, and continuous care for growing teams.";
-  const columns = settings.footer?.columns?.length
+
+  const columns = (settings.footer?.columns?.length
     ? settings.footer.columns
     : [
-        { title: "Services", items: ["Product discovery", "Design & engineering", "Cloud & devops"] },
-        { title: "Company", items: ["About us", "Careers", "Blog"] }
-      ];
+        {
+          title: "Services",
+          links: [
+            { label: "Product discovery", to: "/product-discovery" },
+            { label: "Design & engineering", to: "/design-engineering" },
+            { label: "Cloud & devops", to: "/cloud-devops" }
+          ]
+        },
+        {
+          title: "Company",
+          links: [
+            { label: "About us", to: "/about" },
+            { label: "Careers", to: "/jobs" },
+            { label: "Blog", to: "/blog" }
+          ]
+        }
+      ]
+  ).map((column) => ({
+    title: column.title,
+    links: (column.links || column.items || []).map(normalizeFooterLink)
+  }));
+
   const contact = settings.contact || {};
-  const legalText = settings.footer?.legalText || "Privacy · Terms";
+  const legalLinks = (settings.footer?.legalLinks?.length
+    ? settings.footer.legalLinks
+    : [
+        { label: "Privacy", to: "/privacy" },
+        { label: "Terms", to: "/terms" }
+      ]
+  ).map(normalizeFooterLink);
+
   const socials = settings.socials?.length
     ? settings.socials.map((social) => ({
         ...social,
@@ -74,9 +160,11 @@ const Footer = () => {
           {columns.slice(0, 2).map((column) => (
             <div key={column.title}>
               <h4 className="text-xs font-semibold text-ink sm:text-sm">{column.title}</h4>
-              <ul className="mt-2 space-y-1 text-xs text-gray-600 sm:mt-3 sm:space-y-2 sm:text-sm">
-                {(column.items || []).map((item) => (
-                  <li key={item}>{item}</li>
+              <ul className="mt-2 space-y-1 text-xs sm:mt-3 sm:space-y-2 sm:text-sm">
+                {column.links.map((link) => (
+                  <li key={`${column.title}-${link.label}`}>
+                    <FooterLink to={link.to}>{link.label}</FooterLink>
+                  </li>
                 ))}
               </ul>
             </div>
@@ -84,10 +172,24 @@ const Footer = () => {
 
           <div>
             <h4 className="text-xs font-semibold text-ink sm:text-sm">Contact</h4>
-            <p className="mt-2 text-xs text-gray-600 sm:mt-3 sm:text-sm">
-              {contact.email || "trivintech@gmail.com"}
-            </p>
-            <p className="mt-1 text-xs text-gray-600 sm:text-sm">{contact.phone || "+91 8979510012"}</p>
+            {contact.email ? (
+              <p className="mt-2 text-xs sm:mt-3 sm:text-sm">
+                <a href={`mailto:${contact.email}`} className="text-gray-600 transition hover:text-brand">
+                  {contact.email}
+                </a>
+              </p>
+            ) : (
+              <p className="mt-2 text-xs text-gray-600 sm:mt-3 sm:text-sm">trivintech@gmail.com</p>
+            )}
+            {contact.phone ? (
+              <p className="mt-1 text-xs sm:text-sm">
+                <a href={`tel:${contact.phone.replace(/\s+/g, "")}`} className="text-gray-600 transition hover:text-brand">
+                  {contact.phone}
+                </a>
+              </p>
+            ) : (
+              <p className="mt-1 text-xs text-gray-600 sm:text-sm">+91 8979510012</p>
+            )}
             {contact.address ? <p className="mt-1 text-xs text-gray-600 sm:text-sm">{contact.address}</p> : null}
           </div>
         </div>
@@ -97,7 +199,14 @@ const Footer = () => {
             <p>
               © {new Date().getFullYear()} {brandName}. All rights reserved.
             </p>
-            <p>{legalText}</p>
+            <p className="flex items-center gap-2">
+              {legalLinks.map((link, index) => (
+                <span key={link.label} className="inline-flex items-center gap-2">
+                  {index > 0 && <span aria-hidden="true">·</span>}
+                  <FooterLink to={link.to}>{link.label}</FooterLink>
+                </span>
+              ))}
+            </p>
           </div>
         </div>
       </div>

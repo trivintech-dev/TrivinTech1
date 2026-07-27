@@ -38,10 +38,34 @@ const defaultSettings = {
   footer: {
     tagline: "Product strategy, engineering, and continuous care for growing teams.",
     columns: [
-      { title: "Services", items: ["Product discovery", "Design & engineering", "Cloud & devops"] },
-      { title: "Company", items: ["About us", "Careers", "Blog"] }
+      {
+        title: "Services",
+        items: [
+          "Product discovery|/product-discovery",
+          "Design & engineering|/design-engineering",
+          "Cloud & devops|/cloud-devops"
+        ],
+        links: [
+          { label: "Product discovery", to: "/product-discovery" },
+          { label: "Design & engineering", to: "/design-engineering" },
+          { label: "Cloud & devops", to: "/cloud-devops" }
+        ]
+      },
+      {
+        title: "Company",
+        items: ["About us|/about", "Careers|/jobs", "Blog|/blog"],
+        links: [
+          { label: "About us", to: "/about" },
+          { label: "Careers", to: "/jobs" },
+          { label: "Blog", to: "/blog" }
+        ]
+      }
     ],
-    legalText: "Privacy · Terms"
+    legalText: "Privacy · Terms",
+    legalLinks: [
+      { label: "Privacy", to: "/privacy" },
+      { label: "Terms", to: "/terms" }
+    ]
   }
 };
 
@@ -1238,6 +1262,382 @@ const pageContentSections = [
       heading: "Stay connected",
       body: "Reach out for investor materials, reporting requests, or to start a conversation.",
       ctaLabel: "Contact investor relations",
+      ctaHref: "/contact"
+    }
+  },
+
+  // —— blog ——
+  {
+    page: "blog",
+    section: "hero",
+    label: "Hero",
+    kind: "single",
+    order: 1,
+    content: {
+      eyebrow: "Blog",
+      title: "Ideas, delivery lessons, and product insights from the TRIVIN team.",
+      description:
+        "Practical articles on product strategy, engineering, design systems, and building software that scales.",
+      primaryActionLabel: "Talk to us",
+      primaryActionHref: "/contact",
+      secondaryActionLabel: "View services",
+      secondaryActionHref: "/services"
+    }
+  },
+  {
+    page: "blog",
+    section: "intro",
+    label: "Intro",
+    kind: "single",
+    order: 2,
+    content: {
+      subtitle: "Insights",
+      title: "Fresh thinking for teams that ship",
+      body: "Browse our latest writing on discovery, delivery, cloud, and the habits that keep product teams moving with clarity."
+    }
+  },
+  {
+    page: "blog",
+    section: "posts",
+    label: "Articles",
+    kind: "list",
+    order: 3,
+    items: [
+      {
+        title: "How to run a focused discovery sprint",
+        category: "Product",
+        summary: "A practical checklist for aligning goals, risks, and success metrics before build work starts.",
+        date: "Mar 2026",
+        readTime: "6 min",
+        image: "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=900&q=80"
+      },
+      {
+        title: "Design systems that survive real delivery",
+        category: "Design",
+        summary: "How to keep UI consistency without slowing teams down when deadlines get tight.",
+        date: "Feb 2026",
+        readTime: "5 min",
+        image: "https://images.unsplash.com/photo-1561070791-2526d30994b5?auto=format&fit=crop&w=900&q=80"
+      },
+      {
+        title: "Cloud choices for early-stage products",
+        category: "Cloud",
+        summary: "A calm way to pick infrastructure that supports growth without overengineering day one.",
+        date: "Jan 2026",
+        readTime: "7 min",
+        image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=900&q=80"
+      }
+    ]
+  },
+  {
+    page: "blog",
+    section: "cta",
+    label: "CTA",
+    kind: "single",
+    order: 4,
+    content: {
+      heading: "Want help applying these ideas?",
+      body: "Share your roadmap and we will help you turn strategy into a clear delivery plan.",
+      ctaLabel: "Contact TRIVIN",
+      ctaHref: "/contact"
+    }
+  },
+
+  // —— privacy ——
+  {
+    page: "privacy",
+    section: "hero",
+    label: "Hero",
+    kind: "single",
+    order: 1,
+    content: {
+      eyebrow: "Legal",
+      title: "Privacy Policy",
+      description: "How TRIVIN collects, uses, and protects personal information when you use our website and services.",
+      primaryActionLabel: "Contact us",
+      primaryActionHref: "/contact",
+      secondaryActionLabel: "Terms of use",
+      secondaryActionHref: "/terms"
+    }
+  },
+  {
+    page: "privacy",
+    section: "intro",
+    label: "Intro",
+    kind: "single",
+    order: 2,
+    content: {
+      subtitle: "Your data",
+      title: "We respect your privacy",
+      body: "This policy explains what information we may collect, why we collect it, and the choices available to you."
+    }
+  },
+  {
+    page: "privacy",
+    section: "sections",
+    label: "Policy sections",
+    kind: "list",
+    order: 3,
+    items: [
+      {
+        title: "Information we collect",
+        body: "We may collect information you provide directly, such as your name, email address, phone number, company details, and project messages.",
+        items: ["Contact and inquiry details from forms", "Account profile details if you register", "Basic usage data"]
+      },
+      {
+        title: "How we use information",
+        body: "We use personal information to respond to inquiries, deliver services, improve our website, and maintain security.",
+        items: ["Respond to sales and support requests", "Provide contracted services", "Improve site performance"]
+      },
+      {
+        title: "Sharing and retention",
+        body: "We do not sell personal information. We retain information only as long as needed for the purposes described in this policy.",
+        items: []
+      }
+    ]
+  },
+  {
+    page: "privacy",
+    section: "cta",
+    label: "CTA",
+    kind: "single",
+    order: 4,
+    content: {
+      heading: "Questions about privacy?",
+      body: "Email our team and we will help with any privacy-related request.",
+      ctaLabel: "Contact us",
+      ctaHref: "/contact"
+    }
+  },
+
+  // —— terms ——
+  {
+    page: "terms",
+    section: "hero",
+    label: "Hero",
+    kind: "single",
+    order: 1,
+    content: {
+      eyebrow: "Legal",
+      title: "Terms of Use",
+      description: "The rules that apply when you browse the TRIVIN website or engage with our services.",
+      primaryActionLabel: "Contact us",
+      primaryActionHref: "/contact",
+      secondaryActionLabel: "Privacy policy",
+      secondaryActionHref: "/privacy"
+    }
+  },
+  {
+    page: "terms",
+    section: "intro",
+    label: "Intro",
+    kind: "single",
+    order: 2,
+    content: {
+      subtitle: "Agreement",
+      title: "Please read these terms carefully",
+      body: "By accessing this website or requesting services from TRIVIN, you agree to these terms."
+    }
+  },
+  {
+    page: "terms",
+    section: "sections",
+    label: "Terms sections",
+    kind: "list",
+    order: 3,
+    items: [
+      {
+        title: "Use of the website",
+        body: "You may use this website for lawful purposes only. You agree not to misuse the site or attempt unauthorized access.",
+        items: []
+      },
+      {
+        title: "Services and proposals",
+        body: "Project scope, timelines, and fees are confirmed only through a written proposal or agreement.",
+        items: []
+      },
+      {
+        title: "Intellectual property",
+        body: "Website content, branding, and materials belong to TRIVIN or our licensors unless otherwise stated.",
+        items: []
+      }
+    ]
+  },
+  {
+    page: "terms",
+    section: "cta",
+    label: "CTA",
+    kind: "single",
+    order: 4,
+    content: {
+      heading: "Need a custom agreement?",
+      body: "For project contracts, NDAs, or partnership terms, reach out to our team.",
+      ctaLabel: "Contact TRIVIN",
+      ctaHref: "/contact"
+    }
+  },
+
+  // —— product-discovery ——
+  {
+    page: "product-discovery",
+    section: "hero",
+    label: "Hero",
+    kind: "single",
+    order: 1,
+    content: {
+      eyebrow: "Services",
+      title: "Product discovery that turns ideas into a clear delivery plan.",
+      description: "Workshops, research, and roadmap definition so your team builds the right product with confidence.",
+      primaryActionLabel: "Start discovery",
+      primaryActionHref: "/contact",
+      secondaryActionLabel: "All services",
+      secondaryActionHref: "/services"
+    }
+  },
+  {
+    page: "product-discovery",
+    section: "intro",
+    label: "Intro",
+    kind: "single",
+    order: 2,
+    content: {
+      subtitle: "Discovery",
+      title: "Clarity before code",
+      body: "Our discovery engagements help you validate goals, map users, reduce risk, and define a practical path from concept to first release."
+    }
+  },
+  {
+    page: "product-discovery",
+    section: "highlights",
+    label: "Highlights",
+    kind: "list",
+    order: 3,
+    items: [
+      { title: "Kickoff workshops", description: "Align stakeholders on problem, outcomes, and constraints." },
+      { title: "User and market signals", description: "Capture the evidence needed to prioritize with confidence." },
+      { title: "Delivery roadmap", description: "Leave with scope, milestones, and a build-ready plan." }
+    ]
+  },
+  {
+    page: "product-discovery",
+    section: "cta",
+    label: "CTA",
+    kind: "single",
+    order: 4,
+    content: {
+      heading: "Ready to define your next build?",
+      body: "Tell us about your product goals and we will propose a discovery plan.",
+      ctaLabel: "Book a call",
+      ctaHref: "/contact"
+    }
+  },
+
+  // —— design-engineering ——
+  {
+    page: "design-engineering",
+    section: "hero",
+    label: "Hero",
+    kind: "single",
+    order: 1,
+    content: {
+      eyebrow: "Services",
+      title: "Design and engineering that ship polished products.",
+      description: "UI/UX design, modern frontend and backend engineering, and quality delivery in one connected team.",
+      primaryActionLabel: "Discuss your product",
+      primaryActionHref: "/contact",
+      secondaryActionLabel: "All services",
+      secondaryActionHref: "/services"
+    }
+  },
+  {
+    page: "design-engineering",
+    section: "intro",
+    label: "Intro",
+    kind: "single",
+    order: 2,
+    content: {
+      subtitle: "Build",
+      title: "Design meets reliable engineering",
+      body: "We combine interface craft with solid architecture so your product feels great and stays maintainable as it grows."
+    }
+  },
+  {
+    page: "design-engineering",
+    section: "highlights",
+    label: "Highlights",
+    kind: "list",
+    order: 3,
+    items: [
+      { title: "UI/UX design", description: "Wireframes, prototypes, and design systems that convert." },
+      { title: "Full-stack engineering", description: "Web and app development with clean, scalable foundations." },
+      { title: "Quality delivery", description: "Reviews, testing, and iterative releases you can trust." }
+    ]
+  },
+  {
+    page: "design-engineering",
+    section: "cta",
+    label: "CTA",
+    kind: "single",
+    order: 4,
+    content: {
+      heading: "Need a team that can design and build?",
+      body: "Share your product goals and we will outline a delivery approach.",
+      ctaLabel: "Get in touch",
+      ctaHref: "/contact"
+    }
+  },
+
+  // —— cloud-devops ——
+  {
+    page: "cloud-devops",
+    section: "hero",
+    label: "Hero",
+    kind: "single",
+    order: 1,
+    content: {
+      eyebrow: "Services",
+      title: "Cloud and DevOps that keep products reliable.",
+      description: "Infrastructure, deployment pipelines, monitoring, and operational care for modern applications.",
+      primaryActionLabel: "Talk to an expert",
+      primaryActionHref: "/contact",
+      secondaryActionLabel: "All services",
+      secondaryActionHref: "/services"
+    }
+  },
+  {
+    page: "cloud-devops",
+    section: "intro",
+    label: "Intro",
+    kind: "single",
+    order: 2,
+    content: {
+      subtitle: "Cloud",
+      title: "Stable platforms for growing products",
+      body: "We help teams deploy confidently, reduce downtime, and run cloud environments that scale with demand."
+    }
+  },
+  {
+    page: "cloud-devops",
+    section: "highlights",
+    label: "Highlights",
+    kind: "list",
+    order: 3,
+    items: [
+      { title: "Cloud architecture", description: "Practical infrastructure designed for your stage and stack." },
+      { title: "CI/CD pipelines", description: "Faster, safer releases with automated checks." },
+      { title: "Monitoring and care", description: "Visibility and support after launch." }
+    ]
+  },
+  {
+    page: "cloud-devops",
+    section: "cta",
+    label: "CTA",
+    kind: "single",
+    order: 4,
+    content: {
+      heading: "Need stronger cloud operations?",
+      body: "Tell us about your stack and we will recommend the right next step.",
+      ctaLabel: "Contact us",
       ctaHref: "/contact"
     }
   }

@@ -3,7 +3,7 @@ import { Save } from "lucide-react";
 import api from "../api/api.js";
 import RepeatableList from "../components/admin/RepeatableList.jsx";
 import { useToast } from "../components/admin/ToastProvider.jsx";
-import { Button, Field, Input, PageHeader, SectionCard, Spinner, Textarea } from "../components/admin/AdminUI.jsx";
+import { Button, Field, PageHeader, SectionCard, Spinner, Textarea } from "../components/admin/AdminUI.jsx";
 
 const emptyForm = {
   nav: [],
@@ -11,6 +11,7 @@ const emptyForm = {
   footer: {
     tagline: "",
     legalText: "",
+    legalLinks: [],
     columns: []
   }
 };
@@ -33,7 +34,19 @@ const AdminNavigation = () => {
           footer: {
             tagline: settings.footer?.tagline || "",
             legalText: settings.footer?.legalText || "",
-            columns: settings.footer?.columns || []
+            legalLinks: settings.footer?.legalLinks || [
+              { label: "Privacy", to: "/privacy" },
+              { label: "Terms", to: "/terms" }
+            ],
+            columns: (settings.footer?.columns || []).map((column) => ({
+              title: column.title || "",
+              items: (column.links || column.items || []).map((item) => {
+                if (typeof item === "string") return item;
+                const label = item.label || item.title || "";
+                const to = item.to || item.href || "";
+                return to ? `${label}|${to}` : label;
+              })
+            }))
           }
         });
       } catch (error) {
@@ -48,10 +61,28 @@ const AdminNavigation = () => {
   const handleSave = async () => {
     setSaving(true);
     try {
+      const columns = (form.footer.columns || []).map((column) => ({
+        title: column.title || "",
+        items: column.items || [],
+        links: (column.items || []).map((item) => {
+          if (typeof item === "string" && item.includes("|")) {
+            const [label, to] = item.split("|").map((part) => part.trim());
+            return { label, to };
+          }
+          if (typeof item === "string") return { label: item, to: "" };
+          return { label: item.label || "", to: item.to || item.href || "" };
+        })
+      }));
+
       const { data } = await api.put("/settings", {
         nav: form.nav,
         socials: form.socials,
-        footer: form.footer
+        footer: {
+          tagline: form.footer.tagline,
+          legalText: form.footer.legalText,
+          legalLinks: form.footer.legalLinks || [],
+          columns
+        }
       });
       const settings = data.settings || {};
       setForm({
@@ -60,7 +91,16 @@ const AdminNavigation = () => {
         footer: {
           tagline: settings.footer?.tagline || "",
           legalText: settings.footer?.legalText || "",
-          columns: settings.footer?.columns || []
+          legalLinks: settings.footer?.legalLinks || [],
+          columns: (settings.footer?.columns || []).map((column) => ({
+            title: column.title || "",
+            items: (column.links || column.items || []).map((item) => {
+              if (typeof item === "string") return item;
+              const label = item.label || item.title || "";
+              const to = item.to || item.href || "";
+              return to ? `${label}|${to}` : label;
+            })
+          }))
         }
       });
       toast.success("Navigation and footer saved");
@@ -106,13 +146,23 @@ const AdminNavigation = () => {
         />
       </SectionCard>
 
-      <SectionCard title="Footer columns">
+      <SectionCard
+        title="Footer columns"
+        description="Each column has a title and links. Prefer Label|/path format, e.g. Blog|/blog"
+      >
         <RepeatableList
           items={form.footer.columns}
           onChange={(columns) => setForm((prev) => ({ ...prev, footer: { ...prev.footer, columns } }))}
           fields={[
             { name: "title", label: "Column title", type: "text" },
-            { name: "items", label: "Links", type: "list", full: true }
+            {
+              name: "items",
+              label: "Links (one per line as Label|/path)",
+              type: "list",
+              full: true,
+              hint: "Example: About us|/about",
+              placeholder: "About us|/about"
+            }
           ]}
           newItem={() => ({ title: "", items: [] })}
           itemTitle={(item) => item.title || "Column"}
@@ -121,7 +171,7 @@ const AdminNavigation = () => {
         />
       </SectionCard>
 
-      <SectionCard title="Footer text">
+      <SectionCard title="Footer text & legal links">
         <div className="grid gap-4">
           <Field label="Footer tagline">
             <Textarea
@@ -130,13 +180,18 @@ const AdminNavigation = () => {
               onChange={(e) => setForm((prev) => ({ ...prev, footer: { ...prev.footer, tagline: e.target.value } }))}
             />
           </Field>
-          <Field label="Legal text">
-            <Input
-              value={form.footer.legalText}
-              onChange={(e) => setForm((prev) => ({ ...prev, footer: { ...prev.footer, legalText: e.target.value } }))}
-              placeholder="Privacy · Terms"
-            />
-          </Field>
+          <RepeatableList
+            items={form.footer.legalLinks || []}
+            onChange={(legalLinks) => setForm((prev) => ({ ...prev, footer: { ...prev.footer, legalLinks } }))}
+            fields={[
+              { name: "label", label: "Label", type: "text", placeholder: "Privacy" },
+              { name: "to", label: "Path", type: "text", placeholder: "/privacy" }
+            ]}
+            newItem={() => ({ label: "", to: "" })}
+            itemTitle={(item) => item.label || "Legal link"}
+            addLabel="Add legal link"
+            columns={2}
+          />
         </div>
       </SectionCard>
 
