@@ -1147,9 +1147,9 @@ const pageContentSections = [
     kind: "list",
     order: 7,
     items: [
-      { name: "Aisha Khan", title: "CEO" },
-      { name: "Ravi Patel", title: "Head of Engineering" },
-      { name: "Maya Chen", title: "Design Lead" }
+      { name: "Aisha Khan", title: "CEO", imageUrl: "", imagePublicId: "" },
+      { name: "Ravi Patel", title: "Head of Engineering", imageUrl: "", imagePublicId: "" },
+      { name: "Maya Chen", title: "Design Lead", imageUrl: "", imagePublicId: "" }
     ]
   },
   {

@@ -39,9 +39,9 @@ const fallbacks = {
     { year: "2023", description: "Reached a stronger recurring revenue mix and larger delivery capacity." }
   ],
   team: [
-    { name: "Aisha Khan", title: "CEO" },
-    { name: "Ravi Patel", title: "Head of Engineering" },
-    { name: "Maya Chen", title: "Design Lead" }
+    { name: "Aisha Khan", title: "CEO", imageUrl: "", imagePublicId: "" },
+    { name: "Ravi Patel", title: "Head of Engineering", imageUrl: "", imagePublicId: "" },
+    { name: "Maya Chen", title: "Design Lead", imageUrl: "", imagePublicId: "" }
   ],
   faqs: [
     {
@@ -190,19 +190,25 @@ const Investor = () => {
               const photo = person.imageUrl || person.photo || person.avatar;
               const initials = (person.name || "")
                 .split(" ")
+                .filter(Boolean)
                 .map((part) => part[0])
-                .join("");
+                .join("")
+                .slice(0, 2)
+                .toUpperCase();
 
               return (
-                <div key={person.name} className="rounded-lg border border-gray-100 bg-white p-6 text-center">
-                  <div className="mx-auto mb-3 flex h-20 w-20 items-center justify-center overflow-hidden rounded-full bg-slate-100">
+                <div
+                  key={person.name}
+                  className="rounded-lg border border-gray-100/15 bg-white p-6 text-center shadow-sm"
+                >
+                  <div className="mx-auto mb-3 flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border border-gray-100/15 bg-mist">
                     {photo ? (
                       <img src={photo} alt={person.name} className="h-full w-full object-cover" />
                     ) : (
-                      <span className="text-sm font-semibold">{initials}</span>
+                      <span className="text-sm font-semibold text-ink">{initials || "?"}</span>
                     )}
                   </div>
-                  <h4 className="font-semibold">{person.name}</h4>
+                  <h4 className="font-heading font-semibold text-ink">{person.name}</h4>
                   <p className="mt-1 text-sm text-gray-600">{person.title || person.role}</p>
                 </div>
               );
@@ -255,11 +261,11 @@ const Investor = () => {
 
         <section id="faqs" className="mb-8">
           <SectionHeading subtitle="FAQs" title="Investor FAQs" />
-          <div className="space-y-4 text-sm text-gray-600">
+          <div className="space-y-4">
             {faqs.map((item) => (
-              <div key={item.question} className="rounded-lg border border-gray-100 bg-white p-5">
-                <p className="font-semibold text-gray-900">{item.question}</p>
-                <p className="mt-2">{item.answer}</p>
+              <div key={item.question} className="rounded-lg border border-gray-100/15 bg-white p-5 shadow-sm">
+                <p className="font-semibold text-ink">{item.question}</p>
+                <p className="mt-2 text-sm leading-7 text-gray-600">{item.answer}</p>
               </div>
             ))}
           </div>

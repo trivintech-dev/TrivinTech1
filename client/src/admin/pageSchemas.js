@@ -382,7 +382,7 @@ export const PAGE_SCHEMAS = {
   },
   investor: {
     label: "Investor",
-    description: "Investor relations overview, KPIs, reports, and FAQs.",
+    description: "Investor relations overview, KPIs, leadership team, reports, and FAQs.",
     sections: [
       { key: "hero", label: "Hero", kind: "single", fields: heroFields },
       {
@@ -396,7 +396,7 @@ export const PAGE_SCHEMAS = {
         ]
       },
       {
-        key: "investmentHighlights",
+        key: "highlights",
         label: "Investment highlights",
         kind: "list",
         itemTitle: (_item, index) => `Highlight ${index + 1}`,
@@ -405,7 +405,7 @@ export const PAGE_SCHEMAS = {
         columns: 1
       },
       {
-        key: "stats",
+        key: "kpis",
         label: "KPIs",
         kind: "list",
         itemTitle: (item) => item.label || "KPI",
@@ -416,11 +416,42 @@ export const PAGE_SCHEMAS = {
         key: "financialReports",
         label: "Financial reports",
         kind: "list",
-        itemTitle: (item) => item.label || "Report",
-        newItem: () => ({ label: "", href: "" }),
+        itemTitle: (item) => item.title || item.label || "Report",
+        newItem: () => ({ title: "", href: "" }),
         fields: [
-          { name: "label", label: "Label", type: "text" },
+          { name: "title", label: "Label", type: "text" },
           { name: "href", label: "Download URL", type: "text", full: true }
+        ]
+      },
+      {
+        key: "timeline",
+        label: "Growth timeline",
+        kind: "list",
+        itemTitle: (item) => item.year || "Milestone",
+        newItem: () => ({ year: "", description: "" }),
+        fields: [
+          { name: "year", label: "Year", type: "text" },
+          { name: "description", label: "Description", type: "textarea", rows: 2, full: true }
+        ],
+        columns: 1
+      },
+      {
+        key: "team",
+        label: "Leadership team",
+        kind: "list",
+        itemTitle: (item) => item.name || "Team member",
+        newItem: () => ({ name: "", title: "", role: "", imageUrl: "", imagePublicId: "" }),
+        fields: [
+          { name: "name", label: "Name", type: "text" },
+          { name: "title", label: "Title / role", type: "text" },
+          {
+            name: "imageUrl",
+            label: "Photo",
+            type: "image",
+            publicIdName: "imagePublicId",
+            uploadUrl: "/content/upload-image",
+            full: true
+          }
         ]
       },
       {
@@ -432,7 +463,85 @@ export const PAGE_SCHEMAS = {
         fields: faqFields,
         columns: 1
       },
-      { key: "contactCta", label: "Investor contact CTA", kind: "single", fields: ctaFields }
+      {
+        key: "marketOpportunity",
+        label: "Market opportunity",
+        kind: "single",
+        fields: [
+          { name: "subtitle", label: "Subtitle", type: "text" },
+          { name: "title", label: "Title", type: "text" },
+          { name: "body", label: "Body", type: "textarea", rows: 4, full: true }
+        ]
+      },
+      {
+        key: "productInnovation",
+        label: "Product innovation",
+        kind: "single",
+        fields: [
+          { name: "subtitle", label: "Subtitle", type: "text" },
+          { name: "title", label: "Title", type: "text" },
+          { name: "body", label: "Body", type: "textarea", rows: 4, full: true }
+        ]
+      },
+      {
+        key: "funding",
+        label: "Funding information",
+        kind: "single",
+        fields: [
+          { name: "subtitle", label: "Subtitle", type: "text" },
+          { name: "title", label: "Title", type: "text" },
+          { name: "body", label: "Body", type: "textarea", rows: 4, full: true }
+        ]
+      },
+      {
+        key: "investorResources",
+        label: "Investor resources",
+        kind: "list",
+        itemTitle: (item) => item.text || "Resource",
+        newItem: () => ({ text: "" }),
+        fields: [{ name: "text", label: "Resource", type: "text", full: true }],
+        columns: 1
+      },
+      {
+        key: "stock",
+        label: "Stock information",
+        kind: "single",
+        fields: [
+          { name: "subtitle", label: "Subtitle", type: "text" },
+          { name: "title", label: "Title", type: "text" },
+          { name: "body", label: "Body", type: "textarea", rows: 4, full: true }
+        ]
+      },
+      {
+        key: "esg",
+        label: "ESG and sustainability",
+        kind: "single",
+        fields: [
+          { name: "subtitle", label: "Subtitle", type: "text" },
+          { name: "title", label: "Title", type: "text" },
+          { name: "body", label: "Body", type: "textarea", rows: 4, full: true }
+        ]
+      },
+      {
+        key: "news",
+        label: "News and press",
+        kind: "list",
+        itemTitle: (item) => item.text || "News item",
+        newItem: () => ({ text: "" }),
+        fields: [{ name: "text", label: "Headline", type: "text", full: true }],
+        columns: 1
+      },
+      {
+        key: "finalCta",
+        label: "Final CTA",
+        kind: "single",
+        fields: [
+          { name: "heading", label: "Heading", type: "text", full: true },
+          { name: "body", label: "Body", type: "textarea", rows: 3, full: true },
+          { name: "ctaLabel", label: "Button label", type: "text" },
+          { name: "ctaHref", label: "Button link", type: "text" }
+        ]
+      }
     ]
   },
   blog: {
