@@ -164,11 +164,18 @@ export const PAGE_SCHEMAS = {
         label: "Team",
         kind: "list",
         itemTitle: (item) => item.name || "Team member",
-        newItem: () => ({ name: "", role: "", bio: "", imageUrl: "", linkedinUrl: "" }),
+        newItem: () => ({ name: "", role: "", bio: "", imageUrl: "", imagePublicId: "", linkedinUrl: "" }),
         fields: [
           { name: "name", label: "Name", type: "text" },
           { name: "role", label: "Role", type: "text" },
-          { name: "imageUrl", label: "Photo URL", type: "text" },
+          {
+            name: "imageUrl",
+            label: "Photo",
+            type: "image",
+            publicIdName: "imagePublicId",
+            uploadUrl: "/content/upload-image",
+            full: true
+          },
           { name: "linkedinUrl", label: "LinkedIn URL", type: "text" },
           { name: "bio", label: "Bio", type: "textarea", rows: 3, full: true }
         ]

@@ -1,7 +1,29 @@
 import { ArrowDown, ArrowUp, Plus, Trash2 } from "lucide-react";
+import ImageUpload from "./ImageUpload.jsx";
 import { Button, Field, IconButton, Input, Textarea, Toggle } from "./AdminUI.jsx";
 
-const ItemField = ({ field, value, onChange }) => {
+const ItemField = ({ field, value, item, onChange, onItemPatch }) => {
+  if (field.type === "image") {
+    const urlKey = field.name || "imageUrl";
+    const publicIdKey = field.publicIdName || "imagePublicId";
+    return (
+      <ImageUpload
+        label={field.label || "Photo"}
+        hint={field.hint || "Upload to Cloudinary or paste a URL"}
+        value={item?.[urlKey] || value || ""}
+        publicId={item?.[publicIdKey] || ""}
+        uploadUrl={field.uploadUrl || "/content/upload-image"}
+        onChange={({ imageUrl, imagePublicId }) => {
+          if (onItemPatch) {
+            onItemPatch({ [urlKey]: imageUrl, [publicIdKey]: imagePublicId });
+          } else {
+            onChange(imageUrl);
+          }
+        }}
+      />
+    );
+  }
+
   if (field.type === "textarea") {
     return (
       <Field label={field.label} hint={field.hint}>
@@ -72,6 +94,11 @@ const RepeatableList = ({ items = [], onChange, fields, newItem, itemTitle, addL
     onChange(next);
   };
 
+  const patchItem = (index, patch) => {
+    const next = list.map((item, idx) => (idx === index ? { ...item, ...patch } : item));
+    onChange(next);
+  };
+
   const removeItem = (index) => onChange(list.filter((_, idx) => idx !== index));
 
   const move = (index, direction) => {
@@ -116,11 +143,13 @@ const RepeatableList = ({ items = [], onChange, fields, newItem, itemTitle, addL
           </div>
           <div className={`grid gap-4 ${gridClass}`}>
             {fields.map((field) => (
-              <div key={field.name} className={field.full ? "sm:col-span-2" : ""}>
+              <div key={field.name} className={field.full || field.type === "image" ? "sm:col-span-2" : ""}>
                 <ItemField
                   field={field}
+                  item={item}
                   value={item[field.name]}
                   onChange={(value) => updateItem(index, field.name, value)}
+                  onItemPatch={(patch) => patchItem(index, patch)}
                 />
               </div>
             ))}

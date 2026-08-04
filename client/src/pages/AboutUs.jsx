@@ -158,20 +158,38 @@ const AboutUs = () => {
         <section id="team" className="mb-8">
           <SectionHeading subtitle="Leadership" title="Team members" />
           <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3">
-            {team.map((person) => (
-              <div key={person.name} className="rounded-lg border border-gray-100 bg-white p-6 text-center">
-                <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-slate-100">
-                  <span className="text-sm font-semibold">
-                    {(person.name || "")
-                      .split(" ")
-                      .map((part) => part[0])
-                      .join("")}
-                  </span>
+            {team.map((person) => {
+              const photo = person.imageUrl || person.photo || person.avatar;
+              const initials = (person.name || "")
+                .split(" ")
+                .map((part) => part[0])
+                .join("");
+
+              return (
+                <div key={person.name} className="rounded-lg border border-gray-100 bg-white p-6 text-center">
+                  <div className="mx-auto mb-3 flex h-20 w-20 items-center justify-center overflow-hidden rounded-full bg-slate-100">
+                    {photo ? (
+                      <img src={photo} alt={person.name} className="h-full w-full object-cover" />
+                    ) : (
+                      <span className="text-sm font-semibold">{initials}</span>
+                    )}
+                  </div>
+                  <h4 className="font-semibold">{person.name}</h4>
+                  <p className="mt-1 text-sm text-gray-600">{person.role || person.title}</p>
+                  {person.bio ? <p className="mt-2 text-xs leading-5 text-gray-500">{person.bio}</p> : null}
+                  {person.linkedinUrl ? (
+                    <a
+                      href={person.linkedinUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="mt-3 inline-block text-xs font-semibold text-cyan-600 hover:text-cyan-500"
+                    >
+                      LinkedIn
+                    </a>
+                  ) : null}
                 </div>
-                <h4 className="font-semibold">{person.name}</h4>
-                <p className="mt-1 text-sm text-gray-600">{person.role || person.title}</p>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </section>
 

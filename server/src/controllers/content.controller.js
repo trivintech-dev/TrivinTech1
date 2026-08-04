@@ -1,6 +1,13 @@
+import fs from "fs";
 import PageContent from "../models/PageContent.js";
+import cloudinary from "../config/cloudinary.js";
 
 const normalizePage = (value) => (value || "").toLowerCase().trim();
+
+const cleanupTempFile = (filePath) => {
+  if (!filePath) return;
+  fs.promises.unlink(filePath).catch(() => {});
+};
 
 export const getPageContent = async (req, res, next) => {
   try {
@@ -102,6 +109,43 @@ export const deleteContent = async (req, res, next) => {
     }
 
     return res.json({ message: "Content section deleted" });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+export const uploadContentImage = async (req, res, next) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: "No image file provided" });
+    }
+
+    const result = await cloudinary.uploader.upload(req.file.path, {
+      folder: "trivin-content",
+      resource_type: "image"
+    });
+
+    cleanupTempFile(req.file.path);
+
+    return res.json({
+      imageUrl: result.secure_url,
+      imagePublicId: result.public_id
+    });
+  } catch (error) {
+    cleanupTempFile(req.file?.path);
+    return next(error);
+  }
+};
+
+export const deleteContentImage = async (req, res, next) => {
+  try {
+    const publicId = req.body.publicId || req.body.imagePublicId;
+    if (!publicId) {
+      return res.status(400).json({ message: "Public ID is required" });
+    }
+
+    await cloudinary.uploader.destroy(publicId);
+    return res.json({ message: "Image deleted successfully" });
   } catch (error) {
     return next(error);
   }
