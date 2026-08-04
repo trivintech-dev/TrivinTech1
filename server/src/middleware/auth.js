@@ -16,3 +16,21 @@ export const requireAuth = (req, res, next) => {
     return res.status(401).json({ message: "Invalid token" });
   }
 };
+
+/** Attaches req.user when a valid token is present; never blocks the request. */
+export const optionalAuth = (req, _res, next) => {
+  const header = req.headers.authorization || "";
+  const token = header.startsWith("Bearer ") ? header.slice(7) : null;
+
+  if (!token) {
+    return next();
+  }
+
+  try {
+    req.user = jwt.verify(token, process.env.JWT_SECRET);
+  } catch {
+    // ignore invalid token for public endpoints
+  }
+
+  return next();
+};

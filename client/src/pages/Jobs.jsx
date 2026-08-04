@@ -508,7 +508,7 @@ const Jobs = () => {
         background={<CareersHeroBackground />}
       />
 
-      <section className="grid gap-4 sm:gap-6 lg:grid-cols-2">
+      <section className="grid gap-4 px-4 sm:gap-6 sm:px-6 lg:grid-cols-2 lg:px-8">
         <div className="rounded-xl sm:rounded-2xl border border-gray-100/15 bg-white p-4 sm:p-6 lg:p-8 shadow-sm">
           <SectionHeading title={culture.sectionTitle || fallbacks.culture.sectionTitle} subtitle={culture.sectionSubtitle || fallbacks.culture.sectionSubtitle} />
           <div className="space-y-3 sm:space-y-4 text-xs sm:text-sm leading-6 sm:leading-7 text-gray-600">
@@ -531,7 +531,7 @@ const Jobs = () => {
         </div>
       </section>
 
-      <section>
+      <section className="px-4 sm:px-6 lg:px-8">
         <SectionHeading title="Company benefits and perks" subtitle="Perks" />
         <div className="grid gap-3 sm:gap-4 md:grid-cols-2 lg:grid-cols-4">
           {pageBenefits.map(({ title, icon, color, glow, description }, index) => {
@@ -564,7 +564,7 @@ const Jobs = () => {
         </div>
       </section>
 
-      <section id="open-positions">
+      <section id="open-positions" className="px-4 sm:px-6 lg:px-8">
         <SectionHeading title="Open positions" subtitle="Hiring now" />
         <div className="mb-3 sm:mb-4 flex flex-col gap-2 sm:gap-3 rounded-lg sm:rounded-2xl border border-gray-100/15 bg-white p-3 sm:p-4 shadow-sm md:flex-row md:items-center md:justify-between">
           <div className="relative w-full md:max-w-md">
@@ -597,7 +597,7 @@ const Jobs = () => {
         {filteredJobs.length === 0 && <p className="mt-6 rounded-2xl border border-gray-100/15 bg-white p-6 text-sm text-gray-600">No roles match your search.</p>}
       </section>
 
-      <section>
+      <section className="px-4 sm:px-6 lg:px-8">
         <SectionHeading title="Departments" subtitle="Hiring categories" />
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
           {pageDepartments.map(({ title, icon, description, color, borderColor, iconColor, hoverColor }) => {
@@ -648,7 +648,7 @@ const Jobs = () => {
         </div>
       </section>
 
-      <section>
+      <section className="px-4 sm:px-6 lg:px-8">
         <SectionHeading title="Recruitment process" subtitle="Hiring steps" />
         <div className="relative">
           {/* Timeline connectors */}
@@ -714,7 +714,7 @@ const Jobs = () => {
         </div>
       </section>
 
-      <section>
+      <section className="px-4 sm:px-6 lg:px-8">
         <SectionHeading title="Employee testimonials" subtitle="Team feedback" />
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {pageTestimonials.map((testimonial, index) => {
@@ -780,7 +780,7 @@ const Jobs = () => {
         </div>
       </section>
 
-      <section>
+      <section className="px-4 sm:px-6 lg:px-8">
         <SectionHeading title="Life at the company" subtitle="Culture gallery" />
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
           {pageLifeAtCompany.map((item) => (
@@ -792,7 +792,7 @@ const Jobs = () => {
         </div>
       </section>
 
-      <section>
+      <section className="px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
           <SectionHeading title="Internship opportunities" subtitle="Early careers" />
           {isAdmin && (
@@ -817,7 +817,7 @@ const Jobs = () => {
         )}
       </section>
 
-      <section>
+      <section className="px-4 sm:px-6 lg:px-8">
         <SectionHeading title="FAQ" subtitle="Questions" />
         <div className="grid gap-4 lg:grid-cols-2">
           {pageFaqs.map((faq) => (
@@ -829,7 +829,7 @@ const Jobs = () => {
         </div>
       </section>
 
-      <section id="application-form" className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
+      <section id="application-form" className="grid gap-6 px-4 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8">
         <form onSubmit={submitApplication} className="rounded-2xl border border-gray-100/15 bg-white p-6 shadow-sm sm:p-8">
           <SectionHeading title="Resume submission form" subtitle="Apply now" />
           <div className="grid gap-4 sm:grid-cols-2">
@@ -871,7 +871,7 @@ const Jobs = () => {
         </aside>
       </section>
 
-      <section className="rounded-2xl border border-gray-100/15 bg-slate-950/40 p-6 shadow-sm sm:p-8">
+      <section className="mx-4 rounded-2xl border border-gray-100/15 bg-slate-950/40 p-6 shadow-sm sm:mx-6 sm:p-8 lg:mx-8">
         <SectionHeading title={finalCta.sectionTitle} subtitle={finalCta.sectionSubtitle} />
         <div className="flex flex-wrap gap-4">
           <a href="#application-form" className="button-primary">{finalCta.primaryCta}</a>

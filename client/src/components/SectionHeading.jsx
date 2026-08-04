@@ -1,6 +1,6 @@
 const SectionHeading = ({ title, subtitle }) => {
   return (
-    <div className="mb-6">
+    <div className="mb-6 overflow-visible">
       <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand">
         {subtitle}
       </p>

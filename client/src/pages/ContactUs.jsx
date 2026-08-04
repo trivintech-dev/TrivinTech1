@@ -107,6 +107,7 @@ const ContactUs = () => {
   const { settings } = useSiteSettings();
   const [status, setStatus] = useState(null);
   const [myQueries, setMyQueries] = useState([]);
+  const [myContacts, setMyContacts] = useState([]);
   const [form, setForm] = useState({
     fullName: "",
     email: "",
@@ -123,6 +124,16 @@ const ContactUs = () => {
       setForm((prev) => ({ ...prev, serviceNeeded: prev.serviceNeeded || service }));
     }
   }, [searchParams]);
+
+  useEffect(() => {
+    if (user) {
+      setForm((prev) => ({
+        ...prev,
+        fullName: prev.fullName || user.name || "",
+        email: prev.email || user.email || ""
+      }));
+    }
+  }, [user]);
 
   const hero = content.hero || fallbacks.hero;
   const benefits = content.benefits?.length ? content.benefits : fallbacks.benefits;
@@ -148,13 +159,52 @@ const ContactUs = () => {
     }));
   }, [settings.socials]);
 
+  const historyItems = useMemo(() => {
+    const fromQueries = (myQueries || []).map((q) => ({
+      id: `query-${q._id}`,
+      title: q.subject,
+      message: q.message,
+      status: q.status,
+      response: q.response,
+      createdAt: q.createdAt,
+      kind: "Query"
+    }));
+
+    const fromContacts = (myContacts || []).map((c) => ({
+      id: `contact-${c._id}`,
+      title: c.subject || c.serviceNeeded || "Contact request",
+      message: c.message,
+      status: c.status,
+      response: c.response,
+      createdAt: c.createdAt,
+      kind: "Lead"
+    }));
+
+    return [...fromContacts, ...fromQueries].sort(
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+  }, [myContacts, myQueries]);
+
   useEffect(() => {
-    if (!user) return;
+    if (!user) {
+      setMyQueries([]);
+      setMyContacts([]);
+      return;
+    }
 
     const load = async () => {
       try {
-        const { data } = await api.get("/queries/me");
-        setMyQueries(data.queries);
+        const [queriesRes, contactsRes] = await Promise.allSettled([
+          api.get("/queries/me"),
+          api.get("/contacts/me")
+        ]);
+
+        if (queriesRes.status === "fulfilled") {
+          setMyQueries(queriesRes.value.data.queries || []);
+        }
+        if (contactsRes.status === "fulfilled") {
+          setMyContacts(contactsRes.value.data.contactRequests || []);
+        }
       } catch {
         // ignore
       }
@@ -182,7 +232,7 @@ const ContactUs = () => {
     }
 
     try {
-      await api.post("/contacts", {
+      const { data } = await api.post("/contacts", {
         fullName: form.fullName.trim(),
         email: form.email.trim(),
         phone: form.phone.trim(),
@@ -194,14 +244,20 @@ const ContactUs = () => {
       });
       setStatus({ type: "success", text: `${label} submitted successfully.` });
       setForm({
-        fullName: "",
-        email: "",
+        fullName: user?.name || "",
+        email: user?.email || "",
         phone: "",
         companyName: "",
         serviceNeeded: "",
         budgetRange: "",
         message: ""
       });
+      if (data?.contactRequest) {
+        setMyContacts((prev) => [data.contactRequest, ...prev.filter((item) => item._id !== data.contactRequest._id)]);
+      } else if (user) {
+        const { data: contactsData } = await api.get("/contacts/me");
+        setMyContacts(contactsData.contactRequests || []);
+      }
     } catch (error) {
       setStatus({ type: "error", text: error?.response?.data?.message || "Submit failed" });
     }
@@ -226,7 +282,7 @@ const ContactUs = () => {
         background={<ContactHeroBackground />}
       />
 
-      <section className="grid gap-3 sm:gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <section className="grid gap-3 px-4 sm:gap-4 sm:px-6 md:grid-cols-2 xl:grid-cols-4 lg:px-8">
         <div className="rounded-lg sm:rounded-2xl border border-gray-100/15 bg-white p-4 sm:p-6 shadow-sm">
           <div className="flex items-center gap-2 sm:gap-3 text-brand">
             <Phone className="h-4 w-4 sm:h-5 sm:w-5" />
@@ -257,7 +313,7 @@ const ContactUs = () => {
         </div>
       </section>
 
-      <section className="grid gap-4 sm:gap-6 lg:grid-cols-[1.05fr_0.95fr]">
+      <section className="grid gap-4 px-4 sm:gap-6 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8">
         <div id="contact-form" className="rounded-lg sm:rounded-2xl border border-gray-100/15 bg-white p-4 sm:p-6 lg:p-8 shadow-sm">
           <SectionHeading title="Contact form" subtitle="Lead generation" />
           <div className="grid gap-2 sm:gap-3 sm:gap-4 sm:grid-cols-2">
@@ -362,7 +418,7 @@ const ContactUs = () => {
         </div>
       </section>
 
-      <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+      <section className="grid gap-6 px-4 sm:px-6 lg:grid-cols-[1.1fr_0.9fr] lg:px-8">
         <div className="rounded-2xl border border-gray-100/15 bg-white p-6 shadow-sm">
           <SectionHeading title="Google map" subtitle="Location" />
           <div className="overflow-hidden rounded-2xl border border-gray-100/15">
@@ -389,7 +445,7 @@ const ContactUs = () => {
         </div>
       </section>
 
-      <section className="rounded-2xl border border-gray-100/15 bg-slate-950/40 p-6 shadow-sm sm:p-8">
+      <section className="mx-4 rounded-2xl border border-gray-100/15 bg-slate-950/40 p-6 shadow-sm sm:mx-6 sm:p-8 lg:mx-8">
         <SectionHeading title={bottomCta.title} subtitle={bottomCta.subtitle || "CTA"} />
         <div className="flex flex-wrap gap-4">
           <a href="#contact-form" className="button-primary">
@@ -401,7 +457,7 @@ const ContactUs = () => {
         </div>
       </section>
 
-      <section className="rounded-2xl border border-gray-100/15 bg-white p-6 shadow-sm">
+      <section className="mx-4 rounded-2xl border border-gray-100/15 bg-white p-6 shadow-sm sm:mx-6 lg:mx-8">
         <SectionHeading title="Social media links" subtitle="Follow us" />
         <div className="flex flex-wrap gap-3">
           {socials.map(({ label, href, icon: Icon }) => (
@@ -420,35 +476,42 @@ const ContactUs = () => {
       </section>
 
       {user ? (
-        <section>
-          <SectionHeading title="My queries" subtitle="History" />
+        <section className="px-4 sm:px-6 lg:px-8">
+          <SectionHeading title="My messages & replies" subtitle="History" />
           <div className="grid gap-4">
-            {myQueries.length === 0 && <p className="text-gray-600">No queries yet.</p>}
-            {myQueries.map((q) => (
-              <div key={q._id} className="rounded-2xl border border-gray-100/15 bg-white p-4 shadow-sm">
-                <div className="flex items-center justify-between">
+            {historyItems.length === 0 && <p className="text-gray-600">No messages yet.</p>}
+            {historyItems.map((item) => (
+              <div key={item.id} className="rounded-2xl border border-gray-100/15 bg-white p-4 shadow-sm">
+                <div className="flex flex-wrap items-center justify-between gap-2">
                   <div>
-                    <div className="font-semibold text-ink">{q.subject}</div>
-                    <div className="text-sm text-gray-600">{new Date(q.createdAt).toLocaleString()}</div>
+                    <div className="font-semibold text-ink">{item.title}</div>
+                    <div className="text-sm text-gray-600">{new Date(item.createdAt).toLocaleString()}</div>
                   </div>
-                  <div className="text-sm text-gray-500">{q.status}</div>
+                  <div className="flex items-center gap-2 text-sm text-gray-500">
+                    <span className="rounded-full border border-gray-200 px-2 py-0.5 text-xs uppercase tracking-wide">
+                      {item.kind}
+                    </span>
+                    <span>{item.status || "open"}</span>
+                  </div>
                 </div>
-                <p className="mt-2 text-gray-700">{q.message}</p>
-                {q.response && (
+                <p className="mt-2 text-gray-700">{item.message}</p>
+                {item.response ? (
                   <div className="mt-3 rounded-md bg-mist p-3 text-sm text-gray-700">
-                    <strong>Response:</strong>
-                    <div className="mt-1">{q.response}</div>
+                    <strong>Admin response:</strong>
+                    <div className="mt-1 whitespace-pre-wrap">{item.response}</div>
                   </div>
+                ) : (
+                  <p className="mt-3 text-sm text-gray-500">Waiting for a response from our team.</p>
                 )}
               </div>
             ))}
           </div>
         </section>
       ) : (
-        <section className="rounded-2xl border border-gray-100/15 bg-white p-6 shadow-sm">
+        <section className="mx-4 rounded-2xl border border-gray-100/15 bg-white p-6 shadow-sm sm:mx-6 lg:mx-8">
           <h2 className="font-heading text-2xl font-semibold text-ink">{loginPrompt.headline}</h2>
           <p className="mt-3 text-gray-600">{loginPrompt.body}</p>
-          <Link to="/login" className="button-primary mt-6 inline-flex">
+          <Link to="/login?redirect=/contact" className="button-primary mt-6 inline-flex">
             {loginPrompt.ctaLabel || "Login"}
           </Link>
         </section>

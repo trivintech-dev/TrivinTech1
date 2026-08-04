@@ -430,7 +430,7 @@ const Home = () => {
         </div>
       </section>
 
-      <section>
+      <section className="px-4 sm:px-6 lg:px-8">
         <SectionHeading title="Main services" subtitle="Offerings" />
         <div className="offerings-carousel rounded-[1.75rem] border border-white/10 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 px-4 py-5 shadow-[0_18px_50px_rgba(2,8,20,0.45)] md:px-6 lg:px-7">
           <div className="offerings-carousel-track">
@@ -481,7 +481,7 @@ const Home = () => {
         </div>
       </section>
 
-      <section>
+      <section className="px-4 sm:px-6 lg:px-8">
         <SectionHeading title="Service showcase" subtitle="Gallery" />
         <div className="relative h-[400px] sm:h-[500px] w-full rounded-2xl border border-gray-100/15 bg-gradient-to-br from-slate-950 to-slate-900 overflow-hidden">
           <CircularGallery
@@ -494,7 +494,7 @@ const Home = () => {
         </div>
       </section>
 
-      <section>
+      <section className="px-4 sm:px-6 lg:px-8">
         <SectionHeading title={about.sectionTitle || "About the company"} subtitle={about.sectionSubtitle || "About"} />
         <div className="grid gap-4 sm:gap-6 lg:grid-cols-[1.2fr_0.8fr]">
           <div className="rounded-xl sm:rounded-2xl border border-gray-100/15 bg-white p-4 sm:p-8 shadow-sm">
@@ -546,7 +546,7 @@ const Home = () => {
         </div>
       </section>
 
-      <section>
+      <section className="px-4 sm:px-6 lg:px-8">
         <SectionHeading title="Featured services" subtitle="Services" />
         <div className="grid gap-6 md:grid-cols-3">
           {services.map((service) => (
@@ -555,7 +555,7 @@ const Home = () => {
         </div>
       </section>
 
-      <section>
+      <section className="px-4 sm:px-6 lg:px-8">
         <SectionHeading title="Open roles" subtitle="Careers" />
         <div className="grid gap-6 md:grid-cols-3">
           {jobs.map((job) => (
@@ -564,7 +564,7 @@ const Home = () => {
         </div>
       </section>
 
-      <section>
+      <section className="px-4 sm:px-6 lg:px-8">
         <SectionHeading title="Portfolio / projects" subtitle="Work" />
         <div className="grid gap-6 lg:grid-cols-3">
           {displayProjects.map((project) => (
@@ -774,7 +774,7 @@ const Home = () => {
 
       <TestimonialsSection />
 
-      <section>
+      <section className="px-4 sm:px-6 lg:px-8">
         <SectionHeading title="Pricing plans" subtitle="Packages" />
         <div className="grid gap-6 lg:grid-cols-3">
           {currentPricingPlans.map((plan, index) => {

@@ -337,7 +337,7 @@ const Services = () => {
         secondaryAction={heroAction(hero.secondaryActionLabel || hero.secondaryLabel, hero.secondaryActionHref || hero.secondaryHref, "button-outline")}
       />
 
-      <section className="grid gap-4 sm:gap-6 lg:grid-cols-[1.05fr_0.95fr]">
+      <section className="grid gap-4 px-4 sm:gap-6 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8">
         <div className="rounded-none border-y border-gray-100/15 bg-white px-4 sm:px-6 lg:px-10 py-8 sm:py-10 shadow-sm">
           <SectionHeading title="Service overview" subtitle="Overview" />
           <p className="text-xs sm:text-sm leading-6 sm:leading-7 text-gray-600">{overview.body}</p>
@@ -359,7 +359,7 @@ const Services = () => {
         </div>
       </section>
 
-      <section>
+      <section className="px-4 sm:px-6 lg:px-8">
         <SectionHeading title="Features / what’s included" subtitle="Features" />
         <div className="grid gap-3 sm:gap-4 md:grid-cols-2 xl:grid-cols-4">
           {features.map(({ title, icon: Icon, description }, index) => (
@@ -418,7 +418,7 @@ const Services = () => {
         </div>
       </section>
 
-      <section>
+      <section className="px-4 sm:px-6 lg:px-8">
         <SectionHeading title="Industries we serve" subtitle="Industries" />
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {industries.map(({ name, icon, color, glow, description, capabilities }, index) => {
@@ -524,7 +524,7 @@ const Services = () => {
         </div>
       </section>
 
-      <section>
+      <section className="px-4 sm:px-6 lg:px-8">
         <SectionHeading title="Why choose us" subtitle="Advantages" />
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
           {advantages.map((item) => {
@@ -542,7 +542,7 @@ const Services = () => {
         </div>
       </section>
 
-      <section>
+      <section className="px-4 sm:px-6 lg:px-8">
         <SectionHeading title="Portfolio / case studies" subtitle="Projects" />
         <div className="grid gap-6 lg:grid-cols-3">
           {displayProjects.map((project) => {
@@ -609,7 +609,7 @@ const Services = () => {
         </div>
       </section>
 
-      <section>
+      <section className="px-4 sm:px-6 lg:px-8">
         <SectionHeading title="Pricing packages" subtitle="Pricing" />
         <div className="grid gap-6 lg:grid-cols-3">
           {currentPricingPackages.map((plan, index) => {
@@ -683,7 +683,7 @@ const Services = () => {
         </div>
       </section>
 
-      <section>
+      <section className="px-4 sm:px-6 lg:px-8">
         <SectionHeading title="FAQ" subtitle="Questions" />
         <div className="grid gap-4 lg:grid-cols-2">
           {faqs.map((faq) => (

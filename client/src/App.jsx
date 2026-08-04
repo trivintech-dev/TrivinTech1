@@ -60,7 +60,7 @@ const App = () => {
   const hideSiteChrome = isAdminRoute || location.pathname.startsWith("/profile/");
 
   return (
-    <div className="relative isolate min-h-screen overflow-hidden bg-transparent text-ink">
+    <div className="relative isolate min-h-screen overflow-x-clip bg-transparent text-ink">
       <div className="relative z-10">
         {!hideSiteChrome && <Navbar />}
         <main className={isAdminRoute ? "w-full" : "w-full py-8 pt-8"}>

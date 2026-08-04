@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { useAuth } from "../context/AuthContext.jsx";
@@ -15,6 +15,7 @@ const defaultNavItems = [
 ];
 
 const SCROLL_HIDE_THRESHOLD = 80;
+const HEADER_REVEAL_MS = 5000;
 
 const Navbar = () => {
   const { user, logout, isAdmin } = useAuth();
@@ -25,23 +26,73 @@ const Navbar = () => {
   const [query, setQuery] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  const [headerVisible, setHeaderVisible] = useState(true);
+  const [headerVisible, setHeaderVisible] = useState(
+    () => (typeof window !== "undefined" ? window.scrollY <= SCROLL_HIDE_THRESHOLD : true)
+  );
+  const hideTimerRef = useRef(null);
+  const lastScrollYRef = useRef(typeof window !== "undefined" ? window.scrollY : 0);
 
   useEffect(() => {
-    const updateVisibility = () => {
-      // Show at top, hide after scrolling down
-      setHeaderVisible(window.scrollY <= SCROLL_HIDE_THRESHOLD);
+    const clearHideTimer = () => {
+      if (hideTimerRef.current) {
+        window.clearTimeout(hideTimerRef.current);
+        hideTimerRef.current = null;
+      }
     };
 
-    updateVisibility();
+    const scheduleHide = () => {
+      clearHideTimer();
+      hideTimerRef.current = window.setTimeout(() => {
+        if (window.scrollY > SCROLL_HIDE_THRESHOLD) {
+          setHeaderVisible(false);
+        }
+      }, HEADER_REVEAL_MS);
+    };
+
+    const updateVisibility = () => {
+      const currentY = window.scrollY;
+
+      // At the top → always visible
+      if (currentY <= SCROLL_HIDE_THRESHOLD) {
+        clearHideTimer();
+        setHeaderVisible(true);
+        lastScrollYRef.current = currentY;
+        return;
+      }
+
+      // Scroll up or down away from top → show header for 5 seconds
+      if (currentY !== lastScrollYRef.current) {
+        setHeaderVisible(true);
+        scheduleHide();
+      }
+
+      lastScrollYRef.current = currentY;
+    };
+
+    // Sync initial position (hide if already scrolled past top)
+    if (window.scrollY > SCROLL_HIDE_THRESHOLD) {
+      setHeaderVisible(false);
+    } else {
+      setHeaderVisible(true);
+    }
+    lastScrollYRef.current = window.scrollY;
+
     window.addEventListener("scroll", updateVisibility, { passive: true });
-    return () => window.removeEventListener("scroll", updateVisibility);
+    return () => {
+      window.removeEventListener("scroll", updateVisibility);
+      clearHideTimer();
+    };
   }, []);
 
   useEffect(() => {
     setMobileMenuOpen(false);
     setSearchOpen(false);
+    if (hideTimerRef.current) {
+      window.clearTimeout(hideTimerRef.current);
+      hideTimerRef.current = null;
+    }
     setHeaderVisible(window.scrollY <= SCROLL_HIDE_THRESHOLD);
+    lastScrollYRef.current = window.scrollY;
   }, [location.pathname]);
 
   const handleSearch = (event) => {

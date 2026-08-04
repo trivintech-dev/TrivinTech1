@@ -1,4 +1,5 @@
 import ContactRequest from "../models/ContactRequest.js";
+import User from "../models/User.js";
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -36,6 +37,7 @@ export const createContactRequest = async (req, res, next) => {
         }
 
         const contactRequest = await ContactRequest.create({
+            user: req.user?.id || undefined,
             subject: subject?.trim() || [normalizedService, companyName?.trim()].filter(Boolean).join(" • ") || "Contact request",
             fullName: normalizedFullName,
             email: normalizedEmail,
@@ -48,6 +50,22 @@ export const createContactRequest = async (req, res, next) => {
         });
 
         return res.status(201).json({ contactRequest });
+    } catch (error) {
+        return next(error);
+    }
+};
+
+export const listMyContactRequests = async (req, res, next) => {
+    try {
+        const user = await User.findById(req.user.id).select("email");
+        const email = user?.email?.trim().toLowerCase();
+
+        const filter = email
+            ? { $or: [{ user: req.user.id }, { email }] }
+            : { user: req.user.id };
+
+        const contactRequests = await ContactRequest.find(filter).sort({ createdAt: -1 });
+        return res.json({ contactRequests });
     } catch (error) {
         return next(error);
     }
