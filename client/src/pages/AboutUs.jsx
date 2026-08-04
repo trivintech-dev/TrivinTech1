@@ -164,27 +164,52 @@ const AboutUs = () => {
                 .split(" ")
                 .map((part) => part[0])
                 .join("");
+              const rawLinkedIn =
+                person.linkedinUrl || person.linkedin || person.linkedInUrl || person.linkedin_url || "";
+              const linkedInHref = (() => {
+                const value = String(rawLinkedIn).trim();
+                if (!value) return "";
+                if (/^https?:\/\//i.test(value)) return value;
+                if (value.startsWith("//")) return `https:${value}`;
+                if (value.includes("linkedin.com")) return `https://${value.replace(/^\/+/, "")}`;
+                return `https://${value}`;
+              })();
+              const bioParagraphs = String(person.bio || "")
+                .split(/\n+/)
+                .map((line) => line.trim())
+                .filter(Boolean);
 
               return (
-                <div key={person.name} className="rounded-lg border border-gray-100 bg-white p-6 text-center">
-                  <div className="mx-auto mb-3 flex h-20 w-20 items-center justify-center overflow-hidden rounded-full bg-slate-100">
+                <div
+                  key={person.name}
+                  className="flex h-full flex-col rounded-2xl border border-gray-100 bg-white p-6 text-center shadow-sm"
+                >
+                  <div className="mx-auto mb-4 flex h-24 w-24 items-center justify-center overflow-hidden rounded-full bg-slate-100 ring-4 ring-slate-50">
                     {photo ? (
                       <img src={photo} alt={person.name} className="h-full w-full object-cover" />
                     ) : (
-                      <span className="text-sm font-semibold">{initials}</span>
+                      <span className="text-base font-semibold text-slate-600">{initials}</span>
                     )}
                   </div>
-                  <h4 className="font-semibold">{person.name}</h4>
-                  <p className="mt-1 text-sm text-gray-600">{person.role || person.title}</p>
-                  {person.bio ? <p className="mt-2 text-xs leading-5 text-gray-500">{person.bio}</p> : null}
-                  {person.linkedinUrl ? (
+                  <h4 className="font-heading text-lg font-semibold text-ink">{person.name}</h4>
+                  <p className="mt-1 text-sm font-medium text-cyan-700">{person.role || person.title}</p>
+                  {bioParagraphs.length > 0 ? (
+                    <div className="mt-4 flex-1 space-y-2 text-left">
+                      {bioParagraphs.map((paragraph) => (
+                        <p key={paragraph} className="text-sm leading-6 text-gray-600">
+                          {paragraph}
+                        </p>
+                      ))}
+                    </div>
+                  ) : null}
+                  {linkedInHref ? (
                     <a
-                      href={person.linkedinUrl}
+                      href={linkedInHref}
                       target="_blank"
-                      rel="noreferrer"
-                      className="mt-3 inline-block text-xs font-semibold text-cyan-600 hover:text-cyan-500"
+                      rel="noopener noreferrer"
+                      className="mt-5 inline-flex items-center justify-center gap-2 rounded-full border border-cyan-200 bg-cyan-50 px-4 py-2 text-xs font-semibold text-cyan-700 transition hover:border-cyan-300 hover:bg-cyan-100 hover:text-cyan-800"
                     >
-                      LinkedIn
+                      View LinkedIn
                     </a>
                   ) : null}
                 </div>

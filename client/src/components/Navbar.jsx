@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { useAuth } from "../context/AuthContext.jsx";
@@ -14,6 +14,8 @@ const defaultNavItems = [
   { to: "/investors", label: "Investor" }
 ];
 
+const SCROLL_SHOW_THRESHOLD = 80;
+
 const Navbar = () => {
   const { user, logout, isAdmin } = useAuth();
   const { settings } = useSiteSettings();
@@ -23,6 +25,22 @@ const Navbar = () => {
   const [query, setQuery] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [headerVisible, setHeaderVisible] = useState(false);
+
+  useEffect(() => {
+    const updateVisibility = () => {
+      setHeaderVisible(window.scrollY > SCROLL_SHOW_THRESHOLD);
+    };
+
+    updateVisibility();
+    window.addEventListener("scroll", updateVisibility, { passive: true });
+    return () => window.removeEventListener("scroll", updateVisibility);
+  }, []);
+
+  useEffect(() => {
+    setMobileMenuOpen(false);
+    setSearchOpen(false);
+  }, [location.pathname]);
 
   const handleSearch = (event) => {
     event.preventDefault();
@@ -30,9 +48,7 @@ const Navbar = () => {
     const term = query.trim();
     if (!term) return;
 
-    const targetPath = location.pathname.startsWith("/jobs")
-      ? "/jobs"
-      : "/services";
+    const targetPath = location.pathname.startsWith("/jobs") ? "/jobs" : "/services";
 
     navigate(`${targetPath}?q=${encodeURIComponent(term)}`);
     setMobileMenuOpen(false);
@@ -42,6 +58,7 @@ const Navbar = () => {
   const navItems = settings.nav?.length ? settings.nav : defaultNavItems;
   const brandName = settings.brand?.name || "TRIVIN";
   const logoSrc = settings.brand?.logoUrl || logo;
+  const showHeader = headerVisible || mobileMenuOpen || searchOpen;
 
   const navLinkClass = ({ isActive }) =>
     isActive
@@ -54,21 +71,39 @@ const Navbar = () => {
       : "block rounded-xl border border-slate-700/80 px-4 py-3 text-center text-xs font-semibold uppercase tracking-[0.12em] text-slate-300 transition-all duration-300 hover:border-cyan-400/60 hover:bg-slate-800 hover:text-white";
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50 border-b border-cyan-400/10 bg-gradient-to-r from-[#020617]/95 via-[#07111f]/95 to-[#020617]/95 shadow-2xl shadow-black/40 backdrop-blur-2xl">
+    <>
+      {!showHeader && (
+        <button
+          type="button"
+          onClick={() => {
+            setHeaderVisible(true);
+            if (window.matchMedia("(max-width: 767px)").matches) {
+              setMobileMenuOpen(true);
+            }
+          }}
+          className="fixed right-4 top-4 z-[60] inline-flex h-11 w-11 items-center justify-center rounded-full border border-cyan-400/30 bg-slate-950/90 text-cyan-300 shadow-lg shadow-black/40 backdrop-blur transition hover:bg-cyan-400 hover:text-slate-950 md:right-6 md:top-6"
+          aria-label="Show navigation"
+        >
+          <Menu className="h-5 w-5" />
+        </button>
+      )}
+
+      <header
+        className={`fixed inset-x-0 top-0 z-50 border-b border-cyan-400/10 bg-gradient-to-r from-[#020617]/95 via-[#07111f]/95 to-[#020617]/95 shadow-2xl shadow-black/40 backdrop-blur-2xl transition-transform duration-300 ease-out ${
+          showHeader ? "translate-y-0" : "-translate-y-full pointer-events-none"
+        }`}
+      >
       <div className="mx-auto w-full max-w-8xl px-0 sm:px-2 lg:px-4">
-        {/* Desktop Layout */}
         <div className="hidden items-center gap-10 py-3 md:grid md:grid-cols-[auto_1fr]">
-          {/* Logo */}
           <Link to="/" className="flex items-center">
             <img
               src={logoSrc}
               alt={brandName}
-              className="h-28 w-auto lg:h-36 xl:h-30 object-contain transition-all duration-300 hover:scale-105"
+              className="h-28 w-auto object-contain transition-all duration-300 hover:scale-105 lg:h-36 xl:h-30"
             />
           </Link>
 
           <div className="flex flex-col gap-4">
-            {/* Search */}
             <div className="flex justify-center">
               <form
                 onSubmit={handleSearch}
@@ -103,7 +138,6 @@ const Navbar = () => {
               </form>
             </div>
 
-            {/* Navigation */}
             <nav className="flex flex-wrap items-center justify-center gap-2">
               {navItems.map(({ to, label }) => (
                 <NavLink key={label} to={to} className={navLinkClass}>
@@ -157,7 +191,6 @@ const Navbar = () => {
           </div>
         </div>
 
-        {/* Mobile Top Bar */}
         <div className="flex items-center justify-between py-2 md:hidden">
           <Link to="/" className="flex items-center">
             <img
@@ -174,13 +207,7 @@ const Navbar = () => {
               className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-700 bg-slate-900/80 text-slate-300 transition-all duration-300 hover:bg-cyan-400 hover:text-slate-950"
               aria-label="Toggle search"
             >
-              <svg
-                viewBox="0 0 24 24"
-                className="h-5 w-5"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.8"
-              >
+              <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8">
                 <circle cx="11" cy="11" r="7" />
                 <path d="m20 20-3.5-3.5" strokeLinecap="round" />
               </svg>
@@ -192,16 +219,11 @@ const Navbar = () => {
               className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-700 bg-slate-900/80 text-slate-300 transition-all duration-300 hover:bg-cyan-400 hover:text-slate-950"
               aria-label="Toggle menu"
             >
-              {mobileMenuOpen ? (
-                <X className="h-5 w-5" />
-              ) : (
-                <Menu className="h-5 w-5" />
-              )}
+              {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
           </div>
         </div>
 
-        {/* Mobile Search */}
         {searchOpen && (
           <form
             onSubmit={handleSearch}
@@ -237,27 +259,17 @@ const Navbar = () => {
           </form>
         )}
 
-        {/* Mobile Menu */}
         {mobileMenuOpen && (
           <nav className="mb-4 rounded-3xl border border-cyan-400/10 bg-[#07111f]/95 p-4 shadow-2xl shadow-black/40 backdrop-blur-xl md:hidden">
             <div className="space-y-2">
               {navItems.map(({ to, label }) => (
-                <NavLink
-                  key={label}
-                  to={to}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={mobileNavLinkClass}
-                >
+                <NavLink key={label} to={to} onClick={() => setMobileMenuOpen(false)} className={mobileNavLinkClass}>
                   {label}
                 </NavLink>
               ))}
 
               {isAdmin && (
-                <NavLink
-                  to="/admin"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={mobileNavLinkClass}
-                >
+                <NavLink to="/admin" onClick={() => setMobileMenuOpen(false)} className={mobileNavLinkClass}>
                   Admin
                 </NavLink>
               )}
@@ -309,6 +321,7 @@ const Navbar = () => {
         )}
       </div>
     </header>
+    </>
   );
 };
 
