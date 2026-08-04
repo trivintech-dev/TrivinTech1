@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { Github, Globe, Linkedin, Mail, MapPin, Phone, Zap } from "lucide-react";
 import { FaFacebookF, FaInstagram, FaLinkedinIn } from "react-icons/fa6";
 import { useAuth } from "../context/AuthContext.jsx";
@@ -102,6 +102,7 @@ const heroAction = (label, href, className) => {
 
 const ContactUs = () => {
   const { user } = useAuth();
+  const [searchParams] = useSearchParams();
   const { content } = usePageContent("contact", fallbacks);
   const { settings } = useSiteSettings();
   const [status, setStatus] = useState(null);
@@ -115,6 +116,13 @@ const ContactUs = () => {
     budgetRange: "",
     message: ""
   });
+
+  useEffect(() => {
+    const service = searchParams.get("service");
+    if (service) {
+      setForm((prev) => ({ ...prev, serviceNeeded: prev.serviceNeeded || service }));
+    }
+  }, [searchParams]);
 
   const hero = content.hero || fallbacks.hero;
   const benefits = content.benefits?.length ? content.benefits : fallbacks.benefits;

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { ArrowRight, Award, Bot, Building2, Cloud, Code2, DollarSign, Globe, Layers3, Lock, MessageSquareQuote, ShoppingCart, ShieldCheck, Sparkles, Star, Stethoscope, TrendingUp, Users, Zap, BookOpen, Truck, Clipboard, MapPin, Palette, Rocket, Bug, Wrench, CheckCircle2 } from "lucide-react";
 import { BiLogoAws } from "react-icons/bi";
 import { FaJava, FaLaravel, FaPhp, FaPython } from "react-icons/fa6";
@@ -60,9 +60,30 @@ const fallbacks = {
     { text: "Scalable Solutions" }
   ],
   projects: [
-    { title: "Retail operations portal", image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1200&q=80", goal: "Centralized order handling and team reporting.", result: "Reduced manual updates and improved turnaround time.", technologies: ["React", "Node.js", "MongoDB"] },
-    { title: "Healthcare booking suite", image: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=1200&q=80", goal: "A secure appointment and patient communication flow.", result: "Streamlined scheduling across multiple service lines.", technologies: ["Next.js", "AWS", "Docker"] },
-    { title: "Finance dashboard", image: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=1200&q=80", goal: "Real-time visibility into operational KPIs.", result: "Clearer reporting and easier stakeholder review.", technologies: ["React", "MongoDB", "AWS"] }
+    {
+      title: "Retail operations portal",
+      image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1200&q=80",
+      goal: "Centralized order handling and team reporting.",
+      result: "Reduced manual updates and improved turnaround time.",
+      technologies: ["React", "Node.js", "MongoDB"],
+      liveLink: "/contact"
+    },
+    {
+      title: "Healthcare booking suite",
+      image: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=1200&q=80",
+      goal: "A secure appointment and patient communication flow.",
+      result: "Streamlined scheduling across multiple service lines.",
+      technologies: ["Next.js", "AWS", "Docker"],
+      liveLink: "/contact"
+    },
+    {
+      title: "Finance dashboard",
+      image: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=1200&q=80",
+      goal: "Real-time visibility into operational KPIs.",
+      result: "Clearer reporting and easier stakeholder review.",
+      technologies: ["React", "MongoDB", "AWS"],
+      liveLink: "/contact"
+    }
   ],
   testimonials: [
     { name: "Maya Thompson", company: "Northstar Labs", photo: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=240&q=80", review: "The team translated our requirements into a clean product and kept the project moving steadily." },
@@ -98,7 +119,8 @@ const mapPortfolioToCaseStudy = (item) => ({
   image: item.imageUrl || item.image,
   goal: item.description || item.goal || "",
   result: item.result || "",
-  technologies: item.technologies || []
+  technologies: item.technologies || [],
+  liveLink: item.projectUrl || item.liveLink || item.liveUrl || ""
 });
 
 const Services = () => {
@@ -109,6 +131,58 @@ const Services = () => {
   const [searchParams] = useSearchParams();
   const searchTerm = searchParams.get("q")?.trim().toLowerCase() || "";
   const [portfolioItems, setPortfolioItems] = useState([]);
+  const [enquiryStatus, setEnquiryStatus] = useState(null);
+  const [enquirySubmitting, setEnquirySubmitting] = useState(false);
+  const [enquiryForm, setEnquiryForm] = useState({
+    fullName: "",
+    email: "",
+    phone: "",
+    budgetRange: "",
+    message: ""
+  });
+
+  const updateEnquiryField = (field) => (event) => {
+    setEnquiryForm((prev) => ({ ...prev, [field]: event.target.value }));
+  };
+
+  const submitEnquiry = async (event) => {
+    event.preventDefault();
+    setEnquiryStatus(null);
+
+    const fullName = enquiryForm.fullName.trim();
+    const email = enquiryForm.email.trim();
+    const message = enquiryForm.message.trim();
+
+    if (!fullName || !email || message.length < 20) {
+      setEnquiryStatus({
+        type: "error",
+        text: "Please enter your name, email, and a project requirement of at least 20 characters."
+      });
+      return;
+    }
+
+    setEnquirySubmitting(true);
+    try {
+      await api.post("/contacts", {
+        fullName,
+        email,
+        phone: enquiryForm.phone.trim(),
+        budgetRange: enquiryForm.budgetRange.trim(),
+        serviceNeeded: "Services enquiry",
+        message,
+        source: "services-page"
+      });
+      setEnquiryStatus({ type: "success", text: "Enquiry sent successfully. We will get back to you soon." });
+      setEnquiryForm({ fullName: "", email: "", phone: "", budgetRange: "", message: "" });
+    } catch (error) {
+      setEnquiryStatus({
+        type: "error",
+        text: error?.response?.data?.message || "Failed to send enquiry. Please try again."
+      });
+    } finally {
+      setEnquirySubmitting(false);
+    }
+  };
 
   const hero = content.hero || fallbacks.hero;
   const overview = content.overview || fallbacks.overview;
@@ -471,23 +545,67 @@ const Services = () => {
       <section>
         <SectionHeading title="Portfolio / case studies" subtitle="Projects" />
         <div className="grid gap-6 lg:grid-cols-3">
-          {displayProjects.map((project) => (
-            <article key={project.title} className="overflow-hidden rounded-2xl border border-gray-100/15 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md">
-              <img src={project.image} alt={project.title} className="h-56 w-full object-cover" />
-              <div className="p-6">
-                <h3 className="font-heading text-lg font-semibold text-ink">{project.title}</h3>
-                <p className="mt-3 text-sm text-gray-600">Project goal</p>
-                <p className="text-sm leading-7 text-gray-700">{project.goal}</p>
-                <p className="mt-3 text-sm text-gray-600">Results achieved</p>
-                <p className="text-sm leading-7 text-gray-700">{project.result}</p>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {project.technologies.map((tech) => (
-                    <span key={tech} className="rounded-full border border-gray-100/15 bg-slate-950/5 px-3 py-1 text-xs text-gray-700">{tech}</span>
-                  ))}
+          {displayProjects.map((project) => {
+            const liveLink = project.liveLink || project.projectUrl || "";
+            const isExternal = /^https?:\/\//i.test(liveLink);
+
+            return (
+              <article
+                key={project.title}
+                className="flex h-full flex-col overflow-hidden rounded-2xl border border-gray-100/15 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md"
+              >
+                <img src={project.image} alt={project.title} className="h-56 w-full object-cover" />
+                <div className="flex flex-1 flex-col p-6">
+                  <h3 className="font-heading text-lg font-semibold text-ink">{project.title}</h3>
+                  <p className="mt-3 text-sm text-gray-600">Project goal</p>
+                  <p className="text-sm leading-7 text-gray-700">{project.goal}</p>
+                  <p className="mt-3 text-sm text-gray-600">Results achieved</p>
+                  <p className="text-sm leading-7 text-gray-700">{project.result}</p>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {(project.technologies || []).map((tech) => (
+                      <span
+                        key={tech}
+                        className="rounded-full border border-gray-100/15 bg-slate-950/5 px-3 py-1 text-xs text-gray-700"
+                      >
+                        {tech}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="mt-auto pt-5">
+                    {liveLink ? (
+                      isExternal ? (
+                        <a
+                          href={liveLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="button-primary inline-flex w-full items-center justify-center gap-2"
+                        >
+                          Live demo
+                          <ArrowRight className="h-4 w-4" />
+                        </a>
+                      ) : (
+                        <Link
+                          to={liveLink}
+                          className="button-primary inline-flex w-full items-center justify-center gap-2"
+                        >
+                          Live demo
+                          <ArrowRight className="h-4 w-4" />
+                        </Link>
+                      )
+                    ) : (
+                      <Link
+                        to="/contact"
+                        className="button-outline inline-flex w-full items-center justify-center gap-2"
+                      >
+                        Request demo
+                        <ArrowRight className="h-4 w-4" />
+                      </Link>
+                    )}
+                  </div>
                 </div>
-              </div>
-            </article>
-          ))}
+              </article>
+            );
+          })}
         </div>
       </section>
 
@@ -593,22 +711,69 @@ const Services = () => {
             </div>
           </div>
 
-          <form id="contact-form" className="rounded-2xl border border-gray-100/15 bg-white p-6 shadow-sm">
+          <form
+            id="contact-form"
+            onSubmit={submitEnquiry}
+            className="rounded-2xl border border-gray-100/15 bg-white p-6 shadow-sm"
+          >
             <h3 className="font-heading text-xl font-semibold text-ink">Contact form</h3>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
-              <input type="text" placeholder="Name" className="rounded-xl border border-gray-200 px-3 py-2" />
-              <input type="email" placeholder="Email" className="rounded-xl border border-gray-200 px-3 py-2" />
-              <input type="tel" placeholder="Phone" className="rounded-xl border border-gray-200 px-3 py-2" />
-              <input type="text" placeholder="Budget" className="rounded-xl border border-gray-200 px-3 py-2" />
+              <input
+                type="text"
+                name="fullName"
+                value={enquiryForm.fullName}
+                onChange={updateEnquiryField("fullName")}
+                placeholder="Name"
+                required
+                className="rounded-xl border border-gray-200 px-3 py-2"
+              />
+              <input
+                type="email"
+                name="email"
+                value={enquiryForm.email}
+                onChange={updateEnquiryField("email")}
+                placeholder="Email"
+                required
+                className="rounded-xl border border-gray-200 px-3 py-2"
+              />
+              <input
+                type="tel"
+                name="phone"
+                value={enquiryForm.phone}
+                onChange={updateEnquiryField("phone")}
+                placeholder="Phone"
+                className="rounded-xl border border-gray-200 px-3 py-2"
+              />
+              <input
+                type="text"
+                name="budgetRange"
+                value={enquiryForm.budgetRange}
+                onChange={updateEnquiryField("budgetRange")}
+                placeholder="Budget"
+                className="rounded-xl border border-gray-200 px-3 py-2"
+              />
             </div>
             <textarea
+              name="message"
               rows="4"
+              value={enquiryForm.message}
+              onChange={updateEnquiryField("message")}
               placeholder="Project Requirement"
+              required
               className="mt-4 w-full rounded-xl border border-gray-200 px-3 py-2"
             />
-            <button type="button" className="button-primary mt-4 w-full">
-              Send enquiry
+            <button type="submit" disabled={enquirySubmitting} className="button-primary mt-4 w-full disabled:opacity-60">
+              {enquirySubmitting ? "Sending..." : "Send enquiry"}
             </button>
+            {enquiryStatus && (
+              <p
+                className={`mt-3 text-sm ${
+                  enquiryStatus.type === "error" ? "text-red-600" : "text-emerald-600"
+                }`}
+              >
+                {enquiryStatus.text}
+              </p>
+            )}
           </form>
         </div>
       </section>

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import api from "../api/api.js";
 import SectionHeading from "../components/SectionHeading.jsx";
 import ServiceCard from "../components/ServiceCard.jsx";
@@ -44,6 +44,15 @@ const ServiceDetails = () => {
 
     fetchDetails();
   }, [id]);
+
+  useEffect(() => {
+    if (!service || !token) return;
+    if (window.location.hash !== "#booking") return;
+    const timer = window.setTimeout(() => {
+      document.getElementById("booking")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 100);
+    return () => window.clearTimeout(timer);
+  }, [service, token]);
 
   const handleBooking = async (event) => {
     event.preventDefault();
@@ -149,14 +158,30 @@ const ServiceDetails = () => {
           </div>
 
           <div className="flex flex-wrap gap-4">
-            <button className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-500 px-8 py-3 font-semibold text-white hover:shadow-lg hover:shadow-cyan-500/50 transition-all duration-300">
+            <Link
+              to={`/contact?service=${encodeURIComponent(service.title || "")}`}
+              className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-500 px-8 py-3 font-semibold text-white hover:shadow-lg hover:shadow-cyan-500/50 transition-all duration-300"
+            >
               Get a Quote
               <ArrowRight className="h-4 w-4" />
-            </button>
-            <button className="flex items-center gap-2 rounded-lg border border-cyan-400/50 bg-cyan-400/10 px-8 py-3 font-semibold text-cyan-300 hover:bg-cyan-400/20 transition-all duration-300">
-              Schedule Consultation
-              <Calendar className="h-4 w-4" />
-            </button>
+            </Link>
+            {token ? (
+              <a
+                href="#booking"
+                className="flex items-center gap-2 rounded-lg border border-cyan-400/50 bg-cyan-400/10 px-8 py-3 font-semibold text-cyan-300 hover:bg-cyan-400/20 transition-all duration-300"
+              >
+                Schedule Consultation
+                <Calendar className="h-4 w-4" />
+              </a>
+            ) : (
+              <Link
+                to={`/login?redirect=${encodeURIComponent(`/services/${id}#booking`)}`}
+                className="flex items-center gap-2 rounded-lg border border-cyan-400/50 bg-cyan-400/10 px-8 py-3 font-semibold text-cyan-300 hover:bg-cyan-400/20 transition-all duration-300"
+              >
+                Schedule Consultation
+                <Calendar className="h-4 w-4" />
+              </Link>
+            )}
           </div>
         </div>
       </section>
@@ -291,7 +316,7 @@ const ServiceDetails = () => {
 
       {/* Booking & Review Forms */}
       {token && (
-        <section className="px-6 py-20 md:py-28 bg-slate-800/50">
+        <section id="booking" className="scroll-mt-28 px-6 py-20 md:py-28 bg-slate-800/50">
           <div className="mx-auto max-w-6xl">
             <h2 className="text-3xl font-bold mb-12">Ready to Get Started?</h2>
 

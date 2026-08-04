@@ -1,14 +1,23 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import api from "../api/api.js";
 import { useAuth } from "../context/AuthContext.jsx";
 
 const Register = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { login } = useAuth();
   const [form, setForm] = useState({ name: "", email: "", password: "", confirmPassword: "" });
   const [agree, setAgree] = useState(false);
   const [error, setError] = useState("");
+
+  const routeAfterRegister = () => {
+    const redirect = searchParams.get("redirect");
+    if (redirect && redirect.startsWith("/") && !redirect.startsWith("//")) {
+      return redirect;
+    }
+    return "/";
+  };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -32,7 +41,7 @@ const Register = () => {
       };
       const { data } = await api.post("/auth/register", payload);
       login(data.token, data.user);
-      navigate("/");
+      navigate(routeAfterRegister(), { replace: true });
     } catch (err) {
       const status = err.response?.status;
       const message = err.response?.data?.message || err.message || "Registration failed";
@@ -126,7 +135,17 @@ const Register = () => {
             </div>
 
             <p className="mt-6 text-sm text-gray-600">
-              Already have an account? <Link to="/login" className="font-semibold text-indigo-600">Login</Link>
+              Already have an account?{" "}
+              <Link
+                to={
+                  searchParams.get("redirect")
+                    ? `/login?redirect=${encodeURIComponent(searchParams.get("redirect"))}`
+                    : "/login"
+                }
+                className="font-semibold text-indigo-600"
+              >
+                Login
+              </Link>
             </p>
           </div>
 

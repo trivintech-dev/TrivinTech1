@@ -14,7 +14,7 @@ const defaultNavItems = [
   { to: "/investors", label: "Investor" }
 ];
 
-const SCROLL_SHOW_THRESHOLD = 80;
+const SCROLL_HIDE_THRESHOLD = 80;
 
 const Navbar = () => {
   const { user, logout, isAdmin } = useAuth();
@@ -25,11 +25,12 @@ const Navbar = () => {
   const [query, setQuery] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  const [headerVisible, setHeaderVisible] = useState(false);
+  const [headerVisible, setHeaderVisible] = useState(true);
 
   useEffect(() => {
     const updateVisibility = () => {
-      setHeaderVisible(window.scrollY > SCROLL_SHOW_THRESHOLD);
+      // Show at top, hide after scrolling down
+      setHeaderVisible(window.scrollY <= SCROLL_HIDE_THRESHOLD);
     };
 
     updateVisibility();
@@ -40,6 +41,7 @@ const Navbar = () => {
   useEffect(() => {
     setMobileMenuOpen(false);
     setSearchOpen(false);
+    setHeaderVisible(window.scrollY <= SCROLL_HIDE_THRESHOLD);
   }, [location.pathname]);
 
   const handleSearch = (event) => {
@@ -71,28 +73,11 @@ const Navbar = () => {
       : "block rounded-xl border border-slate-700/80 px-4 py-3 text-center text-xs font-semibold uppercase tracking-[0.12em] text-slate-300 transition-all duration-300 hover:border-cyan-400/60 hover:bg-slate-800 hover:text-white";
 
   return (
-    <>
-      {!showHeader && (
-        <button
-          type="button"
-          onClick={() => {
-            setHeaderVisible(true);
-            if (window.matchMedia("(max-width: 767px)").matches) {
-              setMobileMenuOpen(true);
-            }
-          }}
-          className="fixed right-4 top-4 z-[60] inline-flex h-11 w-11 items-center justify-center rounded-full border border-cyan-400/30 bg-slate-950/90 text-cyan-300 shadow-lg shadow-black/40 backdrop-blur transition hover:bg-cyan-400 hover:text-slate-950 md:right-6 md:top-6"
-          aria-label="Show navigation"
-        >
-          <Menu className="h-5 w-5" />
-        </button>
-      )}
-
-      <header
-        className={`fixed inset-x-0 top-0 z-50 border-b border-cyan-400/10 bg-gradient-to-r from-[#020617]/95 via-[#07111f]/95 to-[#020617]/95 shadow-2xl shadow-black/40 backdrop-blur-2xl transition-transform duration-300 ease-out ${
-          showHeader ? "translate-y-0" : "-translate-y-full pointer-events-none"
-        }`}
-      >
+    <header
+      className={`fixed inset-x-0 top-0 z-50 border-b border-cyan-400/10 bg-gradient-to-r from-[#020617]/95 via-[#07111f]/95 to-[#020617]/95 shadow-2xl shadow-black/40 backdrop-blur-2xl transition-transform duration-300 ease-out ${
+        showHeader ? "translate-y-0" : "-translate-y-full pointer-events-none"
+      }`}
+    >
       <div className="mx-auto w-full max-w-8xl px-0 sm:px-2 lg:px-4">
         <div className="hidden items-center gap-10 py-3 md:grid md:grid-cols-[auto_1fr]">
           <Link to="/" className="flex items-center">
@@ -154,36 +139,27 @@ const Navbar = () => {
               <div className="ml-1 flex items-center gap-2">
                 {user ? (
                   <>
-                    <Link
-                      to="/profile"
-                      className="rounded-full border border-cyan-400/50 px-4 py-2 text-xs font-bold uppercase tracking-[0.12em] text-cyan-300 transition-all duration-300 hover:bg-cyan-400 hover:text-slate-950"
-                    >
+                    <NavLink to="/profile" className={navLinkClass}>
                       Profile
-                    </Link>
+                    </NavLink>
 
                     <button
                       type="button"
                       onClick={logout}
-                      className="rounded-full bg-cyan-400 px-4 py-2 text-xs font-bold uppercase tracking-[0.12em] text-slate-950 transition-all duration-300 hover:bg-cyan-300 hover:shadow-lg hover:shadow-cyan-400/30"
+                      className="rounded-full border border-slate-700/70 px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-slate-300 transition-all duration-300 hover:-translate-y-0.5 hover:border-cyan-400/60 hover:bg-slate-800/80 hover:text-white"
                     >
                       Logout
                     </button>
                   </>
                 ) : (
                   <>
-                    <Link
-                      to="/login"
-                      className="rounded-full border border-cyan-400/50 px-4 py-2 text-xs font-bold uppercase tracking-[0.12em] text-cyan-300 transition-all duration-300 hover:bg-cyan-400 hover:text-slate-950"
-                    >
+                    <NavLink to="/login" className={navLinkClass}>
                       Login
-                    </Link>
+                    </NavLink>
 
-                    <Link
-                      to="/register"
-                      className="rounded-full bg-cyan-400 px-4 py-2 text-xs font-bold uppercase tracking-[0.12em] text-slate-950 transition-all duration-300 hover:bg-cyan-300 hover:shadow-lg hover:shadow-cyan-400/30"
-                    >
+                    <NavLink to="/register" className={navLinkClass}>
                       Register
-                    </Link>
+                    </NavLink>
                   </>
                 )}
               </div>
@@ -277,13 +253,13 @@ const Navbar = () => {
               <div className="space-y-2 pt-2">
                 {user ? (
                   <>
-                    <Link
+                    <NavLink
                       to="/profile"
                       onClick={() => setMobileMenuOpen(false)}
-                      className="block rounded-xl border border-cyan-400/50 px-4 py-3 text-center text-xs font-bold uppercase tracking-[0.12em] text-cyan-300 transition-all duration-300 hover:bg-cyan-400 hover:text-slate-950"
+                      className={mobileNavLinkClass}
                     >
                       Profile
-                    </Link>
+                    </NavLink>
 
                     <button
                       type="button"
@@ -291,28 +267,28 @@ const Navbar = () => {
                         logout();
                         setMobileMenuOpen(false);
                       }}
-                      className="w-full rounded-xl bg-cyan-400 px-4 py-3 text-xs font-bold uppercase tracking-[0.12em] text-slate-950 transition-all duration-300 hover:bg-cyan-300"
+                      className="w-full rounded-xl border border-slate-700/80 px-4 py-3 text-center text-xs font-semibold uppercase tracking-[0.12em] text-slate-300 transition-all duration-300 hover:border-cyan-400/60 hover:bg-slate-800 hover:text-white"
                     >
                       Logout
                     </button>
                   </>
                 ) : (
                   <>
-                    <Link
+                    <NavLink
                       to="/login"
                       onClick={() => setMobileMenuOpen(false)}
-                      className="block rounded-xl border border-cyan-400/50 px-4 py-3 text-center text-xs font-bold uppercase tracking-[0.12em] text-cyan-300 transition-all duration-300 hover:bg-cyan-400 hover:text-slate-950"
+                      className={mobileNavLinkClass}
                     >
                       Login
-                    </Link>
+                    </NavLink>
 
-                    <Link
+                    <NavLink
                       to="/register"
                       onClick={() => setMobileMenuOpen(false)}
-                      className="block rounded-xl bg-cyan-400 px-4 py-3 text-center text-xs font-bold uppercase tracking-[0.12em] text-slate-950 transition-all duration-300 hover:bg-cyan-300"
+                      className={mobileNavLinkClass}
                     >
                       Register
-                    </Link>
+                    </NavLink>
                   </>
                 )}
               </div>
@@ -321,7 +297,6 @@ const Navbar = () => {
         )}
       </div>
     </header>
-    </>
   );
 };
 

@@ -68,13 +68,21 @@ export const PAGE_SCHEMAS = {
       },
       {
         key: "gallery",
-        label: "Gallery",
+        label: "Service showcase gallery",
         kind: "list",
         itemTitle: (item) => item.text || "Slide",
-        newItem: () => ({ image: "", text: "" }),
+        newItem: () => ({ image: "", imagePublicId: "", text: "" }),
         fields: [
           { name: "text", label: "Caption", type: "text" },
-          { name: "image", label: "Image URL", type: "text", full: true }
+          {
+            name: "image",
+            label: "Image",
+            type: "image",
+            publicIdName: "imagePublicId",
+            uploadUrl: "/content/upload-image",
+            full: true,
+            hint: "Upload a showcase image to Cloudinary"
+          }
         ]
       },
       {
@@ -82,12 +90,19 @@ export const PAGE_SCHEMAS = {
         label: "Featured projects",
         kind: "list",
         itemTitle: (item) => item.title || "Project",
-        newItem: () => ({ title: "", image: "", industry: "", liveLink: "", technologies: [] }),
+        newItem: () => ({ title: "", image: "", imagePublicId: "", industry: "", liveLink: "", technologies: [] }),
         fields: [
           { name: "title", label: "Title", type: "text" },
           { name: "industry", label: "Industry", type: "text" },
           { name: "liveLink", label: "Link", type: "text" },
-          { name: "image", label: "Image URL", type: "text", full: true },
+          {
+            name: "image",
+            label: "Project image",
+            type: "image",
+            publicIdName: "imagePublicId",
+            uploadUrl: "/content/upload-image",
+            full: true
+          },
           { name: "technologies", label: "Technologies", type: "list", full: true }
         ]
       },

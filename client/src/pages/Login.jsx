@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { signInWithPopup } from "firebase/auth";
 import api from "../api/api.js";
 import { auth, googleProvider } from "../firebase.js";
@@ -8,11 +8,19 @@ import logo from "../assets/logo1.png";
 
 const Login = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { login } = useAuth();
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
 
-  const routeAfterLogin = (user) => (user?.role === "admin" ? "/admin" : "/");
+  const routeAfterLogin = (user) => {
+    if (user?.role === "admin") return "/admin";
+    const redirect = searchParams.get("redirect");
+    if (redirect && redirect.startsWith("/") && !redirect.startsWith("//")) {
+      return redirect;
+    }
+    return "/";
+  };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -144,7 +152,14 @@ const Login = () => {
 
             <p className="mt-6 text-sm text-gray-600">
               New here?{" "}
-              <Link to="/register" className="font-semibold text-indigo-600">
+              <Link
+                to={
+                  searchParams.get("redirect")
+                    ? `/register?redirect=${encodeURIComponent(searchParams.get("redirect"))}`
+                    : "/register"
+                }
+                className="font-semibold text-indigo-600"
+              >
                 Create an account
               </Link>
             </p>
